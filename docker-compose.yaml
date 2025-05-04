@@ -1,0 +1,8 @@
+services:
+  model-service:
+    build: ../model-service
+  app-service:
+    build: ../app-service
+    ports:
+      - 8080:80
+
