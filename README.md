@@ -24,7 +24,7 @@ The following parts of the rubric were, to the best of our judgment, implemented
 * Data availability: document follows structure outlined by template
 * Use case: front end currently unable to display predictions
 * Automated release process: lib-ml and lib-version currently using release-please. Other repositories still rely on Git Tags to be created
-* Software Reuse in Libraries:
+* Software Reuse in Libraries: not currently being used.
 * Exposing a Model via REST: code is set up for all services to communicate with each other through REST where necessary, for which Flask is employed. The communication itself does not work as of yet because the docker-compose is not completely done. The setup to configure `model-service` DNS name and ports through ENV variables is there (but unused because the communication is not done yet).
 * Docker Compose Operation: docker compose uses volume mapping, port mapping and an environment variable.
 
