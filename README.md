@@ -20,7 +20,7 @@ The following parts of the rubric were implemented in the code.
 
 * app-frontend:
 * app-service: [v1.0.0](https://github.com/remla25-team3/app-service/releases/tag/v1.0.0)
-* lib-ml:
+* lib-ml: [v0.1.0](https://github.com/remla25-team3/lib-ml/releases/tag/v0.1.0)
 * lib-version: [v1.2.0](https://github.com/remla25-team3/lib-version/releases/tag/v1.2.0)
 * model-service: [v1.0.0](https://github.com/remla25-team3/model-service/releases/tag/v1.0.0)
 * model-training:
