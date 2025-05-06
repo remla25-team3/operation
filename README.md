@@ -10,6 +10,8 @@
 * model-training:
 * operation: this repo
 
+## Information 
+
 * Run project by cd ing to xxx/operation and running docker compose up
 * Once running, API documentation available on http://localhost:8082/apidocs/ for `app-service` and http://localhost:8081/apidocs/ for `model-service`.
 
