@@ -1,0 +1,13 @@
+services:
+  model-service:
+    build: ../model-service
+  app-service:
+    build: ../app-service
+    environment:
+      - MODEL_SERVICE_URL="model-service"
+  frontend:
+    build: ../app-frontend
+    ports:
+      - 8080:80
+    volumes:
+      - ../app-frontend/html/:/usr/share/nginx/html/
