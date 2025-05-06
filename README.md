@@ -1,5 +1,15 @@
 # operation
 
+## Services
+
+* app-frontend: https://github.com/remla25-team3/app-frontend
+* app-service: [v1.0.0](https://github.com/remla25-team3/app-service/releases/tag/v1.0.0)
+* lib-ml: [v0.1.0](https://github.com/remla25-team3/lib-ml/releases/tag/v0.1.0)
+* lib-version: [v1.2.0](https://github.com/remla25-team3/lib-version/releases/tag/v1.2.0)
+* model-service: [v1.0.0](https://github.com/remla25-team3/model-service/releases/tag/v1.0.0)
+* model-training:
+* operation: this repo
+
 * Run project by cd ing to xxx/operation and running docker compose up
 * Once running, API documentation available on http://localhost:8082/apidocs/ for `app-service` and http://localhost:8081/apidocs/ for `model-service`.
 
@@ -16,12 +26,4 @@ The following parts of the rubric were, to the best of our judgment, implemented
 * Exposing a Model via REST: code is set up for all services to communicate with each other through REST where necessary, for which Flask is employed. The communication itself does not work as of yet because the docker-compose is not completely done. The setup to configure `model-service` DNS name and ports through ENV variables is there (but unused because the communication is not done yet).
 * Docker Compose Operation: docker compose uses volume mapping, port mapping and an environment variable.
 
-### Services
 
-* app-frontend:
-* app-service: [v1.0.0](https://github.com/remla25-team3/app-service/releases/tag/v1.0.0)
-* lib-ml: [v0.1.0](https://github.com/remla25-team3/lib-ml/releases/tag/v0.1.0)
-* lib-version: [v1.2.0](https://github.com/remla25-team3/lib-version/releases/tag/v1.2.0)
-* model-service: [v1.0.0](https://github.com/remla25-team3/model-service/releases/tag/v1.0.0)
-* model-training:
-* operation: this repo
