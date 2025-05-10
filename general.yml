@@ -1,7 +1,17 @@
-- name: Set up multiple authorized keys
+#is run for both ctrl.yml and node.yml
+- name: Set up multiple authorized keys (step 4)
   ansible.posix.authorized_key:
     user: '{{ansible_user}}'
     state: present
     key: '{{ item }}'
   with_file:
     - '{{playbook_dir}}/public_keys/remla-test.pub'
+- name: Disable SWAP (step 5)
+  ansible.builtin.shell:
+    cmd: swapoff -a
+- name: Remove SWAP from next boot (step 5)
+  ansible.builtin.lineinfile:
+    path: /etc/fstab
+    regexp: '/swap.img' # not perfect but works
+    state: absent
+    
