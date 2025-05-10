@@ -1,0 +1,6 @@
+- hosts: all
+  become: yes
+  tasks:
+  - name: General setup
+    ansible.builtin.include_tasks:
+      file: general.yml
