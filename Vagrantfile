@@ -76,56 +76,89 @@ Vagrant.configure("2") do |config|
   # SHELL
   
   #added stuff here
-  config.vm.provision "shell", inline: "echo Hello"
-  
   config.vm.define "ctrl" do |ctrl|
     ctrl.vm.box = "bento/ubuntu-24.04"
     ctrl.vm.box_version = "202502.21.0"
+    #step 1
     ctrl.vm.provider "virtualbox" do |v|
       v.memory = 4096
       v.cpus = 1
+    end
+    #step 2
     ctrl.vm.network "private_network", ip: "192.168.56.100"
+    #step 3
+    ctrl.vm.provision :ansible do |a|
+      a.compatibility_mode = "2.0"
+      a.playbook = "ctrl.yml"
     end
   end
     
   config.vm.define "node-1" do |node|
     node.vm.box = "bento/ubuntu-24.04"
     node.vm.box_version = "202502.21.0"
+    #step 1
     node.vm.provider "virtualbox" do |v|
       v.memory = 6144
       v.cpus = 2
+    end
+    #step 2
     node.vm.network "private_network", ip: "192.168.56.101"
+    #step 3
+    node.vm.provision :ansible do |a|
+      a.compatibility_mode = "2.0"
+      a.playbook = "node.yml"
     end
   end
   
   config.vm.define "node-2" do |node|
     node.vm.box = "bento/ubuntu-24.04"
     node.vm.box_version = "202502.21.0"
+    #step 1
     node.vm.provider "virtualbox" do |v|
       v.memory = 6144
       v.cpus = 2
+    end
+    #step 2
     node.vm.network "private_network", ip: "192.168.56.102"
+    #step 3
+    node.vm.provision :ansible do |a|
+      a.compatibility_mode = "2.0"
+      a.playbook = "node.yml"
     end
   end
   
   config.vm.define "node-3" do |node|
     node.vm.box = "bento/ubuntu-24.04"
     node.vm.box_version = "202502.21.0"
+    #step 1
     node.vm.provider "virtualbox" do |v|
       v.memory = 6144
       v.cpus = 2
     end
+    #step 2
     node.vm.network "private_network", ip: "192.168.56.103"
+    #step 3
+    node.vm.provision :ansible do |a|
+      a.compatibility_mode = "2.0"
+      a.playbook = "node.yml"
+    end
   end
   
   config.vm.define "node-4" do |node|
     node.vm.box = "bento/ubuntu-24.04"
     node.vm.box_version = "202502.21.0"
+    #step 1
     node.vm.provider "virtualbox" do |v|
       v.memory = 6144
       v.cpus = 2
     end
+    #step 2
     node.vm.network "private_network", ip: "192.168.56.104"
+    #step 3
+    node.vm.provision :ansible do |a|
+      a.compatibility_mode = "2.0"
+      a.playbook = "node.yml"
+    end
   end
   
 end
