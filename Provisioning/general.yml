@@ -1,61 +1,75 @@
 #is run for both ctrl.yml and node.yml
+
+
+- name: Ensure .ssh directory exists for vagrant (step 4)
+  file:
+    path: "/home/vagrant/.ssh"
+    state: directory
+    owner: vagrant    # Must be owned by vagrant
+    group: vagrant
+    mode: '0700'      # Secure permissions (only user can access)
+
+# Install multiple team members' public SSH keys
 - name: Set up multiple authorized keys (step 4)
   ansible.posix.authorized_key:
-    user: '{{ansible_user}}'
-    state: present
-    key: '{{ item }}'
-  with_file:
-    - '{{playbook_dir}}/public_keys/remla-test.pub'
+    user: vagrant     # Install keys for the vagrant user
+    state: present    # Add the key if it's not already there
+    key: "{{ lookup('file', item) }}"   # Load the public key file contents
+  loop:          # Loop over multiple .pub files
+    - "{{playbook_dir}}/public_keys/remla-test.pub"
+    - "{{playbook_dir}}/public_keys/alberto.pub"
+
 - name: Disable SWAP (step 5)
   ansible.builtin.shell:
     cmd: swapoff -a
 - name: Remove SWAP from next boot (step 5)
   ansible.builtin.lineinfile:
     path: /etc/fstab
-    regexp: '/swap.img' # not perfect but works
+    regexp: '^.*\s+swap\s+.*$' #'/swap.img' # not perfect but works
     state: absent
-- name: add br_netfilter module (step 6)
-  ansible.builtin.copy:
-    content: 'overlay\nbr_netfilter'
-    dest: /etc/modules-load.d/k8s.conf
-- name: load br_netfilter module (step 6)  
-  community.general.modprobe:
-    name: br_netfilter
-- name: enable IPv4 forwarding (step 7)
-  ansible.posix.sysctl:
-    name: net.ipv4.ip_forward
-    value: '1'
-    sysctl_set: true
-  ansible.posix.sysctl:
-    name: net.bridge.bridge-nf-call-iptables
-    value: '1'
-    sysctl_set: true    
-  ansible.posix.sysctl:
-    name: net.bridge.bridge-nf-call-ip6tables
-    value: '1'
-    sysctl_set: true    
-- name: manage hosts (step 8)
-  ansible.builtin.copy:
-    src: hosts
-    dest: /etc/hosts
-- name: add apt key (step 9)
-  ansible.builtin.apt_key:
-    url: https://pkgs.k8s.io/core:/stable:/v1.32/deb/Release.key
-    state: present
-    keyring: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
-- name: add k8s repo (step 9)
-  ansible.builtin.apt_repository:
-    repo: deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.32/deb/ /
-    state: present
-- name: update cache (step 9)
-  ansible.builtin.apt:
-    update_cache: yes
-- name: install k8s tools (step 10)
-  ansible.builtin.apt:
-    pkg:
-    - containerd=1.7.24
-    - runc=1.1.12
-    - kubeadm=1.32.4
-    - kubelet=1.32.4
-    - kubectl=1.32.4
+    
+# - name: add br_netfilter module (step 6)
+#   ansible.builtin.copy:
+#     content: 'overlay\nbr_netfilter'
+#     dest: /etc/modules-load.d/k8s.conf
+# - name: load br_netfilter module (step 6)  
+#   community.general.modprobe:
+#     name: br_netfilter
+# - name: enable IPv4 forwarding (step 7)
+#   ansible.posix.sysctl:
+#     name: net.ipv4.ip_forward
+#     value: '1'
+#     sysctl_set: true
+#   ansible.posix.sysctl:
+#     name: net.bridge.bridge-nf-call-iptables
+#     value: '1'
+#     sysctl_set: true    
+#   ansible.posix.sysctl:
+#     name: net.bridge.bridge-nf-call-ip6tables
+#     value: '1'
+#     sysctl_set: true    
+# - name: manage hosts (step 8)
+#   ansible.builtin.copy:
+#     src: hosts
+#     dest: /etc/hosts
+# - name: add apt key (step 9)
+#   ansible.builtin.apt_key:
+#     url: https://pkgs.k8s.io/core:/stable:/v1.32/deb/Release.key
+#     state: present
+#     keyring: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+# - name: add k8s repo (step 9)
+#   ansible.builtin.apt_repository:
+#     repo: deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.32/deb/ /
+#     state: present
+# - name: update cache (step 9)
+#   ansible.builtin.apt:
+#     update_cache: yes
+# - name: install k8s tools (step 10)
+#   ansible.builtin.apt:
+#     pkg:
+#     - containerd=1.7.24
+#     - runc=1.1.12
+#     - kubeadm=1.32.4
+#     - kubelet=1.32.4
+#     - kubectl=1.32.4
     
