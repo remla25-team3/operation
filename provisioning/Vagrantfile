@@ -1,0 +1,54 @@
+NUM_WORKERS = 2
+CPUS_CTRL = 1
+CPUS_WORKER = 1
+MEMORY_CTRL = 4096
+MEMORY_WORKER = 2048 #lower for test purposes
+
+Vagrant.configure("2") do |config|
+
+  config.vm.define "ctrl" do |ctrl|
+    ctrl.vm.box = "bento/ubuntu-24.04"
+    ctrl.vm.box_version = "202502.21.0"
+    #step 1
+    ctrl.vm.provider "virtualbox" do |v|
+      v.memory = 4096
+      v.cpus = 1
+    end
+    #step 2
+    ctrl.vm.network "private_network", ip: "192.168.56.100"
+    #step 3
+    ctrl.vm.provision :ansible do |a|
+      #a.compatibility_mode = "2.0"
+      a.playbook = "ctrl.yml"
+      a.extra_vars = {
+        num_workers: NUM_WORKERS
+      }
+    end
+  end
+    
+  (1..NUM_WORKERS).each do |i|
+    config.vm.define "node-#{i}" do |node|
+      node.vm.box = "bento/ubuntu-24.04"
+      node.vm.box_version = "202502.21.0"
+      #step 1
+      node.vm.provider "virtualbox" do |v|
+        v.memory = MEMORY_WORKER
+        v.cpus = CPUS_WORKER
+      end
+      #step 2 
+      node.vm.network "private_network", ip: "192.168.56.#{100 + i}"
+      #step 3
+      node.vm.provision :ansible do |a|
+        #a.compatibility_mode = "2.0"
+        a.playbook = "node.yml"
+        # Pass the number of workers to Ansible as a variable
+        # This allows playbooks to use {{ num_workers }}
+        a.extra_vars = {
+          num_workers: NUM_WORKERS
+        }
+      end
+    end
+  end
+
+  
+end
