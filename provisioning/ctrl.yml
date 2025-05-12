@@ -47,7 +47,7 @@
       dest: "{{ playbook_dir }}/config/"
       flat: yes
 
-  - name: Display info about using the fetched kubeconfig (step 14)
+  - name: Display info about using the fetched kubeconfig
     ansible.builtin.debug:
       msg: |
         ----------------------------------------------------------------------
@@ -90,19 +90,32 @@
 
 
   # --------- STEP 16: Install Helm ---------
-  # - name: Setup Helm keys
-  #   ansible.builtin.set_fact:
-  #     helm_gpg_key_url: "https://baltocdn.com/helm/signing.asc"
-  #     helm_keyring_path: "/usr/share/keyrings/helm.gpg"
-  #     helm_apt_repo: "deb [arch=$(dpkg --print-architecture) signed-by={{ helm_keyring_path }}] https://baltocdn.com/helm/stable/debian/ all main"
-    
-  # - name: Ensure dependencies for adding apt repos are installed
-  #   ansible.builtin.apt:
-  #     name:
-  #       - apt-transport-https
-  #       - ca-certificates
-  #       - curl
-  #       - gnupg
-  #     state: present
-  #     update_cache: yes
-  #   become: yes
+  - name: Define Helm install script URL and temporary path
+    ansible.builtin.set_fact:
+      helm_script_url: "https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3"
+      helm_script_path: "/home/vagrant/get_helm.sh"
+
+  - name: Download Helm install script
+    ansible.builtin.get_url:
+      url: "{{ helm_script_url }}"
+      dest: "{{ helm_script_path }}"
+      mode: '0755'
+    become: no
+
+  - name: Check if Helm binary exists
+    ansible.builtin.stat:
+      path: /usr/local/bin/helm
+    register: helm_binary_stat
+
+  - name: Run Helm install script if Helm binary does not exist
+    ansible.builtin.command:
+      cmd: "{{ helm_script_path }}"
+      creates: /usr/local/bin/helm
+    become: yes
+    when: not helm_binary_stat.stat.exists
+
+  - name: Clean up Helm install script
+    ansible.builtin.file:
+      path: "{{ helm_script_path }}"
+      state: absent
+    become: no
