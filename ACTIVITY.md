@@ -26,9 +26,9 @@ Approved PR:
 
 -- Alberto --
 
-Created PR:
+Created PR:[operation](https://github.com/remla25-team3/operation/pull/12)
 
-Approved PR:
+Approved PR: [operation](https://github.com/remla25-team3/operation/pull/11),  [model-training](https://github.com/remla25-team3/model-training/pull/1)
 
 
 # A1
