@@ -8,9 +8,9 @@ Approved PR:
 
 -- Joost --
 
-Created PR:
+Created PR: [operation] https://github.com/remla25-team3/operation/pull/11
 
-Approved PR:
+Approved PR: [operation] https://github.com/remla25-team3/operation/pull/12
 
 -- Lennard --
 
