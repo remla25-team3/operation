@@ -2,9 +2,9 @@
 
 -- Amin --
 
-Created PR:
+Created PR: https://github.com/remla25-team3/model-service/pull/3/files
 
-Approved PR:
+Approved PR: https://github.com/remla25-team3/operation/pull/12
 
 -- Joost --
 
