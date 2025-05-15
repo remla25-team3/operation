@@ -1,30 +1,53 @@
-- hosts: all
-  become: yes
+- hosts: controller
+  become: true
   tasks:
-  - name: General setup
-    ansible.builtin.include_tasks:
-      file: general.yml
-  
 
   # --------- STEP 13: Init cluster ---------
-  - name: Check for admin.conf
+  - name: Check for admin.conf (step 13)
     ansible.builtin.stat:
       path: /etc/kubernetes/admin.conf
     register: admin_conf_stat # Store the result
 
-  - name: Cluster initialization using kubeadm
+  - name: Conditional kubeadm reset (step 13)
+    ansible.builtin.command: kubeadm reset -f
+    when: 
+      - not admin_conf_stat.stat.exists
+      - "'ctrl' in group_names"
+    ignore_errors: yes
+    register: reset_stat
+    changed_when: reset_stat.rc == 0
+
+  - name: Cluster initialization using kubeadm (step 13)
     ansible.builtin.shell:
       cmd: >
         kubeadm init
         --apiserver-advertise-address=192.168.56.100
         --node-name ctrl
         --pod-network-cidr=10.244.0.0/16
-      creates: /etc/kubernetes/admin.conf
+    register: init_result
     when: not admin_conf_stat.stat.exists
 
+  # Verify
+  - name: Wait until Kubernetes admin.conf is available (step 13)
+    ansible.builtin.wait_for:
+      path: /etc/kubernetes/admin.conf
+      state: present
+      timeout: 60
+    when: admin_conf_stat.stat.exists or init_result is succeeded
+
+  - name: Poll Kubernetes API server until it's ready (step 13)
+    ansible.builtin.uri:
+      url: https://localhost:6443/healthz
+      method: GET
+      validate_certs: no
+    register: api_health
+    until: api_health.status == 200
+    retries: 10
+    delay: 6
+    changed_when: false   
 
   # --------- STEP 14: Setup kubectl ---------
-  - name: Create .kube directory for vagrant user
+  - name: Create .kube directory for vagrant user (step 14)
     ansible.builtin.file:
       path: "/home/vagrant/.kube/"
       state: directory
@@ -32,7 +55,7 @@
       group: vagrant
       mode: "0700"
 
-  - name: Copy admin.conf to vagrant user's .kube directory
+  - name: Copy admin.conf to vagrant user's .kube directory (step 14)
     ansible.builtin.copy:
       src: /etc/kubernetes/admin.conf
       dest: /home/vagrant/.kube/config
@@ -41,13 +64,13 @@
       group: vagrant
       mode: "0600"
 
-  - name: Fetch admin.conf from controller to host machine
-    ansible.builtin.Fetch:
+  - name: Fetch admin.conf from controller to host machine (step 14)
+    ansible.builtin.fetch:
       src: /etc/kubernetes/admin.conf
       dest: "{{ playbook_dir }}/config/"
       flat: yes
 
-  - name: Display info about using the fetched kubeconfig
+  - name: Display info about using the fetched kubeconfig (step 14)
     ansible.builtin.debug:
       msg: |
         ----------------------------------------------------------------------
@@ -57,65 +80,83 @@
         or
         kubectl --kubeconfig={{ playbook_dir }}/config/admin.conf get nodes
         ----------------------------------------------------------------------
-        REMEMBER TO ADD 'config/admin.conf' or 'config/' TO YOUR .gitignore FILE!
-        ----------------------------------------------------------------------
-
 
   # --------- STEP 15: Create Pod Network ---------
-  - name: Define Flannel URL and local storage path
+  - name: Define Flannel URL and local storage path (step 15)
     ansible.builtin.set_fact:
       flannel_url: "https://github.com/flannel-io/flannel/releases/download/v0.26.7/kube-flannel.yml"
       flannel_path: "/home/vagrant/kube-flannel.yml"
   
-  - name: Download Flunnel
+  - name: Download Flunnel (step 15)
     ansible.builtin.shell:
       cmd: "curl -sSL -o {{ flannel_path }} '{{ flannel_url }}'"
       creates: "{{ flannel_path }}"
-    become: no
+    become: false
   
-  - name: Assign NIC for cluster communication
+  - name: Assign NIC for cluster communication (step 15)
     ansible.builtin.lineinfile:
       path: "{{ flannel_path }}"
       insertafter: '^\s*- --kube-subnet-mgr'
       line: '        - --iface=eth1'
-      firstmatch: yes # Apply the change only to the first match found in the file
-    become: no
+      firstmatch: true # Apply the change only to the first match found in the file
+    become: false
 
-  - name: Apply Flannel using kubectl
+  - name: Apply Flannel using kubectl (step 15)
     ansible.builtin.command:
       cmd: "kubectl apply -f {{ flannel_path }}"
-    become: no
+    become: false
     environment:
       KUBECONFIG: "/home/vagrant/.kube/config"
 
+  - name:  Verify Flannel is running (step 15)
+    ansible.builtin.shell: |
+      kubectl --kubeconfig=/home/vagrant/.kube/config get pods -n kube-flannel -o custom-columns=STATUS:.status.phase --no-headers | grep -c "Running" | grep -q "^[1-9]"
+    register: flannel_check
+    until: flannel_check.rc == 0
+    retries: 10
+    delay: 6
+    changed_when: false
+    ignore_errors: true
 
   # --------- STEP 16: Install Helm ---------
-  - name: Define Helm install script URL and temporary path
+  - name: Define Helm install script URL and temporary path (step 16)
     ansible.builtin.set_fact:
       helm_script_url: "https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3"
       helm_script_path: "/home/vagrant/get_helm.sh"
 
-  - name: Download Helm install script
+  - name: Download Helm install script (step 16)
     ansible.builtin.get_url:
       url: "{{ helm_script_url }}"
       dest: "{{ helm_script_path }}"
       mode: '0755'
-    become: no
+    become: false
 
-  - name: Check if Helm binary exists
+  - name: Check if Helm binary exists (step 16)
     ansible.builtin.stat:
       path: /usr/local/bin/helm
     register: helm_binary_stat
 
-  - name: Run Helm install script if Helm binary does not exist
+  - name: Install Helm if not present (step 16)
     ansible.builtin.command:
       cmd: "{{ helm_script_path }}"
       creates: /usr/local/bin/helm
-    become: yes
+    become: true
     when: not helm_binary_stat.stat.exists
 
-  - name: Clean up Helm install script
+  - name: Clean up Helm install script (step 16)
     ansible.builtin.file:
       path: "{{ helm_script_path }}"
       state: absent
-    become: no
+    become: false
+
+  # --------- STEP 17: Install Helm Diff Plugin ---------
+  - name: Download and install helm-diff if not already present (step 17)
+    ansible.builtin.command: >
+      helm plugin install https://github.com/databus23/helm-diff
+    args:
+      creates: /home/vagrant/.local/share/helm/plugins/helm-diff
+    become_user: vagrant
+    environment:
+      KUBECONFIG: ""
+      HELM_KUBECONFIG: ""
+

@@ -1,6 +1,27 @@
-- hosts: all
-  become: yes
+- hosts: worker
+  become: true
   tasks:
-  - name: General setup
-    ansible.builtin.include_tasks:
-      file: general.yml
+  
+  # --------- STEP 18: Generate Join Command ---------
+  - name: Verify if kubelet config exists (step 18)
+    ansible.builtin.stat:
+      path: /etc/kubernetes/kubelet.conf
+    register: kubelet_conf_present
+
+  - name: Obtain kubeadm join command from control node (step 18)
+    ansible.builtin.command: kubeadm token create --print-join-command
+    register: join_cmd
+    delegate_to: ctrl
+    run_once: true
+    when: not kubelet_conf_present.stat.exists
+
+  # --------- STEP 19: Join cluster ---------
+  - name: Add worker node to Kubernetes cluster (step 19)
+    ansible.builtin.shell: "{{ join_cmd.stdout }}"
+    register: join_result
+    when: not kubelet_conf_present.stat.exists
+
+  - name: Show result of join operation (step 19)
+    ansible.builtin.debug:
+      var: join_result.stdout_lines
+    when: join_result is defined
