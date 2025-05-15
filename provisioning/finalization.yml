@@ -1,0 +1,196 @@
+- hosts: all
+  become: true
+  vars:
+    kubeconfig: /etc/kubernetes/admin.conf
+    ingress_ip: "192.168.56.91"  # must be within the MetalLB pool
+    dashboard_namespace: kubernetes-dashboard
+    dashboard_release: kubernetes-dashboard
+    ingress_host: dashboard.local
+  tasks:
+
+  #step 20
+  - name: Download MetalLB manifest (step 20)
+    get_url:
+      url: https://raw.githubusercontent.com/metallb/metallb/v0.14.9/config/manifests/metallb-native.yaml
+      dest: /tmp/metallb-native.yaml
+      mode: '0644'
+
+  - name: Deploy MetalLB using official manifest (step 20)
+    shell: kubectl apply -f /tmp/metallb-native.yaml --kubeconfig={{ kubeconfig }}
+
+
+  - name: Remove NoSchedule taints from controller node (step 20)
+    shell: |
+      kubectl taint nodes ctrl node-role.kubernetes.io/control-plane:NoSchedule- || true
+      kubectl taint nodes ctrl node-role.kubernetes.io/master:NoSchedule- || true
+    changed_when: false
+
+  - name: Wait for MetalLB controller pod to become ready (step 20)
+    shell: |
+      kubectl wait -n metallb-system -l app=metallb,component=controller --for=condition=ready pod --timeout=60s --kubeconfig={{ kubeconfig }}
+    changed_when: false
+
+  - name: Create IPAddressPool manifest for MetalLB (step 20)
+    copy:
+      dest: /tmp/metallb-pool.yaml
+      mode: '0644'
+      content: |
+        apiVersion: metallb.io/v1beta1
+        kind: IPAddressPool
+        metadata:
+          name: remla-pool
+          namespace: metallb-system
+        spec:
+          addresses:
+            - 192.168.56.90-192.168.56.99
+
+  - name: Apply IPAddressPool manifest (step 20)
+    shell: kubectl apply -f /tmp/metallb-pool.yaml --kubeconfig={{ kubeconfig }}
+
+  - name: Create L2Advertisement manifest for MetalLB (step 20)
+    copy:
+      dest: /tmp/metallb-l2adv.yaml
+      mode: '0644'
+      content: |
+        apiVersion: metallb.io/v1beta1
+        kind: L2Advertisement
+        metadata:
+          name: remla-l2
+          namespace: metallb-system
+        spec:
+          ipAddressPools:
+            - remla-pool
+
+  - name: Apply L2Advertisement manifest (step 20)
+    shell: kubectl apply -f /tmp/metallb-l2adv.yaml --kubeconfig={{ kubeconfig }}
+
+  #step 21
+  - name: Add ingress-nginx Helm repository (step 21)
+    kubernetes.core.helm_repository:
+      name: ingress-nginx
+      repo_url: https://kubernetes.github.io/ingress-nginx
+      kubeconfig: "{{ kubeconfig }}"
+
+  - name: Install ingress-nginx with static LoadBalancer IP (step 21)
+    kubernetes.core.helm:
+      name: ingress-nginx
+      chart_ref: ingress-nginx/ingress-nginx
+      release_namespace: ingress-nginx
+      create_namespace: true
+      kubeconfig: "{{ kubeconfig }}"
+      values:
+        controller:
+          service:
+            type: LoadBalancer
+            loadBalancerIP: "{{ ingress_ip }}"
+          ingressClassResource:
+            name: nginx
+          ingressClass: nginx
+  
+  - name: Wait for NGINX Ingress controller pod to become ready (step 21)
+    shell: |
+      kubectl --kubeconfig={{ kubeconfig }} wait -n ingress-nginx \
+      --for=condition=ready pod \
+      -l app.kubernetes.io/name=ingress-nginx,app.kubernetes.io/component=controller \
+      --timeout=120s
+    changed_when: false
+
+  #step 22
+  - name: Add Kubernetes Dashboard Helm repo (step 22)
+    kubernetes.core.helm_repository:
+      name: kubernetes-dashboard
+      repo_url: https://kubernetes.github.io/dashboard
+      kubeconfig: "{{ kubeconfig }}"
+
+  - name: Install Kubernetes Dashboard via Helm (step 22)
+    kubernetes.core.helm:
+      name: "{{ dashboard_release }}"
+      chart_ref: kubernetes-dashboard/kubernetes-dashboard
+      release_namespace: "{{ dashboard_namespace }}"
+      create_namespace: true
+      kubeconfig: "{{ kubeconfig }}"
+
+  - name: Create admin-user ServiceAccount and ClusterRoleBinding (step 22)
+    copy:
+      dest: /tmp/dashboard-adminuser.yaml
+      mode: '0644'
+      content: |
+        apiVersion: v1
+        kind: ServiceAccount
+        metadata:
+          name: admin-user
+          namespace: {{ dashboard_namespace }}
+        ---
+        apiVersion: rbac.authorization.k8s.io/v1
+        kind: ClusterRoleBinding
+        metadata:
+          name: admin-user
+        roleRef:
+          apiGroup: rbac.authorization.k8s.io
+          kind: ClusterRole
+          name: cluster-admin
+        subjects:
+          - kind: ServiceAccount
+            name: admin-user
+            namespace: {{ dashboard_namespace }}
+
+  - name: Apply admin-user access (step 22)
+    command: kubectl apply -f /tmp/dashboard-adminuser.yaml --kubeconfig={{ kubeconfig }}
+
+  - name: Create Ingress for Dashboard (step 22)
+    copy:
+      dest: /tmp/dashboard-ingress.yaml
+      mode: '0644'
+      content: |
+        apiVersion: networking.k8s.io/v1
+        kind: Ingress
+        metadata:
+          name: kubernetes-dashboard
+          namespace: {{ dashboard_namespace }}
+          annotations:
+            nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+            nginx.ingress.kubernetes.io/ssl-redirect: "true"
+            nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+        spec:
+          ingressClassName: nginx
+          tls:
+            - hosts:
+                - {{ ingress_host }}
+          rules:
+            - host: {{ ingress_host }}
+              http:
+                paths:
+                  - path: /
+                    pathType: Prefix
+                    backend:
+                      service:
+                        name: kubernetes-dashboard-kong-proxy
+                        port:
+                          number: 443
+
+  - name: Apply Dashboard Ingress (step 22)
+    command: kubectl apply -f /tmp/dashboard-ingress.yaml --kubeconfig={{ kubeconfig }}
+
+  - name: Display dashboard instructions (step 22)
+    debug:
+      msg:
+        - "Kubernetes Dashboard deployed and accessible via Ingress."
+        - ""
+        - "To access it, follow these steps:"
+        - ""
+        - "1. Open your terminal on the host machine and run:"
+        - "  sudo nano /etc/hosts"
+        - ""
+        - "2. Add the following line to the bottom of the file:"
+        - "  {{ ingress_ip }}   dashboard.local"
+        - ""
+        - "3. Save and exit nano:"
+        - "  Press Ctrl + O (to write the file), then Enter, then Ctrl + X (to exit)"
+        - ""
+        - "4. Open your browser and visit:"
+        - "  https://dashboard.local"
+        - ""
+        - "5. To log in, run the following command on the controller VM to generate a token:"
+        - "  kubectl -n {{ dashboard_namespace }} create token admin-user"
+        - ""
+        - "6. Paste the token into the Dashboard login screen."

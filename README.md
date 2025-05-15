@@ -17,8 +17,36 @@
 
 ## Assignment 2
 
-As of 12 May 2025, Assignment 2 has been implemented up to step 16.
-The rest is to follow soon.
+##### Prerequisites
+- **Vagrant** & **VirtualBox** installed  
+- **Ansible** on host machine
+- OS user must be able to edit `/etc/hosts`
+
+##### Clone & Start
+```bash
+git clone <repo-url> && cd <repo-dir>/provisioning
+vagrant up --provision
+ansible-playbook -u vagrant -i 192.168.56.100, finalization.yml
+````
+and follow the instructions printed in the last message (repeated here):
+
+##### 1. Open your terminal on the host machine and run:
+```bash
+sudo nano /etc/hosts
+```
+##### 2. Add the following line to the bottom of the file:
+```bash
+192.168.56.91   dashboard.local
+```
+##### 3. Save and exit nano:
+    Press Ctrl + O (to write the file), then Enter, then Ctrl + X (to exit)
+##### 4. Open your browser and visit: https://dashboard.local
+##### 5. To log in, run the following command on the controller VM to generate a token:
+```bash
+kubectl -n kubernetes-dashboard create token admin-user
+```
+##### 6. Paste the token into the Dashboard login screen.
+
 
 ## Assignment 1
 
