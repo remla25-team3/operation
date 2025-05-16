@@ -12,7 +12,6 @@
 
   #step 20
   - name: Ensure resources/ dir exists
-    run_once: true
     delegate_to: localhost
     connection: local
     become: false
