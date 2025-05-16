@@ -1,168 +1,167 @@
-#is run for both ctrl.yml and node.yml
+- name: General
+  become: true
+  hosts: all
+  tasks:
 
-#STEP 4
-- name: Ensure .ssh directory exists for vagrant (step 4)
-  file:
-    path: "/home/vagrant/.ssh"
-    state: directory
-    owner: vagrant    # Must be owned by vagrant
-    group: vagrant
-    mode: '0700'      # Secure permissions (only user can access)
+    #STEP 4
+    - name: Ensure .ssh directory exists for vagrant (step 4)
+      file:
+        path: "/home/vagrant/.ssh"
+        state: directory
+        owner: vagrant    # Must be owned by vagrant
+        group: vagrant
+        mode: '0700'      # Secure permissions (only user can access)
 
-- name: Set up multiple authorized keys (step 4)
-  ansible.posix.authorized_key:
-    user: vagrant     # Install keys for the vagrant user
-    state: present    # Add the key if it's not already there
-    key: "{{ lookup('file', item) }}"   # Load the public key file contents
-  loop:          # Loop over multiple .pub files
-    - "{{playbook_dir}}/public_keys/remla-test.pub"
-    - "{{playbook_dir}}/public_keys/alberto.pub"
+    - name: Set up multiple authorized keys (step 4)
+      ansible.posix.authorized_key:
+        user: vagrant     # Install keys for the vagrant user
+        state: present    # Add the key if it's not already there
+        key: "{{ lookup('file', item) }}"   # Load the public key file contents
+      with_fileglob:
+        - "{{ playbook_dir }}/public_keys/*.pub"
 
-#STEP 5
-- name: Disable SWAP (step 5)
-  ansible.builtin.shell:
-    cmd: swapoff -a
+    #STEP 5
+    - name: Disable SWAP (step 5)
+      ansible.builtin.shell: swapoff -a
+      when: ansible_swaptotal_mb > 0
 
-- name: Remove SWAP from next boot (step 5)
-  ansible.builtin.lineinfile:
-    path: /etc/fstab
-    regexp: '^.*\s+swap\s+.*$' #'/swap.img' # not perfect but works
-    state: absent
-    
-#STEP 6
-- name: Ensure overlay and br_netfilter modules load on boot (step 6)
-  ansible.builtin.copy:
-    dest: /etc/modules-load.d/k8s.conf
-    content: |
-      overlay
-      br_netfilter
-    owner: root
-    group: root
-    mode: '0644'
+    - name: Remove SWAP from next boot (step 5)
+      ansible.builtin.lineinfile:
+        path: /etc/fstab
+        regexp: '^.*\s+swap\s+.*$' #'/swap.img' # not perfect but works
+        state: absent
+        
+    #STEP 6
+    - name: Ensure overlay and br_netfilter modules load on boot (step 6)
+      ansible.builtin.copy:
+        dest: /etc/modules-load.d/k8s.conf
+        content: |
+          overlay
+          br_netfilter
+        owner: root
+        group: root
+        mode: '0644'
 
-- name: Load overlay module now (step 6)
-  community.general.modprobe:
-    name: overlay
-    state: present
+    - name: Load overlay module now (step 6)
+      community.general.modprobe:
+        name: overlay
+        state: present
 
-- name: Load br_netfilter module now (step 6)
-  community.general.modprobe:
-    name: br_netfilter
-    state: present
+    - name: Load br_netfilter module now (step 6)
+      community.general.modprobe:
+        name: br_netfilter
+        state: present
 
-#STEP 7
-- name: Enable IPv4 forwarding (step 7)
-  ansible.posix.sysctl:
-    name: net.ipv4.ip_forward
-    value: '1'
-    sysctl_set: true
-    state: present
-    reload: yes
+    #STEP 7
+    - name: Enable IPv4 forwarding (step 7)
+      ansible.posix.sysctl:
+        name: net.ipv4.ip_forward
+        value: '1'
+        sysctl_set: true
+        state: present
+        reload: yes
 
-- name: Enable bridged IPv4 traffic to iptables (step 7)
-  ansible.posix.sysctl:
-    name: net.bridge.bridge-nf-call-iptables
-    value: '1'
-    sysctl_set: true
-    state: present
-    reload: yes
+    - name: Enable bridged IPv4 traffic to iptables (step 7)
+      ansible.posix.sysctl:
+        name: "{{ item }}"
+        value: '1'
+        sysctl_set: true
+        state: present
+        reload: yes
+      loop:
+        - net.bridge.bridge-nf-call-iptables
+        - net.bridge.bridge-nf-call-ip6tables
 
-- name: Enable bridged IPv6 traffic to ip6tables (step 7)
-  ansible.posix.sysctl:
-    name: net.bridge.bridge-nf-call-ip6tables
-    value: '1'
-    sysctl_set: true
-    state: present
-    reload: yes
+    #STEP 8
+    - name: Generate /etc/hosts file from template (step 8)
+      ansible.builtin.template:
+        src: templates/hosts.j2
+        dest: /etc/hosts
+        owner: root
+        group: root
+        mode: '0644'
 
-#STEP 8
-- name: Generate /etc/hosts file from template (step 8)
-  ansible.builtin.template:
-    src: templates/hosts.j2
-    dest: /etc/hosts
-    owner: root
-    group: root
-    mode: '0644'
+    #STEP 9
+    - name: add apt key (step 9)
+      ansible.builtin.apt_key:
+        url: https://pkgs.k8s.io/core:/stable:/v1.32/deb/Release.key
+        state: present
+        keyring: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
 
-#STEP 9
-- name: add apt key (step 9)
-  ansible.builtin.apt_key:
-    url: https://pkgs.k8s.io/core:/stable:/v1.32/deb/Release.key
-    state: present
-    keyring: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+    - name: add Kubernetes APT repository (step 9)
+      ansible.builtin.apt_repository:
+        repo: deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.32/deb/ /
+        state: present
+        filename: kubernetes
 
-- name: add Kubernetes apt repository (step 9)
-  ansible.builtin.apt_repository:
-    repo: deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.32/deb/ /
-    state: present
-    filename: kubernetes
+    - name: update cache (step 9)
+      ansible.builtin.apt:
+        update_cache: yes
 
-- name: update cache (step 9)
-  ansible.builtin.apt:
-    update_cache: yes
+    #STEP 10
+    - name: install k8s tools (step 10)
+      ansible.builtin.apt:
+        name:
+        - containerd=1.7.24-*
+        - runc=1.1.12-*
+        - kubeadm=1.32.4-*
+        - kubelet=1.32.4-*
+        - kubectl=1.32.4-*
+        state: present
+        update_cache: yes
 
-#STEP 10
-- name: install k8s tools (step 10)
-  ansible.builtin.apt:
-    name:
-    - containerd=1.7.24-*
-    - runc=1.1.12-*
-    - kubeadm=1.32.4-*
-    - kubelet=1.32.4-*
-    - kubectl=1.32.4-*
-    state: present
-    update_cache: yes
+    - name: avoid upgrades of Kubernetes packages 
+      ansible.builtin.dpkg_selections:
+        name: "{{ item }}"
+        selection: hold
+      loop:
+        - containerd
+        - runc
+        - kubeadm
+        - kubelet
+        - kubectl
 
-- name: avoid upgrades of Kubernetes packages 
-  ansible.builtin.dpkg_selections:
-    name: "{{ item }}"
-    selection: hold
-  loop:
-    - containerd
-    - runc
-    - kubeadm
-    - kubelet
-    - kubectl
+    #STEP 11
+    - name: Ensure /etc/containerd directory exists (step 11)
+      ansible.builtin.file:
+        path: /etc/containerd
+        state: directory
+        owner: root
+        group: root
+        mode: '0755'
 
-#STEP 11
-- name: Ensure /etc/containerd directory exists (step 11)
-  ansible.builtin.file:
-    path: /etc/containerd
-    state: directory
-    mode: '0755'
+    - name: Generate default containerd config (step 11)
+      ansible.builtin.shell:
+        cmd: containerd config default > /etc/containerd/config.toml
+        creates: /etc/containerd/config.toml
 
-- name: Generate default containerd config (step 11)
-  ansible.builtin.shell:
-    cmd: containerd config default > /etc/containerd/config.toml
-    creates: /etc/containerd/config.toml
+    - name: Set disable_apparmor = true (step 11)
+      ansible.builtin.replace:
+        path: /etc/containerd/config.toml
+        regexp: '^(\s*)disable_apparmor = false'
+        replace: '\1disable_apparmor = true'
 
-- name: Set disable_apparmor = true (step 11)
-  ansible.builtin.replace:
-    path: /etc/containerd/config.toml
-    regexp: '^(\s*)disable_apparmor = false'
-    replace: '\1disable_apparmor = true'
+    - name: Set sandbox_image = "registry.k8s.io/pause:3.10" (step 11)
+      ansible.builtin.replace:
+        path: /etc/containerd/config.toml
+        regexp: '^(\s*)sandbox_image = ".*"$'
+        replace: '\1sandbox_image = "registry.k8s.io/pause:3.10"'
 
-- name: Set sandbox_image = "registry.k8s.io/pause:3.10" (step 11)
-  ansible.builtin.replace:
-    path: /etc/containerd/config.toml
-    regexp: '^(\s*)sandbox_image = ".*"$'
-    replace: '\1sandbox_image = "registry.k8s.io/pause:3.10"'
+    - name: Set SystemdCgroup = true (step 11)
+      ansible.builtin.replace:
+        path: /etc/containerd/config.toml
+        regexp: '^(\s*)SystemdCgroup = false'
+        replace: '\1SystemdCgroup = true'
 
-- name: Set SystemdCgroup = true (step 11)
-  ansible.builtin.replace:
-    path: /etc/containerd/config.toml
-    regexp: '^(\s*)SystemdCgroup = false'
-    replace: '\1SystemdCgroup = true'
+    - name: Restart containerd (step 11)
+      ansible.builtin.service:
+        name: containerd
+        state: restarted
+        enabled: yes
 
-- name: Restart containerd (step 11)
-  ansible.builtin.service:
-    name: containerd
-    state: restarted
-    enabled: yes
-
-#STEP 12
-- name: Enable and start kubelet service (step 12)
-  ansible.builtin.service:
-    name: kubelet
-    enabled: yes
-    state: started
+    #STEP 12
+    - name: Enable and start kubelet service (step 12)
+      ansible.builtin.service:
+        name: kubelet
+        enabled: yes
+        state: started
