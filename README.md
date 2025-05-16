@@ -21,6 +21,11 @@
 - **Vagrant** & **VirtualBox** installed  
 - **Ansible** on host machine
 - OS user must be able to edit `/etc/hosts`
+- To use SSH access, your **SSH public key** (e.g., `~/.ssh/<your_key>.pub`) must be copied to:
+
+```plaintext
+<repo-dir>/provisioning/public_keys/
+```
 
 ##### Clone & Start
 ```bash
@@ -43,6 +48,7 @@ sudo nano /etc/hosts
 ##### 4. Open your browser and visit: https://dashboard.local
 ##### 5. To log in, run the following command on the controller VM to generate a token:
 ```bash
+vagrant ssh ctrl
 kubectl -n kubernetes-dashboard create token admin-user
 ```
 ##### 6. Paste the token into the Dashboard login screen.

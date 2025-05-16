@@ -2,22 +2,57 @@
   become: true
   vars:
     kubeconfig: /etc/kubernetes/admin.conf
+    ip_range: "192.168.56.90-192.168.56.99"
     ingress_ip: "192.168.56.91"  # must be within the MetalLB pool
+    istio_ip : "192.168.56.92"  # must be within the MetalLB pool
     dashboard_namespace: kubernetes-dashboard
     dashboard_release: kubernetes-dashboard
     ingress_host: dashboard.local
   tasks:
 
   #step 20
-  - name: Download MetalLB manifest (step 20)
+  - name: Ensure resources/ dir exists
+    run_once: true
+    delegate_to: localhost
+    connection: local
+    become: false
+    run_once: true
+    ansible.builtin.file:
+      path: "{{ playbook_dir }}/resources"
+      state: directory
+      mode: '0755'
+
+  - name: Check for local MetalLB manifest
+    delegate_to: localhost
+    connection: local      # run it directly, no SSH
+    become: false          # don’t try sudo on localhost
+    run_once: true
+    ansible.builtin.stat:
+      path: "{{ playbook_dir }}/resources/metallb-native.yaml"
+    register: metallb_manifest
+
+  - name: Download MetalLB manifest if not found locally (step 20)
+    delegate_to: localhost
+    connection: local
+    become: false
+    run_once: true
     get_url:
       url: https://raw.githubusercontent.com/metallb/metallb/v0.14.9/config/manifests/metallb-native.yaml
+      dest: "{{ playbook_dir }}/resources/metallb-native.yaml"
+      mode: '0644'
+    when: not metallb_manifest.stat.exists
+
+  - name: Copy MetalLB manifest to controller
+    copy:
+      src: "{{ playbook_dir }}/resources/metallb-native.yaml"
       dest: /tmp/metallb-native.yaml
       mode: '0644'
 
   - name: Deploy MetalLB using official manifest (step 20)
-    shell: kubectl apply -f /tmp/metallb-native.yaml --kubeconfig={{ kubeconfig }}
-
+    kubernetes.core.k8s:
+      state: present
+      src: /tmp/metallb-native.yaml
+      kubeconfig: "{{ kubeconfig }}"
 
   - name: Remove NoSchedule taints from controller node (step 20)
     shell: |
@@ -42,10 +77,13 @@
           namespace: metallb-system
         spec:
           addresses:
-            - 192.168.56.90-192.168.56.99
+            - {{ ip_range }}
 
   - name: Apply IPAddressPool manifest (step 20)
-    shell: kubectl apply -f /tmp/metallb-pool.yaml --kubeconfig={{ kubeconfig }}
+    kubernetes.core.k8s:
+      state: present
+      src: /tmp/metallb-pool.yaml
+      kubeconfig: "{{ kubeconfig }}"
 
   - name: Create L2Advertisement manifest for MetalLB (step 20)
     copy:
@@ -62,7 +100,10 @@
             - remla-pool
 
   - name: Apply L2Advertisement manifest (step 20)
-    shell: kubectl apply -f /tmp/metallb-l2adv.yaml --kubeconfig={{ kubeconfig }}
+    kubernetes.core.k8s:
+      state: present
+      src: /tmp/metallb-l2adv.yaml
+      kubeconfig: "{{ kubeconfig }}"
 
   #step 21
   - name: Add ingress-nginx Helm repository (step 21)
@@ -135,7 +176,10 @@
             namespace: {{ dashboard_namespace }}
 
   - name: Apply admin-user access (step 22)
-    command: kubectl apply -f /tmp/dashboard-adminuser.yaml --kubeconfig={{ kubeconfig }}
+    kubernetes.core.k8s:
+      state: present
+      src: /tmp/dashboard-adminuser.yaml
+      kubeconfig: "{{ kubeconfig }}"
 
   - name: Create Ingress for Dashboard (step 22)
     copy:
@@ -169,7 +213,18 @@
                           number: 443
 
   - name: Apply Dashboard Ingress (step 22)
-    command: kubectl apply -f /tmp/dashboard-ingress.yaml --kubeconfig={{ kubeconfig }}
+    kubernetes.core.k8s:
+      state: present
+      src: /tmp/dashboard-ingress.yaml
+      kubeconfig: "{{ kubeconfig }}"
+
+  - name: Wait for Dashboard proxy service to become available (step 22)
+    shell: |
+      kubectl wait --namespace={{ dashboard_namespace }} \
+        --for=condition=ready pod \
+        -l app.kubernetes.io/instance={{ dashboard_release }} \
+        --timeout=120s --kubeconfig={{ kubeconfig }}
+    changed_when: false
 
   - name: Display dashboard instructions (step 22)
     debug:
@@ -191,6 +246,72 @@
         - "  https://dashboard.local"
         - ""
         - "5. To log in, run the following command on the controller VM to generate a token:"
+        - "  vagrant ssh ctrl"
         - "  kubectl -n {{ dashboard_namespace }} create token admin-user"
         - ""
         - "6. Paste the token into the Dashboard login screen."
+
+  # # step 23 - install Istio service mesh with static gateway IP
+  # - name: Download Istio 1.25.2
+  #   get_url:
+  #     url: https://github.com/istio/istio/releases/download/1.25.2/istio-1.25.2-linux-amd64.tar.gz
+  #     dest: /tmp/istio.tar.gz
+  #     mode: '0644'
+
+  # - name: Extract Istio
+  #   unarchive:
+  #     src: /tmp/istio.tar.gz
+  #     dest: /opt/
+  #     remote_src: yes
+
+  # - name: Copy istioctl to /usr/local/bin
+  #   copy:
+  #     src: /opt/istio-1.25.2/bin/istioctl
+  #     dest: /usr/local/bin/istioctl
+  #     mode: '0755'
+  #     remote_src: yes
+
+  # - name: Add istioctl to vagrant user's PATH
+  #   lineinfile:
+  #     path: /home/vagrant/.bashrc
+  #     line: 'export PATH=$PATH:/opt/istio-1.25.2/bin'
+  #     state: present
+
+  # - name: Create IstioOperator manifest with static gateway IP
+  #   copy:
+  #     dest: /tmp/istio-operator.yaml
+  #     mode: '0644'
+  #     content: |
+  #       apiVersion: install.istio.io/v1alpha1
+  #       kind: IstioOperator
+  #       metadata:
+  #         name: istio-install
+  #         namespace: istio-system
+  #       spec:
+  #         profile: default
+  #         components:
+  #           ingressGateways:
+  #             - name: istio-ingressgateway
+  #               enabled: true
+  #               k8s:
+  #                 service:
+  #                   type: LoadBalancer
+  #                   loadBalancerIP: {{ istio_ip }}
+  #         values:
+  #           global:
+  #             istioNamespace: istio-system
+
+  # - name: Install Istio using IstioOperator manifest
+  #   shell: istioctl install -y -f /tmp/istio-operator.yaml --kubeconfig={{ kubeconfig }}
+  #   args:
+  #     executable: /bin/bash
+  #   environment:
+  #     PATH: "/usr/local/bin:/usr/bin:/bin"
+
+  # - name: Wait for Istio ingress gateway pod to become ready
+  #   shell: |
+  #     kubectl wait --namespace=istio-system \
+  #       --for=condition=ready pod \
+  #       -l app=istio-ingressgateway \
+  #       --timeout=120s --kubeconfig={{ kubeconfig }}
+  #   changed_when: false

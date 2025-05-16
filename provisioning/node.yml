@@ -17,7 +17,7 @@
 
   # --------- STEP 19: Join cluster ---------
   - name: Add worker node to Kubernetes cluster (step 19)
-    ansible.builtin.shell: "{{ join_cmd.stdout }}"
+    ansible.builtin.command: "{{ join_cmd.stdout }}"
     register: join_result
     when: not kubelet_conf_present.stat.exists
 

@@ -2,6 +2,12 @@
   become: true
   tasks:
 
+  #download kubernetes library (needed for step 15)
+  - name: Ensure Kubernetes Python client is installed
+    apt:
+      name: python3-kubernetes
+      state: present
+
   # --------- STEP 13: Init cluster ---------
   - name: Check for admin.conf (step 13)
     ansible.builtin.stat:
@@ -82,16 +88,47 @@
         ----------------------------------------------------------------------
 
   # --------- STEP 15: Create Pod Network ---------
-  - name: Define Flannel URL and local storage path (step 15)
-    ansible.builtin.set_fact:
-      flannel_url: "https://github.com/flannel-io/flannel/releases/download/v0.26.7/kube-flannel.yml"
-      flannel_path: "/home/vagrant/kube-flannel.yml"
-  
-  - name: Download Flunnel (step 15)
-    ansible.builtin.shell:
-      cmd: "curl -sSL -o {{ flannel_path }} '{{ flannel_url }}'"
-      creates: "{{ flannel_path }}"
+  - name: Ensure resources/ dir exists on controller
+    delegate_to: localhost
+    connection: local
     become: false
+    run_once: true
+    ansible.builtin.file:
+      path: "{{ playbook_dir }}/resources"
+      state: directory
+      mode: '0755'
+
+  - name: Check for local Flannel manifest
+    delegate_to: localhost
+    connection: local      # run it directly, no SSH
+    become: false          # don’t try sudo on localhost
+    run_once: true
+    ansible.builtin.stat:
+      path: "{{ playbook_dir }}/resources/kube-flannel.yml"
+    register: flannel_manifest
+
+  - name: Download Flannel manifest if not found locally
+    delegate_to: localhost
+    connection: local
+    become: false
+    run_once: true
+    ansible.builtin.get_url:
+      url: "https://github.com/flannel-io/flannel/releases/download/v0.26.7/kube-flannel.yml"
+      dest: "{{ playbook_dir }}/resources/kube-flannel.yml"
+      mode: '0644'
+    when: not flannel_manifest.stat.exists
+
+  - name: Copy Flannel manifest into the VM (step 15)
+    ansible.builtin.copy:
+      src: "{{ playbook_dir }}/resources/kube-flannel.yml"
+      dest: "/home/vagrant/kube-flannel.yml"
+      owner: vagrant
+      group: vagrant
+      mode: '0644'
+
+  - name: Set flannel_path (step 15)
+    ansible.builtin.set_fact:
+      flannel_path: "/home/vagrant/kube-flannel.yml"
   
   - name: Assign NIC for cluster communication (step 15)
     ansible.builtin.lineinfile:
@@ -101,12 +138,11 @@
       firstmatch: true # Apply the change only to the first match found in the file
     become: false
 
-  - name: Apply Flannel using kubectl (step 15)
-    ansible.builtin.command:
-      cmd: "kubectl apply -f {{ flannel_path }}"
-    become: false
-    environment:
-      KUBECONFIG: "/home/vagrant/.kube/config"
+  - name: Apply Flannel manifest using Ansible module (step 15)
+    kubernetes.core.k8s:
+      state: present
+      src: "{{ flannel_path }}"
+      kubeconfig: /home/vagrant/.kube/config
 
   - name:  Verify Flannel is running (step 15)
     ansible.builtin.shell: |
