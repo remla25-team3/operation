@@ -8,6 +8,9 @@
     dashboard_namespace: kubernetes-dashboard
     dashboard_release: kubernetes-dashboard
     ingress_host: dashboard.local
+    monitoring_namespace: monitoring
+    prometheus_release_name: prom-monitoring
+    app_service_name: app-service
   tasks:
 
   #step 20
@@ -314,3 +317,43 @@
   #       -l app=istio-ingressgateway \
   #       --timeout=120s --kubeconfig={{ kubeconfig }}
   #   changed_when: false
+
+
+  # --- Assignment 3 ---
+
+  # --------- 1.2: Monitoring ---------
+  - name: Add Prometheus Helm repo (Assignment 3 1.2)
+    kubernetes.core.helm_repository:
+      name: prometheus-community
+      repo_url: https://prometheus-community.github.io/helm-charts
+      kubeconfig: "{{ kubeconfig }}"
+
+  - name: Install Prometheus Stack via Helm (Assignment 3 1.2)
+    kubernetes.core.helm:
+      name: "{{ prometheus_release_name }}"
+      chart_ref: prometheus-community/kube-prometheus-stack
+      update_repo_cache: true
+      create_namespace: true
+      release_namespace: "{{ monitoring_namespace }}"
+      kubeconfig: "{{ kubeconfig }}"
+      set_values:
+        - value: prometheusOperator.admissionWebhooks.enabled=false
+  
+  - name: Add ServiceMonitor for application monitoring (Assignment 3 1.2)
+    kubernetes.core.k8s:
+      state: present
+      kubeconfig: "{{ kubeconfig }}"
+      definition:
+        apiVersion: monitoring.coreos.com/v1
+        kind: ServiceMonitor
+        metadata:
+          name: app-monitor
+          namespace: "{{ monitoring_namespace }}"
+          labels:
+            release: "{{ prometheus_release_name }}"
+        spec:
+          selector:
+            matchLabels:
+              app: "{{ app_service_name }}"
+          endpoints:
+          - interval: 1s  # Should be made larger later
