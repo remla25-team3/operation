@@ -52,9 +52,9 @@ Approved PR: [app-service](https://github.com/remla25-team3/app-service/pull/3#p
 
 -- Denis --
 
-Created PR:
+Created PR: [operation]https://github.com/remla25-team3/operation/pull/15
 
-Approved PR:
+Approved PR: [operation]https://github.com/remla25-team3/operation/pull/12
 
 -- Alberto --
 
