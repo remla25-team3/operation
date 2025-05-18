@@ -1,3 +1,35 @@
+# A3
+
+-- Amin --
+
+Created PR:
+
+Approved PR:
+
+-- Joost --
+
+Created PR:
+
+Approved PR:
+
+-- Lennard --
+
+Created PR: [app-service (A3)](https://github.com/remla25-team3/app-service/pull/6), [operation (A3)](https://github.com/remla25-team3/operation/pull/20)
+
+Approved PR: [model-service (A1)](https://github.com/remla25-team3/model-service/pull/7#pullrequestreview-2843748825), [operation (A2)](https://github.com/remla25-team3/operation/pull/19#pullrequestreview-2847539190)
+
+-- Denis --
+
+Created PR:
+
+Approved PR:
+
+-- Alberto --
+
+Created PR:
+
+Approved PR:
+
 # A2
 
 -- Amin --
