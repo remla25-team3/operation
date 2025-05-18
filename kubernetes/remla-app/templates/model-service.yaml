@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "remla-app.modelServiceName" . }}
+  labels:
+    {{- include "remla-app.labels" . | nindent 4 }}
+    app.kubernetes.io/component: model-service
+spec:
+  replicas: {{ .Values.modelService.replicas }}
+  selector:
+    matchLabels:
+      {{- include "remla-app.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: model-service
+  template:
+    metadata:
+      labels:
+        {{- include "remla-app.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: model-service
+    spec:
+      containers:
+      - name: model-service
+        image: "{{ .Values.modelService.image.repository }}:{{ .Values.modelService.image.tag }}"
+        imagePullPolicy: {{ .Values.modelService.image.pullPolicy }}
+        ports:
+        - containerPort: {{ .Values.modelService.service.targetPort }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "remla-app.modelServiceName" . }}
+  labels:
+    {{- include "remla-app.labels" . | nindent 4 }}
+    app.kubernetes.io/component: model-service
+spec:
+  type: {{ .Values.modelService.service.type }}
+  selector:
+    {{- include "remla-app.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: model-service
+  ports:
+  - port: {{ .Values.modelService.service.port }}
+    targetPort: {{ .Values.modelService.service.targetPort }}
+
