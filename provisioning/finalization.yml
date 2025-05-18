@@ -357,3 +357,60 @@
               app: "{{ app_service_name }}"
           endpoints:
           - interval: 1s  # Should be made larger later
+  
+  # --------- 1.2: Alerting ---------
+  # - name: Configure AlertManager (Assignment 3 1.2)
+  #   kubernetes.core.k8s:
+  #     state: present
+  #     kubeconfig: "{{ kubeconfig }}"
+  #     definition:
+  #       apiVersion: v1
+  #       kind: ConfigMap
+  #       metadata:
+  #         name: alertmanager
+  #         namespace: "{{ monitoring_namespace }}"
+  #       data:
+  #         alertmanager.yaml: |
+  #           global:
+  #             resolve_timeout: 5m
+  #             smtp_smarthost: "smtp.google.com:587"
+  #             smtp_from: "<SENDER EMAIL ADDRESS>"
+  #             smtp_auth_username: "<SENDER EMAIL ADDRESS>"
+  #             smtp_auth_password: "<EMAIL PASSWORD>"
+            
+  #           route:
+  #             group_by: ["alertname"]
+  #             group_wait: 30s
+  #             group_interval: 5m
+  #             repeat_interval: 3h
+  #             receiver: "email-notifications"
+            
+  #           receivers:
+  #           - name: "email-notifications"
+  #             email_configs:
+  #             - to: "<RECEIVER EMAIL ADDRESS>"
+  #               send_resolved: true
+
+  # - name: Add PrometheusRule for alerts (Assignment 3 1.2)
+  #   kubernetes.core.k8s:
+  #     state: present
+  #     kubeconfig: "{{ kubeconfig }}"
+  #     definition:
+  #       apiVersion: monitoring.coreos.com/v1
+  #       kind: PrometheusRule
+  #       metadata:
+  #         name: excessive-requests
+  #         labels:
+  #           release: "{{ prometheus_release_name }}"
+  #       spec:
+  #         groups:
+  #         - name: app-service-rules
+  #           rules:
+  #           - alert: ExcessiveRequests
+  #             expr: sum(rate(http_requests_total[2m])) > 15
+  #             for: 2m
+  #             labels:
+  #               severity: warning
+  #             annotations:
+  #               summary: "Excessive number of requests detected"
+  #               description: "The application received over 15 requests in 2 minutes!"
