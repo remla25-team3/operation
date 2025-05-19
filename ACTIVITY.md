@@ -10,7 +10,7 @@ Approved PR:
 
 Created PR: https://github.com/remla25-team3/app-frontend/pull/9 (related to A1)
 
-Approved PR:
+Approved PR: https://github.com/remla25-team3/operation/pull/20
 
 -- Lennard --
 
