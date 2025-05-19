@@ -2,18 +2,17 @@
 
 ## Services
 
-* app-frontend: [v1.1.0](https://github.com/remla25-team3/app-frontend/releases/tag/v1.1.0)
-* app-service: [v1.1.0](https://github.com/remla25-team3/app-service/releases/tag/v1.1.0)
+* app-frontend: [v1.2.0](https://github.com/remla25-team3/app-frontend/releases/tag/v1.2.0)
+* app-service: [v1.2.0](https://github.com/remla25-team3/app-service/releases/tag/v1.2.0)
 * lib-ml: [v0.1.0](https://github.com/remla25-team3/lib-ml/releases/tag/v0.1.0)
 * lib-version: [v1.2.0](https://github.com/remla25-team3/lib-version/releases/tag/v1.2.0)
-* model-service: [v0.1.0](https://github.com/remla25-team3/model-service/releases/tag/v0.1.0)
+* model-service: [v0.2.0](https://github.com/remla25-team3/model-service/releases/tag/v0.2.0)
 * model-training: [main](https://github.com/remla25-team3/model-training/tree/refs/heads/main)
 * operation: [this repo](https://github.com/remla25-team3/operation)
 
-## Information 
+## Assignment 3
 
-* Run project by cd ing to xxx/operation and running docker compose up
-* Once running, API documentation available on http://localhost:8082/apidocs/ for `app-service` and http://localhost:8081/apidocs/ for `model-service`.
+...
 
 ## Assignment 2
 
@@ -63,6 +62,11 @@ vagrant destroy -f
 This will forcefully stop and delete all Vagrant-managed virtual machines related to this project.
 
 ## Assignment 1
+
+### Information 
+
+* Run project by cd ing to xxx/operation and running docker compose up
+* Once running, API documentation available on http://localhost:8082/apidocs/ for `app-service` and http://localhost:8081/apidocs/ for `model-service`.
 
 ### Rubric
 
