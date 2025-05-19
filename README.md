@@ -12,7 +12,19 @@
 
 ## Assignment 3
 
-...
+##### Prerequisites
+- **Minikube** installed and configured
+- **kubectl**
+
+##### Running the application in a kubernetes cluster
+
+_Please note:_ there is currently an issue in the setup of the `app-service` pod, causing requests from the frontend to fail. The below steps can still be followed to set up pods for the `app-frontend` and `model-service` services. Any code related to the kubernetes setup is located in the folder `operation/kubernetes`.
+
+1. Run `minikube start`
+2. Navigate to `operation/kubernetes`
+3. Run `kubectl apply -f appfrontend.yml`, `kubectl apply -f appservice.yml`, `kubectl apply -f modelservice.yml`
+4. Open a tunnel: `minikube tunnel`
+5. You can access the frontend by navigating to http://localhost:80
 
 ## Assignment 2
 
@@ -30,9 +42,11 @@
 ```bash
 git clone <repo-url> && cd <repo-dir>/provisioning
 vagrant up --provision
-ansible-playbook -u vagrant -i 192.168.56.100, finalization.yml
+ansible-playbook -u vagrant -i 192.168.56.100, finalization.yml --ask-vault-pass
 ````
-and follow the instructions printed in the last message (repeated here):
+and type the password `1234` when prompted.
+
+Then follow the instructions printed in the last message (repeated here):
 
 ##### 1. Open your terminal on the host machine and run:
 ```bash
