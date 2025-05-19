@@ -52,7 +52,15 @@ vagrant ssh ctrl
 kubectl -n kubernetes-dashboard create token admin-user
 ```
 ##### 6. Paste the token into the Dashboard login screen.
+##### 7. Exit the Controller VM
+Once you have retrieved the token, you can exit the controller VM by pressing Ctrl + D
 
+##### 8. Free Disk Space
+To remove the virtual machines and free up disk space when you're done, run the following command from the provisioning directory on your host machine:
+```bash
+vagrant destroy -f
+```
+This will forcefully stop and delete all Vagrant-managed virtual machines related to this project.
 
 ## Assignment 1
 
