@@ -40,9 +40,9 @@ Approved PR: https://github.com/remla25-team3/operation/pull/12
 
 -- Joost --
 
-Created PR: [operation] https://github.com/remla25-team3/operation/pull/11
+Created PR: https://github.com/remla25-team3/operation/pull/11 (related to A2)
 
-Approved PR: [operation] https://github.com/remla25-team3/operation/pull/12
+Approved PR: https://github.com/remla25-team3/operation/pull/12 
 
 -- Lennard --
 
@@ -73,7 +73,7 @@ Approved PR: https://github.com/remla25-team3/lib-version/pull/1
 
 -- Joost --
 
-Created PR: https://github.com/remla25-team3/operation/pull/1
+Created PR: https://github.com/remla25-team3/operation/pull/1 (related to A1)
 
 Approved PR: https://github.com/remla25-team3/lib-ml/pull/3
 
