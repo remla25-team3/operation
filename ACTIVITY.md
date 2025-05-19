@@ -46,9 +46,9 @@ Approved PR: https://github.com/remla25-team3/operation/pull/12
 
 -- Lennard --
 
-Created PR: [model-training](https://github.com/remla25-team3/model-training/pull/1), [model-service](https://github.com/remla25-team3/model-service/pull/4)
+Created PR: [model-training (A1)](https://github.com/remla25-team3/model-training/pull/1), [model-service (A1)](https://github.com/remla25-team3/model-service/pull/4)
 
-Approved PR: [app-service](https://github.com/remla25-team3/app-service/pull/3#pullrequestreview-2831484638), [operation](https://github.com/remla25-team3/operation/pull/12)
+Approved PR: [app-service (A1)](https://github.com/remla25-team3/app-service/pull/3#pullrequestreview-2831484638), [operation (A2)](https://github.com/remla25-team3/operation/pull/12)
 
 -- Denis --
 
@@ -79,9 +79,9 @@ Approved PR: https://github.com/remla25-team3/lib-ml/pull/3
 
 -- Lennard --
 
-Created PR: https://github.com/remla25-team3/app-service/pull/1, https://github.com/remla25-team3/model-service/pull/1
+Created PR: [app-service (A1)](https://github.com/remla25-team3/app-service/pull/1), [model-service (A1)](https://github.com/remla25-team3/model-service/pull/1)
 
-Approved PR: https://github.com/remla25-team3/lib-version/pull/1
+Approved PR: [lib-version (A1)](https://github.com/remla25-team3/lib-version/pull/1)
 
 -- Denis --
 
