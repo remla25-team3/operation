@@ -165,3 +165,9 @@
         name: kubelet
         enabled: yes
         state: started
+
+    - name: Create /mnt/shared directory
+      file:
+        path: /mnt/shared
+        state: directory
+        mode: '0777'

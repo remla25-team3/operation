@@ -12,4 +12,4 @@ metadata:
   name: app-secrets
 type: Opaque
 data:
-  API_KEY: "SOMERANDOMFAKEKEY" 
+  API_KEY: U09NRVJBTkRPTUZBS0VLRVk=
