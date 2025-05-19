@@ -8,7 +8,7 @@ Approved PR:
 
 -- Joost --
 
-Created PR:
+Created PR: https://github.com/remla25-team3/app-frontend/pull/9 (related to A1)
 
 Approved PR:
 
