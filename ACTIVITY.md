@@ -20,9 +20,9 @@ Approved PR: [model-service (A1)](https://github.com/remla25-team3/model-service
 
 -- Denis --
 
-Created PR:
+Created PR: [operation](https://github.com/remla25-team3/operation/pull/24)
 
-Approved PR:
+Approved PR: [operation](https://github.com/remla25-team3/operation/pull/19)
 
 -- Alberto --
 
@@ -52,9 +52,9 @@ Approved PR: [app-service (A1)](https://github.com/remla25-team3/app-service/pul
 
 -- Denis --
 
-Created PR: [operation]https://github.com/remla25-team3/operation/pull/15
+Created PR: [operation](https://github.com/remla25-team3/operation/pull/15)
 
-Approved PR: [operation]https://github.com/remla25-team3/operation/pull/12
+Approved PR: [operation](https://github.com/remla25-team3/operation/pull/12)
 
 -- Alberto --
 
