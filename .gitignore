@@ -1,4 +1,3 @@
 .vagrant
 *.key
 config/
-provisioning/alertmanager-secret.yml
