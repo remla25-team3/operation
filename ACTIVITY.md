@@ -1,4 +1,4 @@
-# A3
+# Week 3
 
 -- Amin --
 
@@ -30,7 +30,7 @@ Created PR: [operation (A2)](https://github.com/remla25-team3/operation/pull/19)
 
 Approved PR: [operation (A3)](https://github.com/remla25-team3/operation/pull/21)
 
-# A2
+# Week 2
 
 -- Amin --
 
@@ -63,7 +63,7 @@ Created PR:[operation](https://github.com/remla25-team3/operation/pull/12)
 Approved PR: [operation](https://github.com/remla25-team3/operation/pull/11),  [model-training](https://github.com/remla25-team3/model-training/pull/1)
 
 
-# A1
+# Week 1
 
 -- Amin --
 
