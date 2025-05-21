@@ -6,6 +6,9 @@ MEMORY_WORKER = 2048 # lower for test purposes
 
 Vagrant.configure("2") do |config|
   
+  # share host's ../shared folder to mnt/shared in all VMs
+  config.vm.synced_folder "../shared", "/mnt/shared"
+
   # Create Ansible groups
   ansible_groups = {
     "controller" => ["ctrl"],
