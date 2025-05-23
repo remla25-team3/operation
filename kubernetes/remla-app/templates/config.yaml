@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "remla-app.fullname" . }}-config
+  labels:
+    {{- include "remla-app.labels" . | nindent 4 }}
+data:
+  APP_ENV: {{ .Values.config.configMap.appEnv | quote }}
+  LOG_LEVEL: {{ .Values.config.configMap.logLevel | quote }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ include "remla-app.fullname" . }}-secrets
+  labels:
+    {{- include "remla-app.labels" . | nindent 4 }}
+type: Opaque
+data:
+  API_KEY: {{ .Values.config.secrets.apiKey | b64enc | quote }}
+
