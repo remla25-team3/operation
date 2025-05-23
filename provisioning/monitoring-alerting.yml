@@ -1,0 +1,218 @@
+- name: Monitoring-Alerting
+  hosts: all
+  become: true
+  vars_files:
+    - vars/all.yml
+    - vars/alertmanager-secret.yml
+  tasks:
+  
+  # --- Assignment 3 ---
+
+  # --------- 1.2: Monitoring ---------
+  - name: Create monitoring namespace
+    kubernetes.core.k8s:
+      state: present
+      definition:
+        apiVersion: v1
+        kind: Namespace
+        metadata:
+          name: "{{ monitoring_namespace }}"
+      kubeconfig: "{{ kubeconfig }}"
+
+  - name: Add Prometheus Helm repo (Assignment 3 1.2)
+    kubernetes.core.helm_repository:
+      name: prometheus-community
+      repo_url: https://prometheus-community.github.io/helm-charts
+      kubeconfig: "{{ kubeconfig }}"
+
+  - name: Install Prometheus Stack via Helm and setup AlertManager (Assignment 3 1.2)
+    kubernetes.core.helm:
+      name: "{{ prometheus_release_name }}"
+      chart_ref: prometheus-community/kube-prometheus-stack
+      create_namespace: false
+      release_namespace: "{{ monitoring_namespace }}"
+      kubeconfig: "{{ kubeconfig }}"
+      values:
+        prometheusOperator:
+          tls:
+            enabled: false
+          admissionWebhooks:
+            enabled: false
+
+        prometheus:
+          prometheusSpec:
+            # must be ≥ 60
+            maximumStartupDurationSeconds: 120
+          
+        alertmanager:
+          enabled: true
+          config:
+            global:
+              resolve_timeout: 5m
+              smtp_smarthost: "smtp.gmail.com:587"
+              smtp_from: "{{ smtp_from_email_val }}"
+              smtp_auth_username: "{{ smtp_auth_username_val }}"
+              smtp_auth_password: "{{ smtp_auth_password_val }}"
+              smtp_require_tls: true
+            
+            route:
+              group_by: ['alertname', 'severity', 'instance']
+              group_wait: 30s
+              group_interval: 5m
+              repeat_interval: 3h
+              receiver: 'default-email'
+              routes:
+              - match:
+                  severity: critical
+                receiver: 'critical-email'
+                continue: true
+              - match:
+                  severity: warning
+                receiver: 'warning-email'
+                continue: true
+              - match:
+                  severity: info
+                receiver: 'info-email'
+                continue: true
+
+            receivers:
+            - name: "critical-email" 
+              email_configs:
+              - to: "{{ critical_email_val }}"
+                send_resolved: true
+                headers:
+                  subject: "[CRITICAL] {% raw %}{{ template \"email.subject\" . }}{% endraw %}"
+                html: "{% raw %}{{ template \"email.html\" . }}{% endraw %}"
+            
+            - name: "warning-email"
+              email_configs:
+              - to: "{{ warning_email_val }}"
+                send_resolved: true
+                headers:
+                  subject: "[WARNING] {% raw %}{{ template \"email.subject\" . }}{% endraw %}"
+                html: "{% raw %}{{ template \"email.html\" . }}{% endraw %}"
+
+            - name: "info-email"
+              email_configs:
+              - to: "{{ info_email_val }}"
+                send_resolved: true
+                headers:
+                  subject: "[INFO] {% raw %}{{ template \"email.subject\" . }}{% endraw %}"
+                html: "{% raw %}{{ template \"email.html\" . }}{% endraw %}"
+            
+            - name: "default-email"
+              email_configs:
+              - to: "{{ default_recipient_email_val }}"
+                send_resolved: true
+                headers:
+                  subject: "[DEFAULT][{% raw %}{{ .CommonLabels.severity | default \"none\" | upper }}{% endraw %}] {% raw %}{{ template \"email.subject\" . }}{% endraw %}"
+                html: "{% raw %}{{ template \"email.html\" . }}{% endraw %}"
+  
+  - name: Add ServiceMonitor for application monitoring (Assignment 3 1.2)
+    kubernetes.core.k8s:
+      state: present
+      kubeconfig: "{{ kubeconfig }}"
+      definition:
+        apiVersion: monitoring.coreos.com/v1
+        kind: ServiceMonitor
+        metadata:
+          name: app-monitor
+          namespace: "{{ monitoring_namespace }}"
+          labels:
+            release: "{{ prometheus_release_name }}"
+        spec:
+          selector:
+            matchLabels:
+              app: "{{ app_service_name }}"
+          endpoints:
+          - interval: 1s  # Should be made larger later
+  
+  # # --------- 1.2: Alerting Rules---------
+  - name: Add PrometheusRule for alerts (Assignment 3 1.2)
+    kubernetes.core.k8s:
+      state: present
+      kubeconfig: "{{ kubeconfig }}"
+      definition:
+        apiVersion: monitoring.coreos.com/v1
+        kind: PrometheusRule
+        metadata:
+          name: app-alerts
+          namespace: "{{ monitoring_namespace }}"
+          labels:
+            release: "{{ prometheus_release_name }}"
+        
+        spec:
+          groups:
+          - name: request-rate
+            rules:
+            - alert: HighRequestRate
+              expr: sum(rate(http_requests_total[1m])) > 15
+              for: 2m
+              labels:
+                severity: critical
+              annotations:
+                summary: "High request rate detected!"
+                description: "The application is receiving more than 15 requests per minute for 2 minutes."
+            
+            - alert: ErrorRateHigh
+              expr: sum(rate(http_requests_errors_total[5m])) / sum(rate(http_requests_total[5m])) * 100 > 5
+              for: 5m
+              labels:
+                severity: critical
+              annotations:
+                summary: "High error rate detected!"
+                description: "Error rate is above 5% for the last 5 minutes."
+
+          - name: resource-usage
+            rules:
+            - alert: HighMemoryUsage
+              expr: container_memory_usage_bytes{container!=""} / container_spec_memory_limit_bytes{container!=""} * 100 > 85
+              for: 5m
+              labels:
+                severity: warning
+              annotations:
+                summary: "High memory usage detected!"
+                description: "Container {% raw %}{{ $labels.container }}{% endraw %} is using more than 85% of its memory limit."
+
+            - alert: HighCPUUsage
+              expr: sum(rate(container_cpu_usage_seconds_total{container!=""}[5m])) by (container) * 100 > 80
+              for: 5m
+              labels:
+                severity: warning
+              annotations:
+                summary: "High CPU usage detected!"
+                description: "Container {% raw %}{{ $labels.container }}{% endraw %} is using more than 80% of CPU."
+
+          - name: availability
+            rules:
+            - alert: ServiceDown
+              expr: up == 0
+              for: 1m
+              labels:
+                severity: critical
+              annotations:
+                summary: "Service is down!"
+                description: "Service {% raw %}{{ $labels.service }}{% endraw %} has been down for more than 1 minute."
+
+            - alert: HighLatency
+              expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le)) > 1
+              for: 5m
+              labels:
+                severity: warning
+              annotations:
+                summary: "High latency detected!"
+                description: "95th percentile of request latency is above 1 second."
+  
+  - name: Wait for all pods in monitoring namespace to be running (Assignment 3 1.2)
+    shell: |
+      kubectl wait --namespace={{ monitoring_namespace }} \
+        --for=condition=ready pod \
+        --all \
+        --timeout=300s \
+        --kubeconfig={{ kubeconfig }}
+    changed_when: false
+    register: wait_result
+    until: wait_result.rc == 0
+    retries: 3
+    delay: 10
+

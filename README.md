@@ -40,9 +40,9 @@ _Please note:_ there is currently an issue in the setup of the `app-service` pod
 
 ##### Clone & Start
 ```bash
-git clone <repo-url> && cd <repo-dir>/provisioning
-vagrant up --provision
-ansible-playbook -u vagrant -i 192.168.56.100, finalization.yml --ask-vault-pass
+git clone git@github.com:remla25-team3/operation.git (using SSH)
+vagrant up
+ansible-playbook -u vagrant -i 192.168.56.100, provisioning/finalization.yml --ask-vault-pass
 ````
 and type the password `1234` when prompted.
 
