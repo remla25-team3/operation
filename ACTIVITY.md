@@ -35,9 +35,9 @@ Approved PR:
 
 -- Amin --
 
-Created PR: https://github.com/remla25-team3/operation/pull/21
+Created PR: [operation (A3)](https://github.com/remla25-team3/operation/pull/21)
 
-Approved PR: https://github.com/remla25-team3/operation/pull/23
+Approved PR: [operation (A3)](https://github.com/remla25-team3/operation/pull/23)
 
 -- Joost --
 
@@ -101,9 +101,9 @@ Approved PR: [operation](https://github.com/remla25-team3/operation/pull/11),  [
 
 -- Amin --
 
-Created PR: https://github.com/remla25-team3/lib-ml/pull/3
+Created PR: [lib-ml (A1)](https://github.com/remla25-team3/lib-ml/pull/3)
 
-Approved PR: https://github.com/remla25-team3/lib-version/pull/1
+Approved PR: [lib-version (A1)](https://github.com/remla25-team3/lib-version/pull/1)
 
 -- Joost --
 
