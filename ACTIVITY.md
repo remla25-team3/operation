@@ -2,9 +2,9 @@
 
 -- Amin --
 
-Created PR:
+Created PR: [model-training (A4)](https://github.com/remla25-team3/model-training/pull/4)
 
-Approved PR:
+Approved PR: [model-training (A4)](https://github.com/remla25-team3/model-training/pull/3)
 
 -- Joost --
 
