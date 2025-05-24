@@ -1,0 +1,10 @@
+kubeconfig: /etc/kubernetes/admin.conf
+ip_range: "192.168.56.90-192.168.56.99"
+ingress_ip: "192.168.56.91"
+istio_ip: "192.168.56.92"
+dashboard_namespace: kubernetes-dashboard
+dashboard_release: kubernetes-dashboard
+ingress_host: dashboard.local
+monitoring_namespace: monitoring
+prometheus_release_name: prom-monitoring
+app_service_name: app-service

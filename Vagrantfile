@@ -6,6 +6,9 @@ MEMORY_WORKER = 2048 # lower for test purposes
 
 Vagrant.configure("2") do |config|
   
+  # share host's ../shared folder to mnt/shared in all VMs
+  config.vm.synced_folder "shared", "/mnt/shared"
+  
   # Create Ansible groups
   ansible_groups = {
     "controller" => ["ctrl"],
@@ -31,7 +34,7 @@ Vagrant.configure("2") do |config|
 
     #step 3: Provision general.yml (common setup)
     ctrl.vm.provision :ansible do |a|
-      a.playbook = "general.yml"
+      a.playbook = "provisioning/general.yml"
       a.extra_vars = {
         num_workers: NUM_WORKERS
       }
@@ -40,7 +43,7 @@ Vagrant.configure("2") do |config|
 
     #step 4: Provision ctrl.yml (controller-specific)
     ctrl.vm.provision :ansible do |a|
-      a.playbook = "ctrl.yml"
+      a.playbook = "provisioning/ctrl.yml"
       a.extra_vars = {
         num_workers: NUM_WORKERS
       }
@@ -66,7 +69,7 @@ Vagrant.configure("2") do |config|
 
       #step 3: Provision general.yml (common setup)
       node.vm.provision :ansible do |a|
-        a.playbook = "general.yml"
+        a.playbook = "provisioning/general.yml"
         a.extra_vars = {
           num_workers: NUM_WORKERS
         }
@@ -75,7 +78,7 @@ Vagrant.configure("2") do |config|
 
       #step 4: Provision node.yml (worker-specific)
       node.vm.provision :ansible do |a|
-        a.playbook = "node.yml"
+        a.playbook = "provisioning/node.yml"
         a.extra_vars = {
           num_workers: NUM_WORKERS
         }
