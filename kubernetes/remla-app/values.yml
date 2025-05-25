@@ -86,4 +86,14 @@ volumes:
   sharedData:
     enabled: true
     hostPath: /mnt/shared
+    
+# Dashboard configuration
+grafana:
+  enabled: true
+  defaultDashboardsEnabled:
+    enabled: true
+  sidecar:
+    dashboards:
+      enabled: true
+      label: grafana_dashboard
 
