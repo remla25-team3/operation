@@ -145,6 +145,7 @@
       release_namespace: "{{ dashboard_namespace }}"
       create_namespace: true
       kubeconfig: "{{ kubeconfig }}"
+      force: true
 
   - name: Create admin-user ServiceAccount and ClusterRoleBinding (step 22)
     copy:
