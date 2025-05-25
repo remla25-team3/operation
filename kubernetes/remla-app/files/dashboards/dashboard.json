@@ -1,0 +1,84 @@
+{
+  "_NOTE": "This template is an AI generated placeholder"
+  "dashboard": {
+    "id": null,
+    "uid": null,
+    "title": "Prediction Metrics Dashboard",
+    "tags": ["prediction", "app"],
+    "timezone": "browser",
+    "schemaVersion": 37,
+    "version": 1,
+    "refresh": "10s",
+    "panels": [
+      {
+        "type": "text",
+        "title": "Application Info",
+        "gridPos": { "x": 0, "y": 0, "w": 24, "h": 2 },
+        "options": {
+          "content": "# Application Info Panel\nMetric: `app_info`\nDisplays static version info."
+        }
+      },
+      {
+        "type": "timeseries",
+        "title": "Review Input Length vs Prediction",
+        "gridPos": { "x": 0, "y": 2, "w": 12, "h": 8 },
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.5, sum(rate(input_length_vs_prediction_bucket[1m])) by (le, prediction))",
+            "legendFormat": "P50 - {{prediction}}",
+            "refId": "A"
+          }
+        ]
+      },
+      {
+        "type": "bargauge",
+        "title": "Prediction Count by Type",
+        "gridPos": { "x": 12, "y": 2, "w": 12, "h": 8 },
+        "targets": [
+          {
+            "expr": "sum(rate(prediction_count_by_type[1m])) by (prediction)",
+            "legendFormat": "{{prediction}}",
+            "refId": "B"
+          }
+        ],
+        "options": {
+          "orientation": "horizontal"
+        }
+      },
+      {
+        "type": "stat",
+        "title": "Active Prediction Requests",
+        "gridPos": { "x": 0, "y": 10, "w": 6, "h": 4 },
+        "targets": [
+          {
+            "expr": "active_prediction_requests",
+            "refId": "C"
+          }
+        ]
+      },
+      {
+        "type": "stat",
+        "title": "Happy Users",
+        "gridPos": { "x": 6, "y": 10, "w": 6, "h": 4 },
+        "targets": [
+          {
+            "expr": "increase(happy_users[5m])",
+            "refId": "D"
+          }
+        ]
+      },
+      {
+        "type": "stat",
+        "title": "Unsatisfied Users",
+        "gridPos": { "x": 12, "y": 10, "w": 6, "h": 4 },
+        "targets": [
+          {
+            "expr": "increase(unsatisfied_users[5m])",
+            "refId": "E"
+          }
+        ]
+      }
+    ]
+  },
+  "overwrite": true
+}
