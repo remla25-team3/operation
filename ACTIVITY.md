@@ -20,9 +20,9 @@ Approved PR: [model-training (A4)](https://github.com/remla25-team3/model-traini
 
 -- Denis --
 
-Created PR:
+Created PR: [model-training (A4)](https://github.com/remla25-team3/model-training/pull/8)
 
-Approved PR:
+Approved PR: [model-training (A4)](https://github.com/remla25-team3/model-training/pull/7)
 
 -- Alberto --
 
