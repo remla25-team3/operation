@@ -10,6 +10,10 @@
 * model-training: [v1.1.0](https://github.com/remla25-team3/model-training/releases/tag/v1.1.0)
 * operation: [this repo](https://github.com/remla25-team3/operation)
 
+## Assignment 4
+
+ML Tests and linting have been configured in model-training pipelines. DVC has also been implemented
+
 ## Assignment 3
 
 ##### Prerequisites
