@@ -10,9 +10,9 @@ To overcome the challenges in our current deployment process, we propose to inte
 |-----------------------------------------------------------|------------------------------------------------------------|
 | Deployments require manual application of manifests or Helm charts, prone to human error and delays. | Automatic synchronization of cluster state with Git, eliminating manual deployment steps. |
 | Lack of guaranteed consistency between Git repository and deployed cluster state; possible drift over time. | Continuous reconciliation ensures cluster state always matches Git, preventing drift. |
-| Rollbacks are manual and complex, requiring careful re-application of old manifests. | Rollbacks are as simple as reverting Git commits; Fluxed applies changes automatically. |
+| Rollbacks are manual and complex, requiring careful re-application of old manifests. | Rollbacks are as simple as reverting Git commits; Flux applies changes automatically. |
 | Difficult to audit which deployment corresponds to which change due to manual processes. | Every deployment is linked to a specific Git commit, enhancing auditability and traceability. |
-| Limited visibility on deployment status and reconciliation health. | Fluxed provides detailed status reports and alerts on deployment success or failure. |
+| Limited visibility on deployment status and reconciliation health. | Flux provides detailed status reports and alerts on deployment success or failure. |
 | SSH access to cluster nodes is required to run `helm upgrade` or `kubectl apply` commands manually or trigger any workflows. | No need to SSH into nodes; Flux automatically applies changes by syncing with Git, streamlining operations. |
 
 
