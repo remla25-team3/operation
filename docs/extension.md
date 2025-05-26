@@ -17,7 +17,7 @@ To overcome the challenges in our current deployment process, we propose to inte
 
 
 ## Steps to implement
-1. Install Flux CLI both on the cluster and on the local machine by following [this] (https://fluxcd.io/flux/installation/)
+1. Install Flux CLI both on the cluster and on the local machine by following [this](https://fluxcd.io/flux/installation/)
 
 2. Bootstrap Flux into the cluster
    Use the Flux CLI to bootstrap Flux into your Kubernetes cluster, connecting it to your Git repository containing deployment manifests or Helm charts. For example:  
@@ -27,7 +27,7 @@ To overcome the challenges in our current deployment process, we propose to inte
      --repository="operation" \
      --branch=main \
      --path=cluster
-3. Define the deployed helmresources as [HelmReleases] (https://fluxcd.io/flux/guides/helmreleases/)
+3. Define the deployed helmresources as [HelmReleases](https://fluxcd.io/flux/guides/helmreleases/)
 4. Watch flux automatically take care of the deployment and syncronization :) 
 ## General Solution
   The proposed GitOps approach using Flux is broadly applicable across diverse projects and environments that leverage Kubernetes. The principles of declarative configuration, automated reconciliation, and version-controlled infrastructure are universal and can be integrated into CI/CD pipelines for any cloud-native application. This has been one of the latest industry trends by companies using Kubernetes clusters as can be seen by the blog of RBC Capital Markets on CNCF: [Blog RBC](https://www.cncf.io/blog/2025/05/22/streamlining-application-deployment-on-kubernetes-at-rbc-capital-markets-a-journey-with-fluxcd/)
