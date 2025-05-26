@@ -8,7 +8,7 @@ Approved PR: [model-training (A4)](https://github.com/remla25-team3/model-traini
 
 -- Joost --
 
-Created PR:
+Created PR: https://github.com/remla25-team3/app-service/pull/9 (related to A3)
 
 Approved PR: https://github.com/remla25-team3/operation/pull/22
 
