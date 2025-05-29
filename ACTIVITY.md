@@ -1,3 +1,36 @@
+# Week Q4.6 (May 26+)
+
+-- Amin --
+
+Created PR: [operation (A5)](https://github.com/remla25-team3/operation/pull/28)
+
+Approved PR:
+
+-- Joost --
+
+Created PR:
+
+Approved PR:
+
+-- Lennard --
+
+Created PR:
+
+Approved PR: [operation (A5)](https://github.com/remla25-team3/operation/pull/28#pullrequestreview-2879083768)
+
+-- Denis --
+
+Created PR:
+
+Approved PR: [operation (A5)](https://github.com/remla25-team3/operation/pull/28)
+
+-- Alberto --
+
+Created PR:
+
+Approved PR:
+
+
 # Week Q4.5 (May 19+)
 
 -- Amin --
