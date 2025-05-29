@@ -301,25 +301,62 @@
               cpu: "200m"
               memory: "256Mi"
 
+  - name: Uninstall existing Istio ingress gateway (if any)
+    kubernetes.core.helm:
+      release_name: istio-ingress
+      release_namespace: istio-system
+      kubeconfig: "{{ kubeconfig }}"
+      state: absent
+      wait: true
+    ignore_errors: true
+
+  - name: Write istio-ingress values to file
+    copy:
+      dest: /tmp/istio-ingress-values.yaml
+      mode: '0644'
+      content: |
+        gateways:
+          istio-ingressgateway:
+            enabled: true
+            service:
+              type: LoadBalancer
+              loadBalancerIP: "{{ istio_ip }}"
+              externalTrafficPolicy: Local
+              ports:
+                - name: status-port
+                  port: 15021
+                  targetPort: 15021
+                - name: http
+                  port: 80
+                  targetPort: 80
+                - name: https
+                  port: 443
+                  targetPort: 443
+                - name: grpc-ratelimit
+                  port: 8081
+                  targetPort: 8081
+            podAnnotations:
+              sidecar.istio.io/inject: "false"
+            env:
+              - name: ISTIO_META_ENABLE_RATE_LIMIT
+                value: "true"
+              - name: ISTIO_METAJSON_LABELS
+                value: '{"istio":"ingress"}'
+
+
   - name: Deploy Istio ingress gateway with fixed IP (step 23)
     kubernetes.core.helm:
       release_name: istio-ingress
       chart_ref: istio/gateway
       chart_version: "1.25.2"
       release_namespace: istio-system
-      create_namespace: false
       kubeconfig: "{{ kubeconfig }}"
       wait: true
       timeout: "300s"
-      values:
-        gateways:
-          istio-ingressgateway:
-            enabled: true
-            service:
-              type: LoadBalancer
-              loadBalancerIP: "{{  istio_ip  }}"
-            podAnnotations:
-              sidecar.istio.io/inject: "false"
+      force: true
+      values_files:
+        - /tmp/istio-ingress-values.yaml
+
 
   - name: Istio deployment summary (step 23)
     debug:
@@ -329,3 +366,5 @@
     
 #Assignment 3
 - import_playbook: monitoring-alerting.yml
+#Assignment 5: rate limiting
+- import_playbook: rate-limiting.yml
