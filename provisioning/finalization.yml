@@ -317,7 +317,7 @@
             enabled: true
             service:
               type: LoadBalancer
-              loadBalancerIP: "{{ istio_ip }}"
+              loadBalancerIP: "{{  istio_ip  }}"
             podAnnotations:
               sidecar.istio.io/inject: "false"
 
