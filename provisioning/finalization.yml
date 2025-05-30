@@ -363,8 +363,6 @@
       msg:
         - "Istio has been successfully installed using Helm."
         - "Your cluster is now prepared for Istio-based deployments."
-    
+  
 #Assignment 3
 - import_playbook: monitoring-alerting.yml
-#Assignment 5: rate limiting
-- import_playbook: rate-limiting.yml

@@ -108,8 +108,8 @@
     - name: install k8s tools (step 10)
       ansible.builtin.apt:
         name:
-        - containerd=1.7.24-0ubuntu1~24.04.2
-        - runc=1.1.12-0ubuntu3.1
+        - containerd=1.7.24-*
+        - runc=1.1.12-*
         - kubeadm={{ k8s_version }}
         - kubelet={{ k8s_version }}
         - kubectl={{ k8s_version }}
