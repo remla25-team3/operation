@@ -302,16 +302,70 @@
 
   - name: Copy Istio configuration file to node (step 23)
     copy:
-      src: "{{ playbook_dir }}/istio-config.yml"
+      src: "{{ playbook_dir }}/resources/istio-config.yml"
       dest: /tmp/istio-config.yml
       mode: '0644'
     when: istio_system_ns_info.resources | length == 0
 
-  - name: Run istio installation on controller node (step 23)
+  - name: Apply static gateway IP in configuration file (step 23)
+    ansible.builtin.lineinfile:
+      path: /tmp/istio-config.yml
+      regexp: '([ \\t]*)loadBalancerIP: <istio_ip>.*'
+      line: '\1loadBalancerIP: {{ istio_ip }}'
+      backrefs: yes
+
+  - name: Set user permissions for kubeconfig (step 23)
+    ansible.builtin.file:
+      path: "{{ kubeconfig }}"
+      state: file
+      mode: 'a=xwr'
+
+  - name: Run Istio installation on controller node (step 23)
     become: false
-    shell: 'echo "y" | istioctl install -f /tmp/istio-config.yml'
+    shell: '/usr/local/bin/istio-1.25.2/bin/istioctl install -f /tmp/istio-config.yml -y -c {{ kubeconfig }}'
     changed_when: false
-    when: ansible_hostname == 'controller' and istio_system_ns_info.resources | length == 0
+    when: istio_system_ns_info.resources | length == 0
+
+#  - name: Wait for Istio pods to run (step 23)
+#    shell: |
+#      kubectl wait -n istio-system --for=condition=available deployment/istiod --timeout=60s --kubeconfig={{ kubeconfig }}
+#    changed_when: false
+
+  - name: Copy application k8s manifests
+    copy:
+      src: "{{ playbook_dir }}/../kubernetes/"
+      dest: /tmp/kubernetes
+      mode: '0644'
+
+  - name: Retrieve manifest file names as list
+    ansible.builtin.find:
+      paths: /tmp/kubernetes
+      patterns: '*.yml,*.yaml'
+    register: k8s_manifest_files
+
+  - name: Set filename variable
+    set_fact:
+      k8s_manifest_file_list: "{{ k8s_manifest_files.files | map(attribute='path') | list }}"
+
+  - name: Apply application k8s manifests
+    kubernetes.core.k8s:
+      state: present
+      src: "{{ item }}"
+      namespace: default
+      kubeconfig: "{{ kubeconfig }}"
+    loop: "{{ k8s_manifest_file_list }}"
+
+  - name: Copy gateway setup configuration (A5, Traffic Management)
+    copy:
+      src: "{{ playbook_dir }}/resources/gateway-setup.yml"
+      dest: /tmp/gateway-setup.yml
+      mode: '0644'
+
+  - name: Start VirtualService (A5, Traffic Management)
+    kubernetes.core.k8s:
+      state: present
+      src: /tmp/gateway-setup.yml
+      kubeconfig: "{{ kubeconfig }}"
     
 #Assignment 3
 - import_playbook: monitoring-alerting.yml
