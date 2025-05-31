@@ -282,21 +282,25 @@
       insertafter: EOF
       state: present
       create: true
-    when: not path_contents|regex_search('\s*PATH=.+')
+    when: not path_contents|regex_search('\s*PATH=.*')
 
   - name: Add istioctl to PATH (step 23)
     ansible.builtin.lineinfile:
       path: /etc/environment
-      regexp: "^PATH=(\"?)([^\"]+)(\"?)$"
+      regexp: "^PATH=(\"?)([^\"]*)(\"?)$"
       line: 'PATH=\1\2:/usr/local/bin/istio-1.25.2/bin\3'
       backrefs: yes
     when: not path_contents|regex_search('istio-1.25.2')
 
-  - name: Prevent illegal format in PATH (step 23)
-    ansible.builtin.replace:
-      path: /etc/environment
-      regexp: "^PATH=(\"?):(.+)$"
-      replace: 'PATH=\1\2'
+  - name: Copy Istio configuration file to node (step 23)
+    copy:
+      src: "{{ playbook_dir }}/istio-config.yml"
+      dest: /tmp/istio-config.yml
+      mode: '0644'
+
+  - name: Run istio installation on controller node (step 23)
+    command: istioctl install -f /tmp/istio-config.yml
+    when: ansible_hostname == 'controller'
 
 #  - name: Add Istio Helm repository (step 23)
 #    kubernetes.core.helm_repository:
