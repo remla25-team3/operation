@@ -14,7 +14,7 @@ Approved PR:
 
 -- Lennard --
 
-Created PR:
+Created PR: [operation (A2)](https://github.com/remla25-team3/operation/pull/29), [operation (A5)](https://github.com/remla25-team3/operation/pull/30)
 
 Approved PR: [operation (A5)](https://github.com/remla25-team3/operation/pull/28#pullrequestreview-2879083768)
 
