@@ -20,7 +20,7 @@ Approved PR: [operation (A5)](https://github.com/remla25-team3/operation/pull/28
 
 -- Denis --
 
-Created PR:
+Created PR: [operation (A5)](https://github.com/remla25-team3/operation/pull/31)
 
 Approved PR: [operation (A5)](https://github.com/remla25-team3/operation/pull/28)
 
