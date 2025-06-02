@@ -4,7 +4,7 @@
 
 * app-frontend: [v1.2.0](https://github.com/remla25-team3/app-frontend/releases/tag/v1.2.0)
 * app-service: [v1.2.0](https://github.com/remla25-team3/app-service/releases/tag/v1.2.0)
-* lib-ml: [v0.3.1](https://github.com/remla25-team3/lib-ml/releases/tag/v0.4.0)
+* lib-ml: [v0.4.0](https://github.com/remla25-team3/lib-ml/releases/tag/v0.4.0)
 * lib-version: [v1.2.0](https://github.com/remla25-team3/lib-version/releases/tag/v1.2.0)
 * model-service: [v0.2.0](https://github.com/remla25-team3/model-service/releases/tag/v0.2.0)
 * model-training: [v1.1.0](https://github.com/remla25-team3/model-training/releases/tag/v1.1.0)
