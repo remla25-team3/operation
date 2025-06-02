@@ -4,7 +4,7 @@
 
 Created PR: [operation (A5)](https://github.com/remla25-team3/operation/pull/28)
 
-Approved PR:
+Approved PR: [operation (A5)](https://github.com/remla25-team3/operation/pull/29), [operation (A5)](https://github.com/remla25-team3/operation/pull/30)
 
 -- Joost --
 
