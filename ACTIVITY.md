@@ -1,3 +1,9 @@
+# Week Q4.7 (June 2+)
+
+-- Joost --
+
+Created PR: https://github.com/remla25-team3/model-training/pull/34 (related to A4)
+
 # Week Q4.6 (May 26+)
 
 -- Amin --
@@ -8,7 +14,7 @@ Approved PR: [operation (A5)](https://github.com/remla25-team3/operation/pull/29
 
 -- Joost --
 
-Created PR:
+Created PR: missed
 
 Approved PR: https://github.com/remla25-team3/lib-ml/pull/12#pullrequestreview-2889732079
 
