@@ -1,8 +1,35 @@
 # Week Q4.7 (June 2+)
 
+-- Amin --
+
+Created PR:
+
+Approved PR:
+
 -- Joost --
 
 Created PR: https://github.com/remla25-team3/model-training/pull/34 (related to A4)
+
+Approved PR:
+
+-- Lennard --
+
+Created PR:
+
+Approved PR:
+
+-- Denis --
+
+Created PR:
+
+Approved PR:
+
+-- Alberto --
+
+Created PR:
+
+Approved PR:
+
 
 # Week Q4.6 (May 26+)
 
