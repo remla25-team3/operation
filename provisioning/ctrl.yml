@@ -2,6 +2,49 @@
   become: true
   tasks:
 
+  # --------- STEP 17: Install Helm Diff Plugin ---------
+  - name: Download and install helm-diff if not already present (step 17)
+    async: 120
+    poll: 0
+    register: install_helm_diff_async_task
+    ansible.builtin.command: >
+      helm plugin install https://github.com/databus23/helm-diff
+    args:
+      creates: /home/vagrant/.local/share/helm/plugins/helm-diff
+    become_user: vagrant
+    environment:
+      KUBECONFIG: ""
+      HELM_KUBECONFIG: ""
+
+  # --------- STEP 16: Install Helm ---------
+  - name: Define Helm install script URL and temporary path (step 16)
+    ansible.builtin.set_fact:
+      helm_script_url: "https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3"
+      helm_script_path: "/home/vagrant/get_helm.sh"
+
+  - name: Check if Helm binary exists (step 16)
+    ansible.builtin.stat:
+      path: /usr/local/bin/helm
+    register: helm_binary_stat
+
+  - name: Download Helm install script (step 16)
+    ansible.builtin.get_url:
+      url: "{{ helm_script_url }}"
+      dest: "{{ helm_script_path }}"
+      mode: '0755'
+    become: false
+    when: not helm_binary_stat.stat.exists
+
+  - name: Install Helm if not present (step 16)
+    async: 120
+    poll: 0
+    register: install_helm_async_task
+    ansible.builtin.command:
+      cmd: "{{ helm_script_path }}"
+      creates: /usr/local/bin/helm
+    become: true
+    when: not helm_binary_stat.stat.exists
+
   #download kubernetes library (needed for step 15)
   - name: Ensure Kubernetes Python client is installed
     apt:
@@ -144,6 +187,34 @@
       src: "{{ flannel_path }}"
       kubeconfig: /home/vagrant/.kube/config
 
+  - name: Retrieve async task job IDs that are still running
+    ansible.builtin.stat:
+      path: "/root/.ansible_async/{{ item }}"
+    loop:
+      - "{{ install_helm_async_task.ansible_job_id }}"
+      - "{{ install_helm_diff_async_task.ansible_job_id }}"
+    register: job_id_checks
+
+  - name: Filter existing job IDs
+    set_fact:
+      existing_job_ids: "{{ job_id_checks.results | selectattr('stat.exists', 'equalto', true) | map(attribute='item') | list }}"
+
+  - name: Wait for asynchronous tasks to complete
+    ansible.builtin.async_status:
+      jid: "{{ item.item }}"
+    loop:
+      - "{{ existing_job_ids }}"
+    register: async_tasks_result
+    until: async_tasks_result.finished
+    retries: 100
+    delay: 10
+
+  - name: Clean up Helm install script (step 16)
+    ansible.builtin.file:
+      path: "{{ helm_script_path }}"
+      state: absent
+    become: false
+
   - name:  Verify Flannel is running (step 15)
     ansible.builtin.shell: |
       kubectl --kubeconfig=/home/vagrant/.kube/config get pods -n kube-flannel -o custom-columns=STATUS:.status.phase --no-headers | grep -c "Running" | grep -q "^[1-9]"
@@ -153,46 +224,4 @@
     delay: 6
     changed_when: false
     ignore_errors: true
-
-  # --------- STEP 16: Install Helm ---------
-  - name: Define Helm install script URL and temporary path (step 16)
-    ansible.builtin.set_fact:
-      helm_script_url: "https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3"
-      helm_script_path: "/home/vagrant/get_helm.sh"
-
-  - name: Download Helm install script (step 16)
-    ansible.builtin.get_url:
-      url: "{{ helm_script_url }}"
-      dest: "{{ helm_script_path }}"
-      mode: '0755'
-    become: false
-
-  - name: Check if Helm binary exists (step 16)
-    ansible.builtin.stat:
-      path: /usr/local/bin/helm
-    register: helm_binary_stat
-
-  - name: Install Helm if not present (step 16)
-    ansible.builtin.command:
-      cmd: "{{ helm_script_path }}"
-      creates: /usr/local/bin/helm
-    become: true
-    when: not helm_binary_stat.stat.exists
-
-  - name: Clean up Helm install script (step 16)
-    ansible.builtin.file:
-      path: "{{ helm_script_path }}"
-      state: absent
-    become: false
-
-  # --------- STEP 17: Install Helm Diff Plugin ---------
-  - name: Download and install helm-diff if not already present (step 17)
-    ansible.builtin.command: >
-      helm plugin install https://github.com/databus23/helm-diff
-    args:
-      creates: /home/vagrant/.local/share/helm/plugins/helm-diff
-    become_user: vagrant
-    environment:
-      KUBECONFIG: ""
-      HELM_KUBECONFIG: ""
 
