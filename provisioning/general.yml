@@ -1,6 +1,8 @@
 - name: General
   become: true
   hosts: all
+  vars:
+    k8s_version: "1.32.4-1.1"
   tasks:
 
     #STEP 4
@@ -28,7 +30,7 @@
     - name: Remove SWAP from next boot (step 5)
       ansible.builtin.lineinfile:
         path: /etc/fstab
-        regexp: '^.*\s+swap\s+.*$' #'/swap.img' # not perfect but works
+        regexp: '^.*\s+swap\s+.*$'
         state: absent
         
     #STEP 6
@@ -42,15 +44,13 @@
         group: root
         mode: '0644'
 
-    - name: Load overlay module now (step 6)
+    - name: Load required kernel modules now (step 6)
       community.general.modprobe:
-        name: overlay
+        name: "{{ item }}"
         state: present
-
-    - name: Load br_netfilter module now (step 6)
-      community.general.modprobe:
-        name: br_netfilter
-        state: present
+      loop:
+        - overlay
+        - br_netfilter
 
     #STEP 7
     - name: Enable IPv4 forwarding (step 7)
@@ -82,6 +82,12 @@
         mode: '0644'
 
     #STEP 9
+    - name: Ensure /etc/apt/keyrings exists
+      ansible.builtin.file:
+        path: /etc/apt/keyrings
+        state: directory
+        mode: '0755'
+        
     - name: add apt key (step 9)
       ansible.builtin.apt_key:
         url: https://pkgs.k8s.io/core:/stable:/v1.32/deb/Release.key
@@ -104,11 +110,17 @@
         name:
         - containerd=1.7.24-*
         - runc=1.1.12-*
-        - kubeadm=1.32.4-*
-        - kubelet=1.32.4-*
-        - kubectl=1.32.4-*
+        - kubeadm={{ k8s_version }}
+        - kubelet={{ k8s_version }}
+        - kubectl={{ k8s_version }}
         state: present
-        update_cache: yes
+      register: k8s_install
+
+    - name: Mark Kubernetes tools as installed
+      ansible.builtin.file:
+        path: /etc/kube_installed.flag
+        state: touch
+      when: k8s_install is changed
 
     - name: avoid upgrades of Kubernetes packages 
       ansible.builtin.dpkg_selections:
@@ -150,8 +162,8 @@
     - name: Set SystemdCgroup = true (step 11)
       ansible.builtin.replace:
         path: /etc/containerd/config.toml
-        regexp: '^(\s*)SystemdCgroup = false'
-        replace: '\1SystemdCgroup = true'
+        regexp: '(^\s*SystemdCgroup\s*=\s*)false'
+        replace: '\1true'
 
     - name: Restart containerd (step 11)
       ansible.builtin.service:

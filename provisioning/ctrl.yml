@@ -1,5 +1,7 @@
 - hosts: controller
   become: true
+  vars:
+    controller_ip: '192.168.56.100'
   tasks:
 
   #download kubernetes library (needed for step 15)
@@ -27,7 +29,7 @@
     ansible.builtin.shell:
       cmd: >
         kubeadm init
-        --apiserver-advertise-address=192.168.56.100
+        --apiserver-advertise-address={{ controller_ip }}
         --node-name ctrl
         --pod-network-cidr=10.244.0.0/16
     register: init_result
@@ -70,6 +72,16 @@
       group: vagrant
       mode: "0600"
 
+  - name: Ensure config/ folder exists on host
+    delegate_to: localhost
+    connection: local
+    become: false
+    run_once: true
+    ansible.builtin.file:
+      path: "{{ playbook_dir }}/config"
+      state: directory
+      mode: '0755'
+
   - name: Fetch admin.conf from controller to host machine (step 14)
     ansible.builtin.fetch:
       src: /etc/kubernetes/admin.conf
@@ -88,35 +100,29 @@
         ----------------------------------------------------------------------
 
   # --------- STEP 15: Create Pod Network ---------
-  - name: Ensure resources/ dir exists on controller
+  - name: Ensure flannel manifest is available (step 15)
+    block:
+      - name: Ensure resources/ dir exists
+        ansible.builtin.file:
+          path: "{{ playbook_dir }}/resources"
+          state: directory
+          mode: '0755'
+
+      - name: Check for local Flannel manifest
+        ansible.builtin.stat:
+          path: "{{ playbook_dir }}/resources/kube-flannel.yml"
+        register: flannel_manifest
+
+      - name: Download Flannel manifest if not found locally
+        ansible.builtin.get_url:
+          url: "https://github.com/flannel-io/flannel/releases/download/v0.26.7/kube-flannel.yml"
+          dest: "{{ playbook_dir }}/resources/kube-flannel.yml"
+          mode: '0644'
+        when: not flannel_manifest.stat.exists
     delegate_to: localhost
     connection: local
+    run_once: true
     become: false
-    run_once: true
-    ansible.builtin.file:
-      path: "{{ playbook_dir }}/resources"
-      state: directory
-      mode: '0755'
-
-  - name: Check for local Flannel manifest
-    delegate_to: localhost
-    connection: local      # run it directly, no SSH
-    become: false          # don’t try sudo on localhost
-    run_once: true
-    ansible.builtin.stat:
-      path: "{{ playbook_dir }}/resources/kube-flannel.yml"
-    register: flannel_manifest
-
-  - name: Download Flannel manifest if not found locally
-    delegate_to: localhost
-    connection: local
-    become: false
-    run_once: true
-    ansible.builtin.get_url:
-      url: "https://github.com/flannel-io/flannel/releases/download/v0.26.7/kube-flannel.yml"
-      dest: "{{ playbook_dir }}/resources/kube-flannel.yml"
-      mode: '0644'
-    when: not flannel_manifest.stat.exists
 
   - name: Copy Flannel manifest into the VM (step 15)
     ansible.builtin.copy:
@@ -149,41 +155,29 @@
       kubectl --kubeconfig=/home/vagrant/.kube/config get pods -n kube-flannel -o custom-columns=STATUS:.status.phase --no-headers | grep -c "Running" | grep -q "^[1-9]"
     register: flannel_check
     until: flannel_check.rc == 0
-    retries: 10
-    delay: 6
+    retries: 15
+    delay: 4
     changed_when: false
     ignore_errors: true
 
   # --------- STEP 16: Install Helm ---------
-  - name: Define Helm install script URL and temporary path (step 16)
-    ansible.builtin.set_fact:
-      helm_script_url: "https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3"
-      helm_script_path: "/home/vagrant/get_helm.sh"
+  # STEP 16: Install Helm via APT
+  - name: Add Helm GPG key
+    ansible.builtin.apt_key:
+      url: https://baltocdn.com/helm/signing.asc
+      state: present
+      keyring: /etc/apt/keyrings/helm.gpg
 
-  - name: Download Helm install script (step 16)
-    ansible.builtin.get_url:
-      url: "{{ helm_script_url }}"
-      dest: "{{ helm_script_path }}"
-      mode: '0755'
-    become: false
+  - name: Add Helm APT repository
+    ansible.builtin.apt_repository:
+      repo: deb [signed-by=/etc/apt/keyrings/helm.gpg] https://baltocdn.com/helm/stable/debian/ all main
+      filename: helm
+      state: present
 
-  - name: Check if Helm binary exists (step 16)
-    ansible.builtin.stat:
-      path: /usr/local/bin/helm
-    register: helm_binary_stat
-
-  - name: Install Helm if not present (step 16)
-    ansible.builtin.command:
-      cmd: "{{ helm_script_path }}"
-      creates: /usr/local/bin/helm
-    become: true
-    when: not helm_binary_stat.stat.exists
-
-  - name: Clean up Helm install script (step 16)
-    ansible.builtin.file:
-      path: "{{ helm_script_path }}"
-      state: absent
-    become: false
+  - name: Install Helm via APT
+    ansible.builtin.apt:
+      name: helm
+      state: present
 
   # --------- STEP 17: Install Helm Diff Plugin ---------
   - name: Download and install helm-diff if not already present (step 17)
