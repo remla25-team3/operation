@@ -16,7 +16,7 @@ Approved PR: https://github.com/remla25-team3/model-training/pull/36#pullrequest
 
 Created PR:
 
-Approved PR:
+Approved PR: https://github.com/remla25-team3/operation/pull/44
 
 -- Denis --
 
