@@ -10,7 +10,7 @@ Approved PR: https://github.com/remla25-team3/operation/pull/31
 
 Created PR: https://github.com/remla25-team3/model-training/pull/34 (related to A4)
 
-Approved PR:
+Approved PR: https://github.com/remla25-team3/model-training/pull/36#pullrequestreview-2909464993
 
 -- Lennard --
 
