@@ -2,20 +2,6 @@
   become: true
   tasks:
 
-  # --------- STEP 17: Install Helm Diff Plugin ---------
-  - name: Download and install helm-diff if not already present (step 17)
-    async: 120
-    poll: 0
-    register: install_helm_diff_async_task
-    ansible.builtin.command: >
-      helm plugin install https://github.com/databus23/helm-diff
-    args:
-      creates: /home/vagrant/.local/share/helm/plugins/helm-diff
-    become_user: vagrant
-    environment:
-      KUBECONFIG: ""
-      HELM_KUBECONFIG: ""
-
   # --------- STEP 16: Install Helm ---------
   - name: Define Helm install script URL and temporary path (step 16)
     ansible.builtin.set_fact:
@@ -187,27 +173,34 @@
       src: "{{ flannel_path }}"
       kubeconfig: /home/vagrant/.kube/config
 
-  - name: Retrieve async task job IDs that are still running
+  - name: Retrieve async task ID of helm installation task if it is still running
     ansible.builtin.stat:
-      path: "/root/.ansible_async/{{ item }}"
-    loop:
-      - "{{ install_helm_async_task.ansible_job_id }}"
-      - "{{ install_helm_diff_async_task.ansible_job_id }}"
-    register: job_id_checks
+      path: "/root/.ansible_async/{{ install_helm_async_task.ansible_job_id }}"
+    register: helm_job_id_check
 
-  - name: Filter existing job IDs
-    set_fact:
-      existing_job_ids: "{{ job_id_checks.results | selectattr('stat.exists', 'equalto', true) | map(attribute='item') | list }}"
-
-  - name: Wait for asynchronous tasks to complete
+  - name: Wait for helm installation async task to complete
     ansible.builtin.async_status:
-      jid: "{{ item.item }}"
-    loop:
-      - "{{ existing_job_ids }}"
-    register: async_tasks_result
-    until: async_tasks_result.finished
-    retries: 100
-    delay: 10
+      jid: "{{ install_helm_async_task.ansible_job_id }}"
+    when: helm_job_id_check.stat.exists
+    register: helm_async_task_result
+    until: helm_async_task_result.finished
+    retries: 60
+    delay: 1
+    ignore_errors: true
+
+  # --------- STEP 17: Install Helm Diff Plugin ---------
+  - name: Download and install helm-diff if not already present (step 17)
+    async: 120
+    poll: 0
+    register: install_helm_diff_async_task
+    ansible.builtin.command: >
+      helm plugin install https://github.com/databus23/helm-diff
+    args:
+      creates: /home/vagrant/.local/share/helm/plugins/helm-diff
+    become_user: vagrant
+    environment:
+      KUBECONFIG: ""
+      HELM_KUBECONFIG: ""
 
   - name: Clean up Helm install script (step 16)
     ansible.builtin.file:
@@ -215,13 +208,28 @@
       state: absent
     become: false
 
+  - name: Retrieve async task ID of helm diff installation task if it is still running
+    ansible.builtin.stat:
+      path: "/root/.ansible_async/{{ install_helm_diff_async_task.ansible_job_id }}"
+    register: helm_diff_job_id_check
+
+  - name: Wait for helm diff installation async task to complete
+    ansible.builtin.async_status:
+      jid: "{{ install_helm_diff_async_task.ansible_job_id }}"
+    when: helm_diff_job_id_check.stat.exists
+    register: helm_diff_async_task_result
+    until: helm_diff_async_task_result.finished
+    retries: 120
+    delay: 1
+    ignore_errors: true
+
   - name:  Verify Flannel is running (step 15)
     ansible.builtin.shell: |
       kubectl --kubeconfig=/home/vagrant/.kube/config get pods -n kube-flannel -o custom-columns=STATUS:.status.phase --no-headers | grep -c "Running" | grep -q "^[1-9]"
     register: flannel_check
     until: flannel_check.rc == 0
-    retries: 10
-    delay: 6
+    retries: 60
+    delay: 1
     changed_when: false
     ignore_errors: true
 
