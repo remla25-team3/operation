@@ -53,9 +53,9 @@ Approved PR: [operation (A5)](https://github.com/remla25-team3/operation/pull/28
 
 -- Denis --
 
-Created PR: [(A5)](https://github.com/remla25-team3/operation/pull/31)
+Created PR: [operation (A5)](https://github.com/remla25-team3/operation/pull/31)
 
-Approved PR: [(A5)](https://github.com/remla25-team3/operation/pull/28)
+Approved PR: [operation (A5)](https://github.com/remla25-team3/operation/pull/28)
 
 -- Alberto --
 
@@ -86,9 +86,9 @@ Approved PR: [model-training (A4)](https://github.com/remla25-team3/model-traini
 
 -- Denis --
 
-Created PR: [(A4)](https://github.com/remla25-team3/model-training/pull/8)
+Created PR: [model-training (A4)](https://github.com/remla25-team3/model-training/pull/8)
 
-Approved PR: [(A4)](https://github.com/remla25-team3/model-training/pull/7)
+Approved PR: [model-training (A4)](https://github.com/remla25-team3/model-training/pull/7)
 
 -- Alberto --
 
@@ -119,9 +119,9 @@ Approved PR: [model-service (A1)](https://github.com/remla25-team3/model-service
 
 -- Denis --
 
-Created PR: [A(3)](https://github.com/remla25-team3/operation/pull/24)
+Created PR: [operation A(3)](https://github.com/remla25-team3/operation/pull/24)
 
-Approved PR: [A(3)](https://github.com/remla25-team3/operation/pull/19)
+Approved PR: [operation A(3)](https://github.com/remla25-team3/operation/pull/19)
 
 -- Alberto --
 
@@ -152,9 +152,9 @@ Approved PR: [app-service (A1)](https://github.com/remla25-team3/app-service/pul
 
 -- Denis --
 
-Created PR: [(A2)](https://github.com/remla25-team3/operation/pull/15)
+Created PR: [operation (A2)](https://github.com/remla25-team3/operation/pull/15)
 
-Approved PR: [(A2)](https://github.com/remla25-team3/operation/pull/12)
+Approved PR: [operation (A2)](https://github.com/remla25-team3/operation/pull/12)
 
 -- Alberto --
 
@@ -185,9 +185,9 @@ Approved PR: [lib-version (A1)](https://github.com/remla25-team3/lib-version/pul
 
 -- Denis --
 
-Created PR: [A(1)](https://github.com/remla25-team3/lib-ml/pull/1)
+Created PR: [lib-ml A(1)](https://github.com/remla25-team3/lib-ml/pull/1)
 
-Approved PR: [A(1)](https://github.com/remla25-team3/lib-version/pull/2)
+Approved PR: [lib-version A(1)](https://github.com/remla25-team3/lib-version/pull/2)
 
 -- Alberto --
 
