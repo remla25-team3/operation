@@ -19,4 +19,4 @@ spec:
             type: LoadBalancer
             loadBalancerIP: <istio_ip> # To be substituted in playbook
           podAnnotations:
-            sidecar.istio.io/inject: true
+            sidecar.istio.io/inject: "true"
