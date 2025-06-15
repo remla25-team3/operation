@@ -1,0 +1,26 @@
+apiVersion: v1
+entries:
+  remla-app:
+  - annotations:
+      category: Application
+    apiVersion: v2
+    appVersion: 1.0.0
+    created: "2025-06-15T16:37:57.781970693Z"
+    description: A Helm chart for the REMLA application stack - frontend, app-service,
+      and model-service
+    digest: 8821d2fef934c7586057052861b925926098752c338c63cb2ed04541db326d7c
+    home: https://github.com/remla25-team3
+    keywords:
+    - remla
+    - machine-learning
+    - microservices
+    - web-application
+    maintainers:
+    - email: team3@remla.example.com
+      name: REMLA Team 3
+    name: remla-app
+    type: application
+    urls:
+    - https://github.com/remla25-team3/operation/releases/download/remla-app-1.0.0/remla-app-1.0.0.tgz
+    version: 1.0.0
+generated: "2025-06-15T16:37:57.781975111Z"
