@@ -20,6 +20,10 @@ jobs:
         with:
           app-id: ${{ vars.TEAM_APP_ID }}
           private-key: ${{ secrets.TEAM_APP_KEY }}
+      - name: Configure Git
+        run: |
+          git config user.name "remla25-team3[bot]"
+          git config user.email "remla25-team3[bot]@users.noreply.github.com"
 
       - name: Run chart-releaser
         uses: helm/chart-releaser-action@v1.7.0
