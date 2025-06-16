@@ -1,5 +1,7 @@
 - hosts: controller
   become: true
+  vars:
+    controller_ip: '192.168.56.100'
   tasks:
 
   # --------- STEP 16: Install Helm ---------
@@ -56,7 +58,7 @@
     ansible.builtin.shell:
       cmd: >
         kubeadm init
-        --apiserver-advertise-address=192.168.56.100
+        --apiserver-advertise-address={{ controller_ip }}
         --node-name ctrl
         --pod-network-cidr=10.244.0.0/16
     register: init_result
@@ -99,6 +101,16 @@
       group: vagrant
       mode: "0600"
 
+  - name: Ensure config/ folder exists on host
+    delegate_to: localhost
+    connection: local
+    become: false
+    run_once: true
+    ansible.builtin.file:
+      path: "{{ playbook_dir }}/config"
+      state: directory
+      mode: '0755'
+
   - name: Fetch admin.conf from controller to host machine (step 14)
     ansible.builtin.fetch:
       src: /etc/kubernetes/admin.conf
@@ -117,35 +129,29 @@
         ----------------------------------------------------------------------
 
   # --------- STEP 15: Create Pod Network ---------
-  - name: Ensure resources/ dir exists on controller
+  - name: Ensure flannel manifest is available (step 15)
+    block:
+      - name: Ensure resources/ dir exists
+        ansible.builtin.file:
+          path: "{{ playbook_dir }}/resources"
+          state: directory
+          mode: '0755'
+
+      - name: Check for local Flannel manifest
+        ansible.builtin.stat:
+          path: "{{ playbook_dir }}/resources/kube-flannel.yml"
+        register: flannel_manifest
+
+      - name: Download Flannel manifest if not found locally
+        ansible.builtin.get_url:
+          url: "https://github.com/flannel-io/flannel/releases/download/v0.26.7/kube-flannel.yml"
+          dest: "{{ playbook_dir }}/resources/kube-flannel.yml"
+          mode: '0644'
+        when: not flannel_manifest.stat.exists
     delegate_to: localhost
     connection: local
+    run_once: true
     become: false
-    run_once: true
-    ansible.builtin.file:
-      path: "{{ playbook_dir }}/resources"
-      state: directory
-      mode: '0755'
-
-  - name: Check for local Flannel manifest
-    delegate_to: localhost
-    connection: local      # run it directly, no SSH
-    become: false          # don’t try sudo on localhost
-    run_once: true
-    ansible.builtin.stat:
-      path: "{{ playbook_dir }}/resources/kube-flannel.yml"
-    register: flannel_manifest
-
-  - name: Download Flannel manifest if not found locally
-    delegate_to: localhost
-    connection: local
-    become: false
-    run_once: true
-    ansible.builtin.get_url:
-      url: "https://github.com/flannel-io/flannel/releases/download/v0.26.7/kube-flannel.yml"
-      dest: "{{ playbook_dir }}/resources/kube-flannel.yml"
-      mode: '0644'
-    when: not flannel_manifest.stat.exists
 
   - name: Copy Flannel manifest into the VM (step 15)
     ansible.builtin.copy:
