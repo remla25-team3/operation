@@ -26,9 +26,9 @@ Approved PR:
 
 -- Alberto --
 
-Created PR:
+Created PR: 
 
-Approved PR:
+Approved PR: [model-training (A4)](https://github.com/remla25-team3/model-training/pull/38)
 
 # Week Q4.7 (June 2+)
 
@@ -58,9 +58,9 @@ Approved PR:
 
 -- Alberto --
 
-Created PR:
+Created PR: [model-training (A4)](https://github.com/remla25-team3/model-training/pull/36/files)
 
-Approved PR:
+Approved PR: [model-training (A4)](https://github.com/remla25-team3/model-training/pull/34)
 
 
 # Week Q4.6 (May 26+)
