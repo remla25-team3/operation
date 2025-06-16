@@ -14,9 +14,9 @@ Approved PR: https://github.com/remla25-team3/operation/commit/a94804a994bdc080d
 
 -- Lennard --
 
-Created PR:
+Created PR: missed
 
-Approved PR:
+Approved PR: missed
 
 -- Denis --
 
