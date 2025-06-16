@@ -1,16 +1,81 @@
+# Week Q4.8 (June 9+)
+
+-- Amin --
+
+Created PR:
+
+Approved PR:
+
+-- Joost --
+
+Created PR: https://github.com/remla25-team3/model-training/pull/38 (related to A4)
+
+Approved PR: https://github.com/remla25-team3/operation/commit/a94804a994bdc080d931a321c7eb7013dd05a943 (forgot to approve before accepting)
+
+-- Lennard --
+
+Created PR:
+
+Approved PR:
+
+-- Denis --
+
+Created PR:
+
+Approved PR:
+
+-- Alberto --
+
+Created PR:
+
+Approved PR:
+
+# Week Q4.7 (June 2+)
+
+-- Amin --
+
+Created PR: https://github.com/remla25-team3/operation/pull/44
+
+Approved PR: https://github.com/remla25-team3/operation/pull/31
+
+-- Joost --
+
+Created PR: https://github.com/remla25-team3/model-training/pull/34 (related to A4)
+
+Approved PR: https://github.com/remla25-team3/model-training/pull/36#pullrequestreview-2909464993
+
+-- Lennard --
+
+Created PR: [operation (A2)](https://github.com/remla25-team3/operation/pull/45)
+
+Approved PR: https://github.com/remla25-team3/operation/pull/44
+
+-- Denis --
+
+Created PR:
+
+Approved PR:
+
+-- Alberto --
+
+Created PR:
+
+Approved PR:
+
+
 # Week Q4.6 (May 26+)
 
 -- Amin --
 
 Created PR: [operation (A5)](https://github.com/remla25-team3/operation/pull/28)
 
-Approved PR:
+Approved PR: [operation (A5)](https://github.com/remla25-team3/operation/pull/29), [operation (A5)](https://github.com/remla25-team3/operation/pull/30)
 
 -- Joost --
 
-Created PR:
+Created PR: missed
 
-Approved PR:
+Approved PR: https://github.com/remla25-team3/lib-ml/pull/12#pullrequestreview-2889732079
 
 -- Lennard --
 
@@ -26,9 +91,9 @@ Approved PR: [operation (A5)](https://github.com/remla25-team3/operation/pull/28
 
 -- Alberto --
 
-Created PR:
+Created PR: [operation (A5)](https://github.com/remla25-team3/operation/pull/32)
 
-Approved PR:
+Approved PR: [operation (A5)](https://github.com/remla25-team3/operation/pull/28)
 
 
 # Week Q4.5 (May 19+)
@@ -59,9 +124,9 @@ Approved PR: [model-training (A4)](https://github.com/remla25-team3/model-traini
 
 -- Alberto --
 
-Created PR: https://github.com/remla25-team3/operation/pull/26 (A3), https://github.com/remla25-team3/model-training/pull/7 (A4)
+Created PR: [operation (A3)](https://github.com/remla25-team3/operation/pull/26), [model-training (A4)](https://github.com/remla25-team3/model-training/pull/7)
 
-Approved PR: https://github.com/remla25-team3/operation/pull/24
+Approved PR: [operation](https://github.com/remla25-team3/operation/pull/24)
 
 
 # Week Q4.4 (May 12+)
@@ -86,15 +151,15 @@ Approved PR: [model-service (A1)](https://github.com/remla25-team3/model-service
 
 -- Denis --
 
-Created PR: [operation](https://github.com/remla25-team3/operation/pull/24)
+Created PR: [operation A(3)](https://github.com/remla25-team3/operation/pull/24)
 
-Approved PR: [operation](https://github.com/remla25-team3/operation/pull/19)
+Approved PR: [operation A(3)](https://github.com/remla25-team3/operation/pull/19)
 
 -- Alberto --
 
-Created PR: https://github.com/remla25-team3/operation/pull/19 (A2), https://github.com/remla25-team3/operation/pull/23 (A3)
+Created PR: [operation (A2)](https://github.com/remla25-team3/operation/pull/19), [operation (A3)](https://github.com/remla25-team3/operation/pull/23)
 
-Approved PR: https://github.com/remla25-team3/operation/pull/21
+Approved PR: [operation](https://github.com/remla25-team3/operation/pull/21)
 
 
 # Week Q4.3 (May 5+)
@@ -119,15 +184,15 @@ Approved PR: [app-service (A1)](https://github.com/remla25-team3/app-service/pul
 
 -- Denis --
 
-Created PR: [operation](https://github.com/remla25-team3/operation/pull/15)
+Created PR: [operation (A2)](https://github.com/remla25-team3/operation/pull/15)
 
-Approved PR: [operation](https://github.com/remla25-team3/operation/pull/12)
+Approved PR: [operation (A2)](https://github.com/remla25-team3/operation/pull/12)
 
 -- Alberto --
 
-Created PR: https://github.com/remla25-team3/operation/pull/12 (A2)
+Created PR: [operation (A2)](https://github.com/remla25-team3/operation/pull/12)
 
-Approved PR: https://github.com/remla25-team3/operation/pull/11,  https://github.com/remla25-team3/model-training/pull/1
+Approved PR: [operation](https://github.com/remla25-team3/operation/pull/11), [model-training](https://github.com/remla25-team3/model-training/pull/1)
 
 
 # Week Q4.2 (Apr 28+)
@@ -152,15 +217,15 @@ Approved PR: [lib-version (A1)](https://github.com/remla25-team3/lib-version/pul
 
 -- Denis --
 
-Created PR: https://github.com/remla25-team3/lib-ml/pull/1
+Created PR: [lib-ml A(1)](https://github.com/remla25-team3/lib-ml/pull/1)
 
-Approved PR: https://github.com/remla25-team3/lib-version/pull/2
+Approved PR: [lib-version A(1)](https://github.com/remla25-team3/lib-version/pull/2)
 
 -- Alberto --
 
-Created PR: https://github.com/remla25-team3/lib-version/pull/1 (A1)
+Created PR: [lib-version (A1)](https://github.com/remla25-team3/lib-version/pull/1)
 
-Approved PR: https://github.com/remla25-team3/lib-version/pull/2
+Approved PR: [lib-version (A1)](https://github.com/remla25-team3/lib-version/pull/2)
 
 
 # Week Q4.1 (Apr 21+) -- No work
