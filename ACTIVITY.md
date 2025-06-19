@@ -2,6 +2,38 @@
 
 -- Amin --
 
+Created PR: 
+
+Approved PR: https://github.com/remla25-team3/app-service/pull/9
+
+-- Joost --
+
+Created PR: 
+
+Approved PR: 
+
+-- Lennard --
+
+Created PR: 
+
+Approved PR: 
+
+-- Denis --
+
+Created PR:
+
+Approved PR:
+
+-- Alberto --
+
+Created PR: 
+
+Approved PR: 
+
+# Week Q4.8 (June 9+)
+
+-- Amin --
+
 Created PR:
 
 Approved PR:
