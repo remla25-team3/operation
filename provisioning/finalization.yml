@@ -177,7 +177,46 @@
       src: /tmp/dashboard-adminuser.yaml
       kubeconfig: "{{ kubeconfig }}"
 
-  - name: Create Ingress for Dashboard (step 22)
+  # Generate self-signed TLS certificate for Dashboard HTTPS
+  - name: Install openssl for certificate generation
+    ansible.builtin.apt:
+      name: openssl
+      state: present
+
+  - name: Create directory for TLS certificates
+    ansible.builtin.file:
+      path: /tmp/ssl-certs
+      state: directory
+      mode: '0755'
+
+  - name: Generate private key for Dashboard TLS
+    ansible.builtin.command: |
+      openssl genrsa -out /tmp/ssl-certs/dashboard.key 2048
+    args:
+      creates: /tmp/ssl-certs/dashboard.key
+
+  - name: Generate self-signed certificate for Dashboard
+    ansible.builtin.command: |
+      openssl req -new -x509 -key /tmp/ssl-certs/dashboard.key -out /tmp/ssl-certs/dashboard.crt -days 365 -subj "/CN={{ ingress_host }}/O=Kubernetes Dashboard/C=NL/ST=Zuid-Holland/L=Delft"
+    args:
+      creates: /tmp/ssl-certs/dashboard.crt
+
+  - name: Create TLS secret for Dashboard Ingress
+    kubernetes.core.k8s:
+      state: present
+      kubeconfig: "{{ kubeconfig }}"
+      definition:
+        apiVersion: v1
+        kind: Secret
+        metadata:
+          name: dashboard-tls-secret
+          namespace: "{{ dashboard_namespace }}"
+        type: kubernetes.io/tls
+        data:
+          tls.crt: "{{ lookup('file', '/tmp/ssl-certs/dashboard.crt') | b64encode }}"
+          tls.key: "{{ lookup('file', '/tmp/ssl-certs/dashboard.key') | b64encode }}"
+
+  - name: Create Ingress for Dashboard with HTTPS (step 22)
     copy:
       dest: /tmp/dashboard-ingress.yaml
       mode: '0644'
