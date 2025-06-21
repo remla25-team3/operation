@@ -32,25 +32,7 @@ Vagrant.configure("2") do |config|
     #Networking
     ctrl.vm.network "private_network", ip: "192.168.56.100"
 
-    #Provision general.yml (common setup)
-    ctrl.vm.provision :ansible do |a|
-      a.compatibility_mode ="2.0"
-      a.playbook = "provisioning/general.yml"
-      a.extra_vars = {
-        num_workers: NUM_WORKERS
-      }
-      a.groups = ansible_groups
-    end
-
-    #Provision ctrl.yml (controller-specific)
-    ctrl.vm.provision :ansible do |a|
-      a.compatibility_mode = "2.0"
-      a.playbook = "provisioning/ctrl.yml"
-      a.extra_vars = {
-        num_workers: NUM_WORKERS
-      }
-      a.groups = ansible_groups
-    end
+    # Removed provisioning here for parallel execution
   end
     
   (1..NUM_WORKERS).each do |i|
@@ -67,24 +49,17 @@ Vagrant.configure("2") do |config|
       #Networking
       node.vm.network "private_network", ip: "192.168.56.#{100 + i}"
 
-      #Provision general.yml (common setup)
-      node.vm.provision :ansible do |a|
-        a.compatibility_mode ="2.0"
-        a.playbook = "provisioning/general.yml"
-        a.extra_vars = {
-          num_workers: NUM_WORKERS
-        }
-        a.groups = ansible_groups
-      end
-
-      #Provision node.yml (worker-specific)
-      node.vm.provision :ansible do |a|
-        a.compatibility_mode = "2.0"
-        a.playbook = "provisioning/node.yml"
-        a.extra_vars = {
-          num_workers: NUM_WORKERS
-        }
-        a.groups = ansible_groups
+      # Only provision from the last worker VM to enable parallel execution
+      if i == NUM_WORKERS
+        node.vm.provision :ansible do |a|
+          a.compatibility_mode = "2.0"
+          a.playbook = "provisioning/combined.yml"  # Use combined master playbook
+          a.limit = "all"  # Target all VMs
+          a.extra_vars = {
+            num_workers: NUM_WORKERS
+          }
+          a.groups = ansible_groups
+        end
       end
     end
   end
