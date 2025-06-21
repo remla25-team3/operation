@@ -6,7 +6,7 @@ global:
 # Common labels applied to all resources
 labels:
   app: remla-app
-  version: v1.0.0
+  version: v1.1.0
 
 # Frontend configuration
 frontend:
@@ -57,7 +57,7 @@ modelService:
   # Model service image settings
   image:
     repository: ghcr.io/remla25-team3/model-service
-    tag: v0.2.0
+    tag: v0.3.0
     pullPolicy: IfNotPresent
   
   # Deployment settings
