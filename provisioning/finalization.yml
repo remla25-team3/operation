@@ -277,7 +277,7 @@
 
   - name: Add Istio (step 23)
     ansible.builtin.unarchive:
-      src: "https://github.com/istio/istio/releases/download/1.25.2/istio-1.25.2-linux-{{ istio_arch }}.tar.gz"
+      src: https://github.com/istio/istio/releases/download/1.25.2/istio-1.25.2-linux-{{ istio_arch }}.tar.gz
       dest: /usr/local/bin
       remote_src: yes
       mode: 'u=rX'
