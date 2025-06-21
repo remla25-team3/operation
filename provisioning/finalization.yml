@@ -373,7 +373,6 @@
       src: "{{ item }}"
       namespace: default
       kubeconfig: "{{ kubeconfig }}"
-      # loop: "{{ k8s_manifest_file_list }}" (conflict)
       wait: true
       timeout: "300s"
       values:
@@ -386,6 +385,7 @@
             limits:
               cpu: "200m"
               memory: "256Mi"
+    loop: "{{ k8s_manifest_file_list }}"
 
   - name: Uninstall existing Istio ingress gateway (if any)
     kubernetes.core.helm:
