@@ -1,0 +1,13 @@
+---
+# Master playbook that orchestrates all provisioning
+# This runs all playbooks in the correct sequence with proper host targeting
+
+# Step 1: Run general setup on all VMs (parallel execution across all hosts)
+- import_playbook: general.yml
+
+# Step 2: Set up the controller (initialize Kubernetes cluster)
+- import_playbook: ctrl.yml
+
+# Step 3: Set up worker nodes (join them to the cluster)
+- import_playbook: node.yml
+

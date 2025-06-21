@@ -103,6 +103,7 @@
     - name: update cache (step 9)
       ansible.builtin.apt:
         update_cache: yes
+        cache_valid_time: 3600  # Cache valid for 1 hour to avoid unnecessary updates
 
     #STEP 10
     - name: install k8s tools (step 10)
@@ -114,6 +115,7 @@
         - kubelet={{ k8s_version }}
         - kubectl={{ k8s_version }}
         state: present
+        install_recommends: no  # Skip recommended packages for faster installation
       register: k8s_install
 
     - name: Mark Kubernetes tools as installed
