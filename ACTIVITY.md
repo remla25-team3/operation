@@ -28,7 +28,7 @@ Approved PR:
 
 Created PR: [model-service (A1/A3)](https://github.com/remla25-team3/model-service/pull/11)
 
-Approved PR: 
+Approved PR: [operation (A2)](https://github.com/remla25-team3/operation/pull/49)
 
 # Week Q4.8 (June 9+)
 
