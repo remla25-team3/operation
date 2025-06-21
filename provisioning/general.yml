@@ -103,6 +103,7 @@
     - name: update cache (step 9)
       ansible.builtin.apt:
         update_cache: yes
+        cache_valid_time: 3600  # Cache valid for 1 hour to avoid unnecessary updates
 
     #STEP 10
     - name: install k8s tools (step 10)

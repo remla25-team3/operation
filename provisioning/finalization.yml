@@ -255,9 +255,29 @@
 
   # -----------------STEP 23: Install Istio-----------------
 
+  - name: Detect system architecture (step 23)
+    ansible.builtin.command: uname -m
+    register: system_arch
+    changed_when: false
+
+  - name: Set Istio architecture variable (step 23)
+    ansible.builtin.set_fact:
+      istio_arch: >-
+        {%- if system_arch.stdout in ['x86_64', 'amd64'] -%}
+        amd64
+        {%- elif system_arch.stdout in ['aarch64', 'arm64'] -%}
+        arm64
+        {%- else -%}
+        {{ system_arch.stdout }}
+        {%- endif -%}
+
+  - name: Display detected architecture (step 23)
+    ansible.builtin.debug:
+      msg: "Detected architecture: {{ system_arch.stdout }} -> Using Istio arch: {{ istio_arch }}"
+
   - name: Add Istio (step 23)
     ansible.builtin.unarchive:
-      src: https://github.com/istio/istio/releases/download/1.25.2/istio-1.25.2-linux-arm64.tar.gz
+      src: https://github.com/istio/istio/releases/download/1.25.2/istio-1.25.2-linux-{{ istio_arch }}.tar.gz
       dest: /usr/local/bin
       remote_src: yes
       mode: 'u=rX'
@@ -353,7 +373,6 @@
       src: "{{ item }}"
       namespace: default
       kubeconfig: "{{ kubeconfig }}"
-      # loop: "{{ k8s_manifest_file_list }}" (conflict)
       wait: true
       timeout: "300s"
       values:
@@ -366,6 +385,7 @@
             limits:
               cpu: "200m"
               memory: "256Mi"
+    loop: "{{ k8s_manifest_file_list }}"
 
   - name: Uninstall existing Istio ingress gateway (if any)
     kubernetes.core.helm:
