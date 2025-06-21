@@ -26,7 +26,7 @@ Approved PR:
 
 -- Alberto --
 
-Created PR: 
+Created PR: [model-service (A1/A3)](https://github.com/remla25-team3/model-service/pull/11)
 
 Approved PR: 
 
