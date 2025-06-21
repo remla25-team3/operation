@@ -230,11 +230,13 @@
             nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
             nginx.ingress.kubernetes.io/ssl-redirect: "true"
             nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+            nginx.ingress.kubernetes.io/ssl-passthrough: "false"
         spec:
           ingressClassName: nginx
           tls:
             - hosts:
                 - {{ ingress_host }}
+              secretName: dashboard-tls-secret
           rules:
             - host: {{ ingress_host }}
               http:
