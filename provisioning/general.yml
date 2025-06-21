@@ -115,7 +115,6 @@
         - kubelet={{ k8s_version }}
         - kubectl={{ k8s_version }}
         state: present
-        install_recommends: no  # Skip recommended packages for faster installation
       register: k8s_install
 
     - name: Mark Kubernetes tools as installed
