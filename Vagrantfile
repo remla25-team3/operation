@@ -2,7 +2,7 @@ NUM_WORKERS = 2
 CPUS_CTRL = 2
 CPUS_WORKER = 1
 MEMORY_CTRL = 4096
-MEMORY_WORKER = 2048 # lower for test purposes
+MEMORY_WORKER = 4096 # lower for test purposes
 
 Vagrant.configure("2") do |config|
   
