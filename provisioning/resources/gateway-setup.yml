@@ -26,3 +26,15 @@ spec:
     - uri: { prefix: / }
     route:
     - destination: { host: frontend }
+---
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: app-destination-rule
+  namespace: istio-system
+spec:
+  host: frontend
+  trafficPolicy:
+    loadBalancer:
+      consistentHash:
+        httpHeaderName: x-sticky-user
