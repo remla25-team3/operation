@@ -6,7 +6,7 @@ global:
 # Common labels applied to all resources
 labels:
   app: remla-app
-  version: v1.1.0
+  version: v1.0.0
 
 # Frontend configuration
 frontend:
@@ -87,3 +87,9 @@ volumes:
     enabled: true
     hostPath: /mnt/shared
 
+# Prometheus configuration
+serviceMonitor:
+  enabled: true
+  path: /metrics
+  interval: 30s
+  port: http
