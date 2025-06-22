@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
       - name: model
-        image: ghcr.io/remla25-team3/model-service:v0.2.0
+        image: ghcr.io/remla25-team3/model-service:v0.3.0
         ports:
         - containerPort: 5000
 ---
@@ -44,7 +44,7 @@ spec:
     spec:
       containers:
       - name: model
-        image: ghcr.io/remla25-team3/model-service:v0.2.0
+        image: ghcr.io/remla25-team3/model-service:v0.3.0
         ports:
         - containerPort: 5000
 ---

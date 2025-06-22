@@ -328,7 +328,7 @@
 
   - name: Run Istio installation on controller node (step 23)
     become: false
-    shell: '/usr/local/bin/istio-1.25.2/bin/istioctl install -y --set profile=minimal'
+    shell: '/usr/local/bin/istio-1.25.2/bin/istioctl install -y --set profile=minimal --set components.pilot.k8s.resources.requests.memory=512Mi'
     changed_when: false
     when: istio_system_ns_info.resources | length == 0
 
@@ -373,20 +373,25 @@
   #             memory: "256Mi"
   #   loop: "{{ k8s_manifest_file_list }}"
 
+  - name: Wait for Istio control plane (istiod) to be ready
+    shell: |
+      kubectl wait --for=condition=ready pod -l app=istiod -n istio-system --timeout=300s --kubeconfig={{ kubeconfig }}
+    changed_when: false
+
   - name: Add Istio Helm repository
     kubernetes.core.helm_repository:
       name: istio
       repo_url: "https://istio-release.storage.googleapis.com/charts"
       state: present
 
-  - name: Uninstall existing Istio ingress gateway (if any)
-    kubernetes.core.helm:
-      release_name: istio-ingress
-      release_namespace: istio-system
-      kubeconfig: "{{ kubeconfig }}"
-      state: absent
-      wait: true
-    ignore_errors: true
+  # - name: Uninstall existing Istio ingress gateway (if any)
+  #   kubernetes.core.helm:
+  #     release_name: istio-ingress
+  #     release_namespace: istio-system
+  #     kubeconfig: "{{ kubeconfig }}"
+  #     state: absent
+  #     wait: true
+  #   ignore_errors: true
 
   - name: Write istio-ingress values to file
     copy:
@@ -423,7 +428,7 @@
 
   - name: Wait for Istio ingress gateway to be ready (step 23)
     shell: |
-      kubectl wait --for=condition=ready pod -l istio=ingressgateway -n istio-system --timeout=300s --kubeconfig={{ kubeconfig }}
+      kubectl wait --for=jsonpath='{.status.containerStatuses[0].ready}'=true pod -l app.kubernetes.io/instance=istio-ingress -n istio-system --timeout=300s --kubeconfig={{ kubeconfig }}
     changed_when: false
 
   - name: Istio deployment summary (step 23)
@@ -433,19 +438,19 @@
         - "The gateway is exposed on the fixed IP: {{ istio_ip }}"
         - "Your cluster is now prepared for Istio-based deployments."
 
-#   #A5
+  #A5
 
-#   - name: Copy gateway setup configuration (A5, Traffic Management)
-#     copy:
-#       src: "{{ playbook_dir }}/resources/gateway-setup.yml"
-#       dest: /tmp/gateway-setup.yml
-#       mode: '0644'
+  - name: Copy gateway setup configuration (A5, Traffic Management)
+    copy:
+      src: "{{ playbook_dir }}/resources/gateway-setup.yml"
+      dest: /tmp/gateway-setup.yml
+      mode: '0644'
 
-#   - name: Start VirtualService (A5, Traffic Management)
-#     kubernetes.core.k8s:
-#       state: present
-#       src: /tmp/gateway-setup.yml
-#       kubeconfig: "{{ kubeconfig }}"
+  - name: Start VirtualService (A5, Traffic Management)
+    kubernetes.core.k8s:
+      state: present
+      src: /tmp/gateway-setup.yml
+      kubeconfig: "{{ kubeconfig }}"
  
 # #Assignment 3
 # - import_playbook: monitoring-alerting.yml
