@@ -26,9 +26,9 @@ Approved PR: [model-training (A4)](https://github.com/remla25-team3/model-traini
 
 -- Alberto --
 
-Created PR: [model-service (A1/A3)](https://github.com/remla25-team3/model-service/pull/11)
+Created PR: [model-service (A1/A3)](https://github.com/remla25-team3/model-service/pull/11), [app-service (A3)](https://github.com/remla25-team3/app-service/pull/10)
 
-Approved PR: [operation (A2)](https://github.com/remla25-team3/operation/pull/49)
+Approved PR: [operation (A2)](https://github.com/remla25-team3/operation/pull/49)...
 
 # Week Q4.8 (June 9+)
 
