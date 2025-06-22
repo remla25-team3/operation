@@ -14,9 +14,9 @@ Approved PR:
 
 -- Lennard --
 
-Created PR: 
+Created PR: https://github.com/remla25-team3/operation/pull/53
 
-Approved PR: 
+Approved PR: https://github.com/remla25-team3/operation/pull/52
 
 -- Denis --
 
