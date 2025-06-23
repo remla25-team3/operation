@@ -452,5 +452,3 @@
       src: /tmp/gateway-setup.yml
       kubeconfig: "{{ kubeconfig }}"
  
-# #Assignment 3
-# - import_playbook: monitoring-alerting.yml

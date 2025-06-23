@@ -88,10 +88,6 @@ volumes:
     hostPath: /mnt/shared
 
 # Prometheus configuration
-prometheus:
-  namespace: monitoring
-
-
 serviceMonitor:
   targetApp: app-frontend
   enabled: true
