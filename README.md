@@ -6,7 +6,7 @@
 * app-service: [v1.3.1](https://github.com/remla25-team3/app-service/releases/tag/v1.3.1)
 * lib-ml: [v0.5.0](https://github.com/remla25-team3/lib-ml/releases/tag/v0.5.0)
 * lib-version: [v1.2.0](https://github.com/remla25-team3/lib-version/releases/tag/v1.2.0)
-* model-service: [v0.3.2](https://github.com/remla25-team3/model-service/releases/tag/v0.3.2)
+* model-service: [v0.3.4](https://github.com/remla25-team3/model-service/releases/tag/v0.3.4)
 * model-training: [v0.2.3](https://github.com/remla25-team3/model-training/releases/tag/v0.2.3)
 * operation: [this repo](https://github.com/remla25-team3/operation)
 
@@ -18,10 +18,6 @@ We are aware that updates are needed in the coming weeks to fulfill all requirem
 The application can still be started by e.g. following the instructions under *Assignment 2* below, but a problem that causes interaction between the `app-service` and `model-service` to fail has remained.
 
 For A5, we particularly had trouble getting Istio to properly show our app (all pods run and Istio is set up, but we get a blank page when navigating to the gateway at a fixed IP), as well as getting rate limiting to work, which we will be addressing soon.
-
-## Assignment 4
-
-ML Tests and linting have been configured in model-training pipelines. DVC has also been implemented
 
 ## Assignment 3
 
@@ -88,22 +84,27 @@ vagrant destroy -f
 ```
 This will forcefully stop and delete all Vagrant-managed virtual machines related to this project.
 
-## Assignment 1
+## 🚀 Docker Compose Deployment
 
-### Information 
+You can deploy the entire REMLA project with a single command. Our Docker Compose setup implements:
 
-* Run project by cd ing to xxx/operation and running docker compose up
-* Once running, API documentation available on http://localhost:8082/apidocs/ for `app-service` and http://localhost:8081/apidocs/ for `model-service`.
+- **ENV configuration** via a `.env` file (e.g. `NGINX_PORT=8080`, `APP_PORT=3000`, `MODEL_PORT=5000`, and example Docker secret).
+- **Port mappings** so only `app-frontend` is exposed on your host.
+- **Volume mapping** for model caching.
+- **Restart policies** (`restart: unless-stopped`) for all services.
+- **Docker secret** example for sensitive data (`test_secret`).
 
-### Rubric
+### Start Up
+From the root directory, run:
+```bash
+docker-compose up -d  # Bring up all services in detached mode
+```
+### Access the services:
+- **Frontend UI**: http://localhost:8080/
+- **App-service API Docs (Swagger)**: http://localhost:8080/app/apidocs
+- **Model-service API Docs (Swagger)**: http://localhost:8080/model/apidocs
 
-The following parts of the rubric were, to the best of our judgment, implemented in the code.
-
-* Data availability: document follows structure outlined by template
-* Use case: front end currently unable to display predictions
-* Automated release process: lib-ml and lib-version currently using release-please. Other repositories still rely on Git Tags to be created
-* Software Reuse in Libraries: not currently being used.
-* Exposing a Model via REST: code is set up for all services to communicate with each other through REST where necessary, for which Flask is employed. The communication itself does not work as of yet because the docker-compose is not completely done. The setup to configure `model-service` DNS name and ports through ENV variables is there (but unused because the communication is not done yet).
-* Docker Compose Operation: docker compose uses volume mapping, port mapping and an environment variable.
-
-
+### Shut Down
+```bash
+docker-compose down
+```
