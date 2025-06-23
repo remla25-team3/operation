@@ -2,7 +2,7 @@
 
 -- Amin --
 
-Created PR: 
+Created PR: [operation A2](https://github.com/remla25-team3/operation/pull/49)
 
 Approved PR: https://github.com/remla25-team3/app-service/pull/9
 
@@ -14,21 +14,21 @@ Approved PR:
 
 -- Lennard --
 
-Created PR: 
+Created PR: [operation (A5)](https://github.com/remla25-team3/operation/pull/53)
 
-Approved PR: 
+Approved PR: https://github.com/remla25-team3/operation/pull/52
 
 -- Denis --
 
 Created PR: [operation (A1)](https://github.com/remla25-team3/operation/pull/51), [operation (A3)](https://github.com/remla25-team3/operation/pull/50)
 
-Approved PR: [model-training (A4)](https://github.com/remla25-team3/model-training/pull/46)
+Approved PR: [model-training (A4)](https://github.com/remla25-team3/model-training/pull/46), [operation (A1)](https://github.com/remla25-team3/operation/pull/56)
 
 -- Alberto --
 
-Created PR: [model-service (A1/A3)](https://github.com/remla25-team3/model-service/pull/11)
+Created PR: [model-service (A1/A3)](https://github.com/remla25-team3/model-service/pull/11), [app-service (A3)](https://github.com/remla25-team3/app-service/pull/10)
 
-Approved PR: [operation (A2)](https://github.com/remla25-team3/operation/pull/49)
+Approved PR: [operation (A2)](https://github.com/remla25-team3/operation/pull/49)...
 
 # Week Q4.8 (June 9+)
 
