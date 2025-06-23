@@ -2,7 +2,7 @@
 
 ## Services
 
-* app-frontend: [v1.3.1](https://github.com/remla25-team3/app-frontend/releases/tag/v1.3.1)
+* app-frontend: [v1.3.2](https://github.com/remla25-team3/app-frontend/releases/tag/v1.3.2)
 * app-service: [v1.3.1](https://github.com/remla25-team3/app-service/releases/tag/v1.3.1)
 * lib-ml: [v0.5.0](https://github.com/remla25-team3/lib-ml/releases/tag/v0.5.0)
 * lib-version: [v1.2.0](https://github.com/remla25-team3/lib-version/releases/tag/v1.2.0)
