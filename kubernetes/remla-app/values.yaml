@@ -6,7 +6,7 @@ global:
 # Common labels applied to all resources
 labels:
   app: remla-app
-  version: v1.2.0
+  version: v1.2.1
 
 # Frontend configuration
 frontend:
