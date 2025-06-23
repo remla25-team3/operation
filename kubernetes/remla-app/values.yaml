@@ -13,7 +13,7 @@ frontend:
   # Frontend image settings
   image:
     repository: ghcr.io/remla25-team3/app-frontend
-    tag: v1.3.0
+    tag: v1.3.1
     pullPolicy: IfNotPresent
   
   # Deployment settings
@@ -39,7 +39,7 @@ appService:
   # App service image settings
   image:
     repository: ghcr.io/remla25-team3/app-service
-    tag: v1.3.0
+    tag: v1.3.1
     pullPolicy: IfNotPresent
   
   # Deployment settings
@@ -57,7 +57,7 @@ modelService:
   # Model service image settings
   image:
     repository: ghcr.io/remla25-team3/model-service
-    tag: v0.3.1
+    tag: v0.3.2
     pullPolicy: IfNotPresent
   
   # Deployment settings
@@ -88,7 +88,12 @@ volumes:
     hostPath: /mnt/shared
 
 # Prometheus configuration
+prometheus:
+  namespace: monitoring
+
+
 serviceMonitor:
+  targetApp: app-frontend
   enabled: true
   path: /metrics
   interval: 30s
