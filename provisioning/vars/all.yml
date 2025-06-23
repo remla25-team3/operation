@@ -5,4 +5,6 @@ istio_ip: "192.168.56.90"
 dashboard_namespace: kubernetes-dashboard
 dashboard_release: kubernetes-dashboard
 ingress_host: dashboard.local
+monitoring_namespace: monitoring
+prometheus_release_name: prom-monitoring
 app_service_name: app-service
