@@ -183,11 +183,12 @@
     ansible.builtin.stat:
       path: "/root/.ansible_async/{{ install_helm_async_task.ansible_job_id }}"
     register: helm_job_id_check
+    when: install_helm_async_task is defined and install_helm_async_task.ansible_job_id is defined
 
   - name: Wait for helm installation async task to complete
     ansible.builtin.async_status:
       jid: "{{ install_helm_async_task.ansible_job_id }}"
-    when: helm_job_id_check.stat.exists
+    when: install_helm_async_task.ansible_job_id is defined
     register: helm_async_task_result
     until: helm_async_task_result.finished
     retries: 60
@@ -222,12 +223,13 @@
   - name: Wait for helm diff installation async task to complete
     ansible.builtin.async_status:
       jid: "{{ install_helm_diff_async_task.ansible_job_id }}"
-    when: helm_diff_job_id_check.stat.exists
+    when: install_helm_diff_async_task.ansible_job_id is defined
     register: helm_diff_async_task_result
     until: helm_diff_async_task_result.finished
     retries: 120
     delay: 1
     ignore_errors: true
+    become_user: vagrant
 
   - name:  Verify Flannel is running (step 15)
     ansible.builtin.shell: |
@@ -238,4 +240,3 @@
     delay: 1
     changed_when: false
     ignore_errors: true
-

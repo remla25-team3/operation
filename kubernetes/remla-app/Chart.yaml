@@ -2,11 +2,10 @@ apiVersion: v2
 name: remla-app
 description: A Helm chart for the REMLA application stack - frontend, app-service, and model-service
 type: application
-version: 1.1.0
+version: 1.2.0
 home: https://github.com/remla25-team3
 maintainers:
-  - name: REMLA Team 3
-    email: team3@remla.example.com
+  - name: REMLA 2025 Team 3 @ TU Delft
 keywords:
   - remla
   - machine-learning

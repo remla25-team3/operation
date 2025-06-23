@@ -320,29 +320,15 @@
     register: istio_system_ns_info
     ignore_errors: true
 
-  - name: Copy Istio configuration file to node (step 23)
-    copy:
-      src: "{{ playbook_dir }}/resources/istio-config.yml"
-      dest: /tmp/istio-config.yml
-      mode: '0644'
-    when: istio_system_ns_info.resources | length == 0
-
-  - name: Apply static gateway IP in configuration file (step 23)
-    ansible.builtin.lineinfile:
-      path: /tmp/istio-config.yml
-      regexp: '([ \\t]*)loadBalancerIP: <istio_ip>.*'
-      line: '\1loadBalancerIP: {{ istio_ip }}'
-      backrefs: yes
-
-  - name: Set user permissions for kubeconfig (step 23)
-    ansible.builtin.file:
-      path: "{{ kubeconfig }}"
-      state: file
-      mode: 'a=xwr'
+  # - name: Set user permissions for kubeconfig (step 23)
+  #   ansible.builtin.file:
+  #     path: "{{ kubeconfig }}"
+  #     state: file
+  #     mode: 'a=xwr'
 
   - name: Run Istio installation on controller node (step 23)
     become: false
-    shell: '/usr/local/bin/istio-1.25.2/bin/istioctl install -f /tmp/istio-config.yml -y -c {{ kubeconfig }}'
+    shell: '/usr/local/bin/istio-1.25.2/bin/istioctl install -y --set profile=minimal --set components.pilot.k8s.resources.requests.memory=512Mi'
     changed_when: false
     when: istio_system_ns_info.resources | length == 0
 
@@ -351,83 +337,80 @@
 #      kubectl wait -n istio-system --for=condition=available deployment/istiod --timeout=60s --kubeconfig={{ kubeconfig }}
 #    changed_when: false
 
-  - name: Copy application k8s manifests
-    copy:
-      src: "{{ playbook_dir }}/../kubernetes/"
-      dest: /tmp/kubernetes
-      mode: '0644'
+  # - name: Copy application k8s manifests
+  #   copy:
+  #     src: "{{ playbook_dir }}/../kubernetes/"
+  #     dest: /tmp/kubernetes
+  #     mode: '0644'
 
-  - name: Retrieve manifest file names as list
-    ansible.builtin.find:
-      paths: /tmp/kubernetes
-      patterns: '*.yml,*.yaml'
-    register: k8s_manifest_files
+  # - name: Retrieve manifest file names as list
+  #   ansible.builtin.find:
+  #     paths: /tmp/kubernetes
+  #     patterns: '*.yml,*.yaml'
+  #   register: k8s_manifest_files
 
-  - name: Set filename variable
-    set_fact:
-      k8s_manifest_file_list: "{{ k8s_manifest_files.files | map(attribute='path') | list }}"
+  # - name: Set filename variable
+  #   set_fact:
+  #     k8s_manifest_file_list: "{{ k8s_manifest_files.files | map(attribute='path') | list }}"
 
-  - name: Apply application k8s manifests
-    kubernetes.core.k8s:
+  # - name: Apply application k8s manifests
+  #   kubernetes.core.k8s:
+  #     state: present
+  #     src: "{{ item }}"
+  #     namespace: default
+  #     kubeconfig: "{{ kubeconfig }}"
+  #     wait: true
+  #     timeout: "300s"
+  #     values:
+  #       pilot:
+  #         resources:
+  #           # shrink requests so istiod can schedule on low‐RAM nodes (too heave otherwise, might need to be changed in the future)
+  #           requests:
+  #             cpu: "100m"
+  #             memory: "128Mi"
+  #           limits:
+  #             cpu: "200m"
+  #             memory: "256Mi"
+  #   loop: "{{ k8s_manifest_file_list }}"
+
+  - name: Wait for Istio control plane (istiod) to be ready
+    shell: |
+      kubectl wait --for=condition=ready pod -l app=istiod -n istio-system --timeout=300s --kubeconfig={{ kubeconfig }}
+    changed_when: false
+
+  - name: Add Istio Helm repository
+    kubernetes.core.helm_repository:
+      name: istio
+      repo_url: "https://istio-release.storage.googleapis.com/charts"
       state: present
-      src: "{{ item }}"
-      namespace: default
-      kubeconfig: "{{ kubeconfig }}"
-      wait: true
-      timeout: "300s"
-      values:
-        pilot:
-          resources:
-            # shrink requests so istiod can schedule on low‐RAM nodes (too heave otherwise, might need to be changed in the future)
-            requests:
-              cpu: "100m"
-              memory: "128Mi"
-            limits:
-              cpu: "200m"
-              memory: "256Mi"
-    loop: "{{ k8s_manifest_file_list }}"
 
-  - name: Uninstall existing Istio ingress gateway (if any)
-    kubernetes.core.helm:
-      release_name: istio-ingress
-      release_namespace: istio-system
-      kubeconfig: "{{ kubeconfig }}"
-      state: absent
-      wait: true
-    ignore_errors: true
+  # - name: Uninstall existing Istio ingress gateway (if any)
+  #   kubernetes.core.helm:
+  #     release_name: istio-ingress
+  #     release_namespace: istio-system
+  #     kubeconfig: "{{ kubeconfig }}"
+  #     state: absent
+  #     wait: true
+  #   ignore_errors: true
 
   - name: Write istio-ingress values to file
     copy:
       dest: /tmp/istio-ingress-values.yaml
       mode: '0644'
       content: |
-        gateways:
-          istio-ingressgateway:
-            enabled: true
-            service:
-              type: LoadBalancer
-              loadBalancerIP: "{{ istio_ip }}"
-              externalTrafficPolicy: Local
-              ports:
-                - name: status-port
-                  port: 15021
-                  targetPort: 15021
-                - name: http
-                  port: 80
-                  targetPort: 80
-                - name: https
-                  port: 443
-                  targetPort: 443
-                - name: grpc-ratelimit
-                  port: 8081
-                  targetPort: 8081
-            podAnnotations:
-              sidecar.istio.io/inject: "false"
-            env:
-              - name: ISTIO_META_ENABLE_RATE_LIMIT
-                value: "true"
-              - name: ISTIO_METAJSON_LABELS
-                value: '{"istio":"ingress"}'
+        service:
+          type: LoadBalancer
+          loadBalancerIP: "{{ istio_ip }}"
+          ports:
+            - name: status-port
+              port: 15021
+              targetPort: 15021
+            - name: http
+              port: 80
+              targetPort: 8080
+            - name: https
+              port: 443
+              targetPort: 8443
 
 
   - name: Deploy Istio ingress gateway with fixed IP (step 23)
@@ -443,12 +426,19 @@
       values_files:
         - /tmp/istio-ingress-values.yaml
 
+  - name: Wait for Istio ingress gateway to be ready (step 23)
+    shell: |
+      kubectl wait --for=jsonpath='{.status.containerStatuses[0].ready}'=true pod -l app.kubernetes.io/instance=istio-ingress -n istio-system --timeout=300s --kubeconfig={{ kubeconfig }}
+    changed_when: false
 
   - name: Istio deployment summary (step 23)
     debug:
       msg:
-        - "Istio has been successfully installed using Helm."
+        - "Istio control plane and ingress gateway have been successfully installed."
+        - "The gateway is exposed on the fixed IP: {{ istio_ip }}"
         - "Your cluster is now prepared for Istio-based deployments."
+
+  #A5
 
   - name: Copy gateway setup configuration (A5, Traffic Management)
     copy:
@@ -462,5 +452,5 @@
       src: /tmp/gateway-setup.yml
       kubeconfig: "{{ kubeconfig }}"
  
-#Assignment 3
-- import_playbook: monitoring-alerting.yml
+# #Assignment 3
+# - import_playbook: monitoring-alerting.yml
