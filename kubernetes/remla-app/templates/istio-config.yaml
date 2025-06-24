@@ -1,0 +1,104 @@
+# Gateway
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: {{ .Release.Name }}-gateway
+  namespace: istio-system
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP
+    hosts: [ "*" ]
+---
+# Virtual services
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: app-virtual-service
+  namespace: istio-system
+spec:
+  gateways: [ {{ .Release.Name }}-gateway ]
+  hosts: [ "*" ]
+  http:
+    # model-service
+    - match:
+        - uri:
+            prefix: /model
+      route:
+        - destination:
+            host: {{ .Values.modelService.service.name }}
+            port: { number: {{ .Values.modelService.service.port }} }
+
+    # app-service
+    - match:
+        - uri:
+            prefix: /app
+      route:
+        - destination:
+            host: {{ .Values.appService.service.name }}
+            port: { number: {{ .Values.appService.service.port }} }
+
+    # frontend
+    - match:
+        - uri:
+            prefix: /
+      route:
+        # Load balancing with 90% going to v1, 10% to v2
+        - destination:
+            host: {{ include "remla-app.frontendName" . }}
+            subset: v1
+            port: { number: 80 }
+          weight: 90
+        - destination:
+            host: {{ include "remla-app.frontendName" . }}
+            subset: v2
+            port: { number: 80 }
+          weight: 10
+---
+# Destination rule: app-service
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: {{ .Values.appService.service.name }}-destination-rule
+  namespace: istio-system
+spec:
+  host: {{ .Values.appService.service.name }}
+  trafficPolicy:
+    loadBalancer:
+      consistentHash:
+        httpHeaderName: x-sticky-user
+---
+# Destination rule: model-service
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: {{ .Values.modelService.service.name }}-destination-rule
+  namespace: istio-system
+spec:
+  host: {{ .Values.modelService.service.name }}
+  trafficPolicy:
+    loadBalancer:
+      consistentHash:
+        httpHeaderName: x-sticky-user
+---
+# Destination rule: frontend
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: {{ .Values.frontend.service.name }}-destination-rule
+  namespace: istio-system
+spec:
+  host: {{ .Values.frontend.service.name }}
+  subsets:
+    - name: v1
+      labels: { version: v1 }
+    - name: v2
+      labels: { version: v2 }
+  trafficPolicy:
+    loadBalancer:
+      consistentHash:
+        httpHeaderName: x-sticky-user
