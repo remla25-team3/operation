@@ -111,30 +111,41 @@ docker-compose down
 
 
 ## Running on Kubernetes with Minikube
-### ⚠️ Experimental - Work in Progress
 
-Deployment and Testing Workflow
+This guide outlines the process for deploying the application stack to a local Kubernetes cluster using Minikube and Helm.
 
-This workflow uses kubectl port-forward to provide temporary access to the application for testing.
+### Prerequisites
+
+Before you begin, ensure you have the following command-line tools installed and configured on your system:
+
+- Minikube: For running a local Kubernetes cluster.
+- kubectl: The Kubernetes command-line tool.
+- Helm: The package manager for Kubernetes.
 
 1. Start Your Local Cluster
 
 First, start your Minikube cluster
 ```bash
+# Start the cluster
 minikube start
-```
+# Enable the Nginx Ingress addon
 minikube addons enable ingress
+```
 
-wait till controller is ready (few seconds)
-kubectl get pods -n ingress-nginx
-
+The Ingress Controller pod may take a moment to initialize. You can monitor its status with the following command. Wait until the pod shows 1/1 in the READY column and Running in the STATUS column before proceeding.
+```bash
+# Watch the Ingress controller pods until they are ready
+kubectl get pods -n ingress-nginx --watch
+```
+Once ready, press Ctrl+C to exit the watch command.
 
 2. Install the Application
 
-Navigate to the Helm chart directory (/k8s/remla-app/) and use Helm to install the application. We will name this deployment remla-demo.
+Navigate to the Helm chart directory (/k8s/remla-app) and use Helm to install the application. This command will create all the necessary Kubernetes resources (Deployments, Services, Ingress, etc.). We will give our deployment a "release name" of `remla-app`
+
 ```bash
 # Navigate to the chart directory
-cd path/to/your/remla-chart
+cd k8s/remla-chart
 
 # Install the chart
 helm install remla-app .
