@@ -1,0 +1,40 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.modelService.name }}
+spec:
+  selector:
+    app: {{ .Values.modelService.name }}
+  ports:
+  - protocol: TCP
+    port: {{ .Values.modelService.servicePort }}
+    targetPort: {{ .Values.modelService.containerPort }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.modelService.name }}
+spec:
+  replicas: {{ .Values.modelService.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Values.modelService.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.modelService.name }}
+    spec:
+      containers:
+      - name: {{ .Values.modelService.name }}
+        image: "{{ .Values.modelService.image.repository }}:{{ .Values.modelService.image.tag }}"
+        imagePullPolicy: {{ .Values.modelService.image.pullPolicy }}
+        ports:
+        - containerPort: {{ .Values.modelService.containerPort }}
+        env: {{- tpl (toYaml .Values.modelService.env) . | nindent 10 }}
+        volumeMounts:
+        - name: model-cache
+          mountPath: /models
+      volumes:
+      - name: model-cache
+        persistentVolumeClaim:
+          claimName: model-cache-pvc

@@ -1,0 +1,42 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.appService.name }}
+spec:
+  selector:
+    app: {{ .Values.appService.name }}
+  ports:
+  - protocol: TCP
+    port: {{ .Values.appService.servicePort }}
+    targetPort: {{ .Values.appService.containerPort }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.appService.name }}
+spec:
+  replicas: {{ .Values.appService.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Values.appService.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.appService.name }}
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - name: {{ .Values.appService.name }}
+        image: "{{ .Values.appService.image.repository }}:{{ .Values.appService.image.tag }}"
+        imagePullPolicy: {{ .Values.appService.image.pullPolicy }}
+        ports:
+        - containerPort: {{ .Values.appService.containerPort }}
+        env: {{- tpl (toYaml .Values.appService.env) . | nindent 10 }}
+        volumeMounts:
+        - name: secret-volume
+          mountPath: /run/secrets
+          readOnly: true
+      volumes:
+      - name: secret-volume
+        secret:
+          secretName: test-secret

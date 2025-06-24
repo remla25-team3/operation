@@ -7,40 +7,69 @@ services:
     container_name: nginx
     ports:
       - "${NGINX_PORT}:80"
+    environment:
+      - MODEL_SERVICE_HOST=${MODEL_SERVICE_HOST}
+      - MODEL_PORT=${MODEL_PORT}
+      - APP_SERVICE_HOST=${APP_SERVICE_HOST}
+      - APP_PORT=${APP_PORT}
+      - FRONTEND_SERVICE_HOST=${FRONTEND_SERVICE_HOST}
+      - FRONTEND_PORT=${FRONTEND_PORT}
+    # Run envsubst on the template, then start nginx
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        envsubst '$${MODEL_SERVICE_HOST} $${MODEL_PORT} $${APP_SERVICE_HOST} $${APP_PORT} $${FRONTEND_SERVICE_HOST} $${FRONTEND_PORT}' < /etc/nginx/nginx.conf.tpl > /etc/nginx/nginx.conf.generated
+        
+        # Check if the generated file is not empty before moving it
+        if [ -s /etc/nginx/nginx.conf.generated ]; then
+          mv /etc/nginx/nginx.conf.generated /etc/nginx/nginx.conf
+        else
+          echo "Error: envsubst produced an empty config file."
+          exit 1
+        fi
+        
+        exec nginx -g 'daemon off;'
     volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/nginx.conf.tpl:/etc/nginx/nginx.conf.tpl:ro
     depends_on:
       - app-frontend
       - app-service
+      - model-service
+    restart: unless-stopped
     networks:
       - remla-net
 
   # frontend service
   app-frontend:
     image: ${FRONTEND_IMAGE}
-    container_name: app-frontend
+    container_name: ${FRONTEND_SERVICE_HOST}
     restart: unless-stopped
     networks:
-      - remla-net
+      remla-net:
+        aliases:
+          - ${FRONTEND_SERVICE_HOST}
 
   # app service
   app-service:
     image: ${APP_IMAGE}
-    container_name: app-service
+    container_name: ${APP_SERVICE_HOST}
     restart: unless-stopped
     environment:
       - PORT=${APP_PORT}
-      - MODEL_SERVICE_URL=model-service
+      - MODEL_SERVICE_URL=${MODEL_SERVICE_HOST}
       - MODEL_SERVICE_PORT=${MODEL_PORT}
     networks:
-      - remla-net
+      remla-net:
+        aliases:
+          - ${APP_SERVICE_HOST}
     secrets:
       - test_secret
 
   # model service
   model-service:
     image: ${MODEL_IMAGE}
-    container_name: model-service
+    container_name: ${MODEL_SERVICE_HOST}
     restart: unless-stopped
     environment:
       - PORT=${MODEL_PORT}
@@ -51,7 +80,9 @@ services:
     volumes:
       - model-cache:/models
     networks:
-      - remla-net
+      remla-net:
+        aliases:
+          - ${MODEL_SERVICE_HOST}
 
 volumes:
   model-cache:
