@@ -8,19 +8,19 @@ http {
 
         #Model-service Swagger UI & JSON
         location = /model/apidocs {
-            proxy_pass         http://model-service:5000;
+            proxy_pass         http://$MODEL_SERVICE_HOST:$MODEL_PORT;
             proxy_set_header   Host               $host;
             proxy_set_header   X-Real-IP          $remote_addr;
             proxy_set_header   X-Forwarded-For    $proxy_add_x_forwarded_for;
         }
         location ~ ^/model/flasgger_static/ {
-            proxy_pass         http://model-service:5000;
+            proxy_pass         http://$MODEL_SERVICE_HOST:$MODEL_PORT;
             proxy_set_header   Host               $host;
             proxy_set_header   X-Real-IP          $remote_addr;
             proxy_set_header   X-Forwarded-For    $proxy_add_x_forwarded_for;
         }
         location ~ ^/model/apispec_[0-9]+\.json$ {
-            proxy_pass         http://model-service:5000;
+            proxy_pass         http://$MODEL_SERVICE_HOST:$MODEL_PORT;
             proxy_set_header   Host               $host;
             proxy_set_header   X-Real-IP          $remote_addr;
             proxy_set_header   X-Forwarded-For    $proxy_add_x_forwarded_for;
@@ -30,7 +30,7 @@ http {
         # Strips off the /model prefix so /model/health -> /health on the container
         location /model/ {
             rewrite            ^/model/(.*)$ /$1 break;
-            proxy_pass         http://model-service:5000;
+            proxy_pass         http://$MODEL_SERVICE_HOST:$MODEL_PORT;
             proxy_set_header   Host               $host;
             proxy_set_header   X-Real-IP          $remote_addr;
             proxy_set_header   X-Forwarded-For    $proxy_add_x_forwarded_for;
@@ -38,19 +38,19 @@ http {
 
         # App-service Swagger UI & JSON
         location = /app/apidocs {
-            proxy_pass         http://app-service:3000;
+            proxy_pass         http://$APP_SERVICE_HOST:$APP_PORT;
             proxy_set_header   Host               $host;
             proxy_set_header   X-Real-IP          $remote_addr;
             proxy_set_header   X-Forwarded-For    $proxy_add_x_forwarded_for;
         }
         location ~ ^/app/flasgger_static/ {
-            proxy_pass         http://app-service:3000;
+            proxy_pass         http://$APP_SERVICE_HOST:$APP_PORT;
             proxy_set_header   Host               $host;
             proxy_set_header   X-Real-IP          $remote_addr;
             proxy_set_header   X-Forwarded-For    $proxy_add_x_forwarded_for;
         }
         location ~ ^/app/apispec_[0-9]+\.json$ {
-            proxy_pass         http://app-service:3000;
+            proxy_pass         http://$APP_SERVICE_HOST:$APP_PORT;
             proxy_set_header   Host               $host;
             proxy_set_header   X-Real-IP          $remote_addr;
             proxy_set_header   X-Forwarded-For    $proxy_add_x_forwarded_for;
@@ -60,7 +60,7 @@ http {
         # Strips off /api so /api/predict -> /predict on the container
         location /api/ {
             rewrite            ^/api/(.*)$ /$1 break;
-            proxy_pass         http://app-service:3000;
+            proxy_pass         http://$APP_SERVICE_HOST:$APP_PORT;
             proxy_set_header   Host               $host;
             proxy_set_header   X-Real-IP          $remote_addr;
             proxy_set_header   X-Forwarded-For    $proxy_add_x_forwarded_for;
@@ -68,7 +68,7 @@ http {
 
         # Frontend SPA fallback
         location / {
-            proxy_pass         http://app-frontend:80;
+            proxy_pass         http://$FRONTEND_SERVICE_HOST:$FRONTEND_PORT;
             proxy_set_header   Host               $host;
             proxy_set_header   X-Real-IP          $remote_addr;
             proxy_set_header   X-Forwarded-For    $proxy_add_x_forwarded_for;
