@@ -22,7 +22,7 @@ Approved PR: https://github.com/remla25-team3/operation/pull/52
 
 Created PR: [operation (A1)](https://github.com/remla25-team3/operation/pull/51), [operation (A3)](https://github.com/remla25-team3/operation/pull/50)
 
-Approved PR: [model-training (A4)](https://github.com/remla25-team3/model-training/pull/46)
+Approved PR: [model-training (A4)](https://github.com/remla25-team3/model-training/pull/46), [operation (A1)](https://github.com/remla25-team3/operation/pull/56)
 
 -- Alberto --
 

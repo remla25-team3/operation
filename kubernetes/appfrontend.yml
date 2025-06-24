@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: ghcr.io/remla25-team3/app-frontend:v1.2.0
+        image: ghcr.io/remla25-team3/app-frontend:v1.3.2
         ports:
         - containerPort: 80
 ---

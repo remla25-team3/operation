@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
         - name: app-service
-          image: ghcr.io/remla25-team3/app-service:v1.2.0
+          image: ghcr.io/remla25-team3/app-service:v1.4.0
           ports:
             - containerPort: 5000
           env:
@@ -72,7 +72,7 @@ spec:
     spec:
       containers:
         - name: app-service
-          image: ghcr.io/remla25-team3/app-service:v1.2.0
+          image: ghcr.io/remla25-team3/app-service:v1.4.0
           ports:
             - containerPort: 5000
           env:

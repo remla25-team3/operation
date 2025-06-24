@@ -2,11 +2,11 @@
 
 ## Services
 
-* app-frontend: [v1.3.1](https://github.com/remla25-team3/app-frontend/releases/tag/v1.3.1)
+* app-frontend: [v1.3.2](https://github.com/remla25-team3/app-frontend/releases/tag/v1.3.2)
 * app-service: [v1.3.1](https://github.com/remla25-team3/app-service/releases/tag/v1.3.1)
 * lib-ml: [v0.5.0](https://github.com/remla25-team3/lib-ml/releases/tag/v0.5.0)
 * lib-version: [v1.2.0](https://github.com/remla25-team3/lib-version/releases/tag/v1.2.0)
-* model-service: [v0.3.2](https://github.com/remla25-team3/model-service/releases/tag/v0.3.2)
+* model-service: [v0.3.4](https://github.com/remla25-team3/model-service/releases/tag/v0.3.4)
 * model-training: [v0.2.3](https://github.com/remla25-team3/model-training/releases/tag/v0.2.3)
 * operation: [this repo](https://github.com/remla25-team3/operation)
 
@@ -18,10 +18,6 @@ We are aware that updates are needed in the coming weeks to fulfill all requirem
 The application can still be started by e.g. following the instructions under *Assignment 2* below, but a problem that causes interaction between the `app-service` and `model-service` to fail has remained.
 
 For A5, we particularly had trouble getting Istio to properly show our app (all pods run and Istio is set up, but we get a blank page when navigating to the gateway at a fixed IP), as well as getting rate limiting to work, which we will be addressing soon.
-
-## Assignment 4
-
-ML Tests and linting have been configured in model-training pipelines. DVC has also been implemented
 
 ## Assignment 3
 
@@ -88,22 +84,99 @@ vagrant destroy -f
 ```
 This will forcefully stop and delete all Vagrant-managed virtual machines related to this project.
 
-## Assignment 1
+## 🚀 Docker Compose Deployment
 
-### Information 
+You can deploy the entire REMLA project with a single command. Our Docker Compose setup implements:
 
-* Run project by cd ing to xxx/operation and running docker compose up
-* Once running, API documentation available on http://localhost:8082/apidocs/ for `app-service` and http://localhost:8081/apidocs/ for `model-service`.
+- **ENV configuration** via a `.env` file (e.g. `NGINX_PORT=8080`, `APP_PORT=3000`, `MODEL_PORT=5000`, and example Docker secret).
+- **Port mappings** so only `app-frontend` is exposed on your host.
+- **Volume mapping** for model caching.
+- **Restart policies** (`restart: unless-stopped`) for all services.
+- **Docker secret** example for sensitive data (`test_secret`).
 
-### Rubric
+### Start Up
+From the root directory, run:
+```bash
+docker-compose up -d  # Bring up all services in detached mode
+```
+### Access the services:
+- **Frontend UI**: http://localhost:8080/
+- **App-service API Docs (Swagger)**: http://localhost:8080/app/apidocs
+- **Model-service API Docs (Swagger)**: http://localhost:8080/model/apidocs
 
-The following parts of the rubric were, to the best of our judgment, implemented in the code.
+### Shut Down
+```bash
+docker-compose down
+```
 
-* Data availability: document follows structure outlined by template
-* Use case: front end currently unable to display predictions
-* Automated release process: lib-ml and lib-version currently using release-please. Other repositories still rely on Git Tags to be created
-* Software Reuse in Libraries: not currently being used.
-* Exposing a Model via REST: code is set up for all services to communicate with each other through REST where necessary, for which Flask is employed. The communication itself does not work as of yet because the docker-compose is not completely done. The setup to configure `model-service` DNS name and ports through ENV variables is there (but unused because the communication is not done yet).
-* Docker Compose Operation: docker compose uses volume mapping, port mapping and an environment variable.
 
+## Running on Kubernetes with Minikube
+### ⚠️ Experimental - Work in Progress
+
+Deployment and Testing Workflow
+
+This workflow uses kubectl port-forward to provide temporary access to the application for testing.
+
+1. Start Your Local Cluster
+
+First, start your Minikube cluster
+```bash
+minikube start
+```
+minikube addons enable ingress
+
+wait till controller is ready (few seconds)
+kubectl get pods -n ingress-nginx
+
+
+2. Install the Application
+
+Navigate to the Helm chart directory (/k8s/remla-app/) and use Helm to install the application. We will name this deployment remla-demo.
+```bash
+# Navigate to the chart directory
+cd path/to/your/remla-chart
+
+# Install the chart
+helm install remla-app .
+```
+
+3. Wait for All Pods to Be Ready
+
+The containers need some time to pull their images and start up. You can watch the status of the pods with the following command:
+```bash
+kubectl get pods --watch
+```
+
+Wait until all pods show 1/1 in the READY column and Running in the STATUS column. This may take a minute or two. Press Ctrl+C to exit the watch command once they are all running.
+
+4. Access the Application
+
+To access the UI, you need to forward a local port (for now) to the nginx service, which acts as the entry point for the application.
+```bash
+kubectl port-forward --namespace=ingress-nginx service/ingress-nginx-controller 8080:80
+```
+
+You will see a message like Forwarding from 127.0.0.1:8080 -> 80. Now, you can open your web browser and navigate to:
+
+http://localhost:8080
+
+You should see the application's frontend and be able to interact with it fully.
+
+Furthermore, you can access the APIdocs by navigating:
+- **App-service API Docs (Swagger)**: http://localhost:8080/app/apidocs
+- **Model-service API Docs (Swagger)**: http://localhost:8080/model/apidocs
+
+### Cleaning Up
+
+Once you are finished, you can remove the resources from your cluster.
+
+To delete all the Kubernetes resources created by the Helm chart (Deployments, Services, etc.), but keep your Minikube cluster running:
+```bash
+helm uninstall remla-app
+```
+
+To completely delete the local Minikube cluster and all its contents:
+```bash
+minikube delete
+```
 
