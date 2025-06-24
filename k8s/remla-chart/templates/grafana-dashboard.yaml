@@ -1,0 +1,13 @@
+{{- if .Values.serviceMonitor.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.appService.name }}-grafana-dashboard
+  labels:
+    app: {{ .Values.appService.name }} 
+    app.kubernetes.io/component: app-service 
+    grafana_dashboard: "1" # Label for Grafana
+data:
+  app-service-dashboard.json: |-
+{{ tpl (.Files.Get "dashboards/app-service-dashboard.json") . | nindent 4 }}
+{{- end }}

@@ -87,3 +87,10 @@ volumes:
     enabled: true
     hostPath: /mnt/shared
 
+# Prometheus configuration
+serviceMonitor:
+  targetApp: app-frontend
+  enabled: true
+  path: /metrics
+  interval: 30s
+  port: http

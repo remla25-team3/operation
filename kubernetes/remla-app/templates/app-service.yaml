@@ -53,7 +53,7 @@ spec:
         - name: shared-data
           hostPath:
             path: {{ .Values.volumes.sharedData.hostPath }}
-            type: Directory
+            type: DirectoryOrCreate
       {{- end }}
 ---
 apiVersion: v1
@@ -66,7 +66,8 @@ metadata:
 spec:
   type: {{ .Values.appService.service.type }}
   ports:
-    - port: {{ .Values.appService.service.port }}
+    - name: http
+      port: {{ .Values.appService.service.port }}
       targetPort: {{ .Values.appService.service.targetPort }}
   selector:
     {{- include "remla-app.selectorLabels" . | nindent 4 }}
