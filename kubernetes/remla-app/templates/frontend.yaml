@@ -73,30 +73,28 @@ spec:
       port: {{ .Values.frontend.service.port }}
       targetPort: {{ .Values.frontend.service.targetPort }}
 {{- if .Values.frontend.ingress.enabled }}
-
-{{/*---*/}}
-{{/*apiVersion: networking.k8s.io/v1*/}}
-{{/*kind: Ingress*/}}
-{{/*metadata:*/}}
-{{/*  name: {{ include "remla-app.frontendName" . }}*/}}
-{{/*  labels:*/}}
-{{/*    {{- include "remla-app.labels" . | nindent 4 }}*/}}
-{{/*    app.kubernetes.io/component: frontend*/}}
-{{/*  {{- with .Values.frontend.ingress.annotations }}*/}}
-{{/*  annotations:*/}}
-{{/*    {{- toYaml . | nindent 4 }}*/}}
-{{/*  {{- end }}*/}}
-{{/*spec:*/}}
-{{/*  ingressClassName: {{ .Values.frontend.ingress.className }}*/}}
-{{/*  rules:*/}}
-{{/*  - http:*/}}
-{{/*      paths:*/}}
-{{/*      - path: {{ .Values.frontend.ingress.path }}*/}}
-{{/*        pathType: {{ .Values.frontend.ingress.pathType }}*/}}
-{{/*        backend:*/}}
-{{/*          service:*/}}
-{{/*            name: {{ include "remla-app.frontendName" . }}*/}}
-{{/*            port:*/}}
-{{/*              number: {{ .Values.frontend.service.port }}*/}}
-{{/*{{- end }}*/}}
-
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "remla-app.frontendName" . }}
+  labels:
+    {{- include "remla-app.labels" . | nindent 4 }}
+    app.kubernetes.io/component: frontend
+  {{- with .Values.frontend.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  ingressClassName: {{ .Values.frontend.ingress.className }}
+  rules:
+  - http:
+      paths:
+      - path: {{ .Values.frontend.ingress.path }}
+        pathType: {{ .Values.frontend.ingress.pathType }}
+        backend:
+          service:
+            name: {{ include "remla-app.frontendName" . }}
+            port:
+              number: {{ .Values.frontend.service.port }}
+{{- end }}
