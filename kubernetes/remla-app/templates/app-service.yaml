@@ -53,7 +53,7 @@ spec:
         - name: shared-data
           hostPath:
             path: {{ .Values.volumes.sharedData.hostPath }}
-            type: Directory
+            type: DirectoryOrCreate
       {{- end }}
 ---
 apiVersion: v1

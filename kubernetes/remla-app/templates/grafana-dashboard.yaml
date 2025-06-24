@@ -8,5 +8,5 @@ metadata:
     grafana_dashboard: "1"
 data:
   app-service-dashboard.json: |-
-{{ .Files.Get "dashboards/app-service-dashboard.json" | tpl . | nindent 4 }}
+{{ .Files.Get "dashboards/app-service-dashboard.json" | nindent 4 }}
 {{- end }}

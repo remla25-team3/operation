@@ -5,8 +5,10 @@ metadata:
 spec:
   selector:
     app: {{ .Values.appService.name }}
+    app.kubernetes.io/component: app-service  # dashboard compatibility
   ports:
   - protocol: TCP
+    name: http # Reference for servicemonitor
     port: {{ .Values.appService.servicePort }}
     targetPort: {{ .Values.appService.containerPort }}
 ---
@@ -14,15 +16,21 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ .Values.appService.name }}
+  labels: # explicit resource identification
+    {{- include "remla-app.labels" . | nindent 4 }}
+    app: {{ .Values.appService.name }}
+    app.kubernetes.io/component: app-service
 spec:
   replicas: {{ .Values.appService.replicas }}
   selector:
     matchLabels:
       app: {{ .Values.appService.name }}
+      app.kubernetes.io/component: app-service # dashboard compatibility
   template:
     metadata:
       labels:
         app: {{ .Values.appService.name }}
+        app.kubernetes.io/component: app-service # dashboard compatibility
     spec:
       automountServiceAccountToken: false
       containers:
