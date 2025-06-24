@@ -139,7 +139,29 @@ kubectl get pods -n ingress-nginx --watch
 ```
 Once ready, press Ctrl+C to exit the watch command.
 
-2. Install the Application
+2. Create mnt/shared/
+
+You need to create the /mnt/shared directory inside your Minikube virtual machine.
+SSH into the Minikube node:
+```bash
+minikube ssh
+```
+Create the directory:
+Once you are inside the Minikube shell (your prompt will change), run this command to create the required directory. You'll likely need sudo as /mnt is a system-level folder.
+```bash
+sudo mkdir /mnt/shared
+```
+(Optional but Recommended) Set Permissions:
+To avoid potential permission issues with the user inside your container, it's a good idea to give open permissions to this directory for development purposes.
+```bash
+sudo chmod 777 /mnt/shared
+```
+Exit the Minikube shell:
+```bash
+exit
+```
+
+3. Install the Application
 
 Navigate to the Helm chart directory (/k8s/remla-app) and use Helm to install the application. This command will create all the necessary Kubernetes resources (Deployments, Services, Ingress, etc.). We will give our deployment a "release name" of `remla-app`
 
@@ -148,10 +170,10 @@ Navigate to the Helm chart directory (/k8s/remla-app) and use Helm to install th
 cd k8s/remla-chart
 
 # Install the chart
-helm install remla-app .
+helm install releasename .
 ```
 
-3. Wait for All Pods to Be Ready
+4. Wait for All Pods to Be Ready
 
 The containers need some time to pull their images and start up. You can watch the status of the pods with the following command:
 ```bash
@@ -160,7 +182,7 @@ kubectl get pods --watch
 
 Wait until all pods show 1/1 in the READY column and Running in the STATUS column. This may take a minute or two. Press Ctrl+C to exit the watch command once they are all running.
 
-4. Access the Application
+5. Access the Application
 
 To access the UI, you need to forward a local port (for now) to the nginx service, which acts as the entry point for the application.
 ```bash
