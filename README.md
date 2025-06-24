@@ -1,6 +1,6 @@
-# operation
+# Operation
 
-## Services
+This repository contains the operational configuration to run our complete application stack, including deployment files and documentation. The list below links to the specific, stable versions of each microservice and library that constitute the current deployment.
 
 * app-frontend: [v1.3.2](https://github.com/remla25-team3/app-frontend/tree/v1.3.2)
 * app-service: [v1.4.1](https://github.com/remla25-team3/app-service/tree/v1.4.1)
@@ -10,14 +10,7 @@
 * model-training: [v0.2.3](https://github.com/remla25-team3/model-training/tree/v0.2.3)
 * operation: [this repo](https://github.com/remla25-team3/operation)
 
-## Assignment 5
-
-As of now, most parts of the assignment are *partially* implemented and work *to some extent*.
-We are aware that updates are needed in the coming weeks to fulfill all requirements.
-
-The application can still be started by e.g. following the instructions under *Assignment 2* below, but a problem that causes interaction between the `app-service` and `model-service` to fail has remained.
-
-For A5, we particularly had trouble getting Istio to properly show our app (all pods run and Istio is set up, but we get a blank page when navigating to the gateway at a fixed IP), as well as getting rate limiting to work, which we will be addressing soon.
+For a detailed, itemized checklist of our compliance with the course rubrics for each assignment, please see the `RUBRICS.md` file in this repository.
 
 ## Assignment 3
 
