@@ -34,7 +34,13 @@ spec:
         volumeMounts:
         - name: model-cache
           mountPath: /models
+        - name: shared-storage
+          mountPath: /mnt/shared
       volumes:
       - name: model-cache
         persistentVolumeClaim:
           claimName: model-cache-pvc
+      - name: shared-storage
+        hostPath:
+          path: /mnt/shared
+          type: Directory
