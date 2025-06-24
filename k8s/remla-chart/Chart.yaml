@@ -14,10 +14,3 @@ keywords:
   - web-application
 annotations:
   category: Application
-# Added to work without provisioning, should be deleted in final release
-dependencies:
-  - name: kube-prometheus-stack
-    # Using a recent, stable version
-    version: "57.0.1"
-    repository: https://prometheus-community.github.io/helm-charts
-    # Values for this subchart will be configured in values.yaml
