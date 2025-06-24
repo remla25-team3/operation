@@ -1,4 +1,12 @@
 apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.appService.name }}-config
+data:
+  IS_PRODUCTION: {{ .Values.appService.configData.IS_PRODUCTION | quote }}
+  LOG_LEVEL: {{ .Values.appService.configData.LOG_LEVEL | quote }}
+---
+apiVersion: v1
 kind: Service
 metadata:
   name: {{ .Values.appService.name }}
@@ -31,6 +39,9 @@ spec:
         imagePullPolicy: {{ .Values.appService.image.pullPolicy }}
         ports:
         - containerPort: {{ .Values.appService.containerPort }}
+        envFrom:
+        - configMapRef:
+            name: {{ .Values.appService.name }}-config
         env: {{- tpl (toYaml .Values.appService.env) . | nindent 10 }}
         volumeMounts:
         - name: secret-volume

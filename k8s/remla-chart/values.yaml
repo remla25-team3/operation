@@ -2,14 +2,6 @@ replicaCount: 1
 
 testSecret: "REPLACE_WITH_SECRET"
 
-# nginx:
-#   image:
-#     repository: nginx
-#     tag: latest
-#     pullPolicy: IfNotPresent
-#   hostPort: 8080
-#   configFile: "nginx.conf"
-
 appFrontend:
   name: app-frontend
   image:
@@ -29,6 +21,9 @@ appService:
   servicePort: 3000
   containerPort: 3000
   replicas: 1
+  configData:
+    IS_PRODUCTION: "false"
+    LOG_LEVEL: "info"
   env:
     - name: PORT
       value: "3000"
