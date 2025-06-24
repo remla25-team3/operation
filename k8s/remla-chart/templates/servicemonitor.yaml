@@ -1,0 +1,21 @@
+{{- if .Values.serviceMonitor.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ .Values.appService.name }}-monitor
+  # This resource is created in the release namespace.
+  # For Prometheus to discover it, the entire chart should be installed in the 'monitoring' namespace.
+  labels:
+    # This label allows the Prometheus Operator to discover this ServiceMonitor.
+    # It must match the 'release' label of the kube-prometheus-stack instance.
+    release: {{ .Values.serviceMonitor.prometheusReleaseLabel }}
+spec:
+  selector:
+    matchLabels:
+      # This selector should match the labels on your app-service's Service resource.
+      app: {{ .Values.appService.name }}
+  endpoints:
+  - port: http # This should match the 'name' of the port in the app-service Service.
+    path: {{ .Values.serviceMonitor.path | default "/metrics" }}
+    interval: {{ .Values.serviceMonitor.interval | default "30s" }}
+{{- end }}

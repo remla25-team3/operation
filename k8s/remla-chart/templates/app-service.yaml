@@ -17,7 +17,6 @@ kind: Deployment
 metadata:
   name: {{ .Values.appService.name }}
   labels: # explicit resource identification
-    {{- include "remla-app.labels" . | nindent 4 }}
     app: {{ .Values.appService.name }}
     app.kubernetes.io/component: app-service
 spec:

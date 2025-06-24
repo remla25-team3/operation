@@ -1,0 +1,13 @@
+# Allow Prometheus to discover ServiceMonitors in any namespace.
+# An empty selector {} means "all namespaces".
+prometheus:
+  prometheusSpec:
+    serviceMonitorSelectorNilUsesHelmValues: false
+    serviceMonitorNamespaceSelector: {}
+
+# Allow Grafana to discover dashboards in any namespace.
+grafana:
+  sidecar:
+    dashboards:
+      enabled: true
+      searchNamespace: "ALL"
