@@ -2,13 +2,13 @@ replicaCount: 1
 
 testSecret: "REPLACE_WITH_SECRET"
 
-nginx:
-  image:
-    repository: nginx
-    tag: latest
-    pullPolicy: IfNotPresent
-  hostPort: 8080
-  configFile: "nginx.conf"
+# nginx:
+#   image:
+#     repository: nginx
+#     tag: latest
+#     pullPolicy: IfNotPresent
+#   hostPort: 8080
+#   configFile: "nginx.conf"
 
 appFrontend:
   name: app-frontend
@@ -24,7 +24,7 @@ appService:
   name: app-service
   image:
     repository: ghcr.io/remla25-team3/app-service
-    tag: v1.4.0
+    tag: v1.4.1
     pullPolicy: IfNotPresent
   servicePort: 3000
   containerPort: 3000
@@ -35,20 +35,20 @@ appService:
     - name: MODEL_SERVICE_URL
       value: "{{ .Values.modelService.name }}"
     - name: MODEL_SERVICE_PORT
-      value: "5000"
+      value: "{{ .Values.modelService.servicePort }}"
 
 modelService:
   name: model-service
   image:
     repository: ghcr.io/remla25-team3/model-service
-    tag: v0.4.0
+    tag: v0.4.1
     pullPolicy: IfNotPresent
   servicePort: 5000
   containerPort: 5000
   replicas: 1
   env:
     - name: PORT
-      value: "5000"
+      value: "{{ .Values.modelService.servicePort }}"
     - name: RESOURCE_URL
       value: "https://github.com/remla25-team3/model-training/releases/download/"
     - name: MODEL

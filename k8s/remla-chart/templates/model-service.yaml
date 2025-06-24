@@ -30,7 +30,7 @@ spec:
         imagePullPolicy: {{ .Values.modelService.image.pullPolicy }}
         ports:
         - containerPort: {{ .Values.modelService.containerPort }}
-        env: {{- toYaml .Values.modelService.env | nindent 10 }}
+        env: {{- tpl (toYaml .Values.modelService.env) . | nindent 10 }}
         volumeMounts:
         - name: model-cache
           mountPath: /models

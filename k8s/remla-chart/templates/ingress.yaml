@@ -1,0 +1,99 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: remla-app-ingress-main
+  annotations:
+    nginx.ingress.kubernetes.io/use-regex: "true"
+spec:
+  ingressClassName: nginx
+  rules:
+  - http:
+      paths:
+        # model-service Swagger UI & JSON
+        - path: /model/apidocs
+          pathType: Exact
+          backend:
+            service:
+              name: {{ .Values.modelService.name }}
+              port:
+                number: {{ .Values.modelService.servicePort }}
+        - path: /model/flasgger_static
+          pathType: Prefix
+          backend:
+            service:
+              name: {{ .Values.modelService.name }}
+              port:
+                number: {{ .Values.modelService.servicePort }}
+        - path: /model/apispec_
+          pathType: Prefix
+          backend:
+            service:
+              name: {{ .Values.modelService.name }}
+              port:
+                number: {{ .Values.modelService.servicePort }}
+
+        # app-service Swagger UI & JSON
+        - path: /app/apidocs
+          pathType: Exact
+          backend:
+            service:
+              name: {{ .Values.appService.name }}
+              port:
+                number: {{ .Values.appService.servicePort }}
+        - path: /app/flasgger_static
+          pathType: Prefix
+          backend:
+            service:
+              name: {{ .Values.appService.name }}
+              port:
+                number: {{ .Values.appService.servicePort }}
+        - path: /app/apispec_
+          pathType: Prefix
+          backend:
+            service:
+              name: {{ .Values.appService.name }}
+              port:
+                number: {{ .Values.appService.servicePort }}
+
+        # Frontend SPA fallback (everything else)
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: {{ .Values.appFrontend.name }}
+              port:
+                number: {{ .Values.appFrontend.servicePort }}
+
+---
+# Ingress specifically for API paths that REQUIRE a URL rewrite.
+# The rewrite annotation is defined here and will only apply to these paths.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: remla-app-ingress-rewrite
+  annotations:
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+spec:
+  ingressClassName: nginx
+  rules:
+  - http:
+      paths:
+        # app-service API (rewrite /api/<x> → /<x>)
+        - path: /api(/|$)(.*)
+          pathType: ImplementationSpecific
+          backend:
+            service:
+              name: {{ .Values.appService.name }}
+              port:
+                number: {{ .Values.appService.servicePort }}
+
+        # model-service API (rewrite /model/<x> → /<x>)
+        # /model/(?!apidocs|flasgger_static|apispec_)(.*)
+        - path: /model(/|$)(?!apidocs|flasgger_static|apispec_)(.*)
+          pathType: ImplementationSpecific
+          backend:
+            service:
+              name: {{ .Values.modelService.name }}
+              port:
+                number: {{ .Values.modelService.servicePort }}

@@ -123,6 +123,11 @@ First, start your Minikube cluster
 ```bash
 minikube start
 ```
+minikube addons enable ingress
+
+wait till controller is ready (few seconds)
+kubectl get pods -n ingress-nginx
+
 
 2. Install the Application
 
@@ -132,7 +137,7 @@ Navigate to the Helm chart directory (/k8s/remla-app/) and use Helm to install t
 cd path/to/your/remla-chart
 
 # Install the chart
-helm install remla-demo .
+helm install remla-app .
 ```
 
 3. Wait for All Pods to Be Ready
@@ -148,7 +153,7 @@ Wait until all pods show 1/1 in the READY column and Running in the STATUS colum
 
 To access the UI, you need to forward a local port (for now) to the nginx service, which acts as the entry point for the application.
 ```bash
-kubectl port-forward service/nginx 8080:80
+kubectl port-forward --namespace=ingress-nginx service/ingress-nginx-controller 8080:80
 ```
 
 You will see a message like Forwarding from 127.0.0.1:8080 -> 80. Now, you can open your web browser and navigate to:
@@ -157,16 +162,21 @@ http://localhost:8080
 
 You should see the application's frontend and be able to interact with it fully.
 
+Furthermore, you can access the APIdocs by navigating:
+- **App-service API Docs (Swagger)**: http://localhost:8080/app/apidocs
+- **Model-service API Docs (Swagger)**: http://localhost:8080/model/apidocs
+
 ### Cleaning Up
 
 Once you are finished, you can remove the resources from your cluster.
 
 To delete all the Kubernetes resources created by the Helm chart (Deployments, Services, etc.), but keep your Minikube cluster running:
 ```bash
-helm uninstall remla-demo
+helm uninstall remla-app
 ```
 
 To completely delete the local Minikube cluster and all its contents:
 ```bash
 minikube delete
 ```
+
