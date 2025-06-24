@@ -1,10 +1,15 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ .Values.modelService.name }}
+  name: {{ .Release.Name }}-{{ .Values.modelService.name }}
+  labels:
+    {{- include "remla-app.labels" . | nindent 4 }}
+    app.kubernetes.io/component: {{ .Values.modelService.name }}
 spec:
   selector:
-    app: {{ .Values.modelService.name }}
+    app.kubernetes.io/name: {{ include "remla-app.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: {{ .Values.modelService.name }}
   ports:
   - protocol: TCP
     port: {{ .Values.modelService.servicePort }}
@@ -13,16 +18,22 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Values.modelService.name }}
+  name: {{ .Release.Name }}-{{ .Values.modelService.name }}
+  labels:
+    {{- include "remla-app.labels" . | nindent 4 }}
+    app.kubernetes.io/component: {{ .Values.modelService.name }}
 spec:
   replicas: {{ .Values.modelService.replicas }}
   selector:
     matchLabels:
-      app: {{ .Values.modelService.name }}
+      app.kubernetes.io/name: {{ include "remla-app.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: {{ .Values.modelService.name }}
   template:
     metadata:
       labels:
-        app: {{ .Values.modelService.name }}
+        {{- include "remla-app.labels" . | nindent 8 }}
+        app.kubernetes.io/component: {{ .Values.modelService.name }}
     spec:
       containers:
       - name: {{ .Values.modelService.name }}
@@ -39,7 +50,7 @@ spec:
       volumes:
       - name: model-cache
         persistentVolumeClaim:
-          claimName: model-cache-pvc
+          claimName: {{ .Release.Name }}-model-cache-pvc
       - name: shared-storage
         hostPath:
           path: /mnt/shared

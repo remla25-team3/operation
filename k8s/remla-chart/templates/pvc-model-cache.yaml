@@ -2,7 +2,10 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: model-cache-pvc
+  name: {{ .Release.Name }}-model-cache-pvc
+  labels:
+    {{- include "remla-app.labels" . | nindent 4 }}
+    app.kubernetes.io/component: {{ .Values.modelService.name }}
 spec:
   accessModes:
     - ReadWriteOnce

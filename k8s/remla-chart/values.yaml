@@ -28,7 +28,7 @@ appService:
     - name: PORT
       value: "3000"
     - name: MODEL_SERVICE_URL
-      value: "{{ .Values.modelService.name }}"
+      value: "{{ .Release.Name }}-{{ .Values.modelService.name }}"
     - name: MODEL_SERVICE_PORT
       value: "{{ .Values.modelService.servicePort }}"
 
