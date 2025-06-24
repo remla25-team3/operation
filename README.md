@@ -2,12 +2,12 @@
 
 ## Services
 
-* app-frontend: [v1.3.2](https://github.com/remla25-team3/app-frontend/releases/tag/v1.3.2)
-* app-service: [v1.3.1](https://github.com/remla25-team3/app-service/releases/tag/v1.3.1)
-* lib-ml: [v0.5.0](https://github.com/remla25-team3/lib-ml/releases/tag/v0.5.0)
-* lib-version: [v1.2.0](https://github.com/remla25-team3/lib-version/releases/tag/v1.2.0)
-* model-service: [v0.3.4](https://github.com/remla25-team3/model-service/releases/tag/v0.3.4)
-* model-training: [v0.2.3](https://github.com/remla25-team3/model-training/releases/tag/v0.2.3)
+* app-frontend: [v1.3.2](https://github.com/remla25-team3/app-frontend/tree/v1.3.2)
+* app-service: [v1.4.1](https://github.com/remla25-team3/app-service/tree/v1.4.1)
+* lib-ml: [v0.5.0](https://github.com/remla25-team3/lib-ml/tree/v0.5.0)
+* lib-version: [v1.2.0](https://github.com/remla25-team3/lib-version/tree/v1.2.0)
+* model-service: [v0.4.1](https://github.com/remla25-team3/model-service/tree/v0.4.1)
+* model-training: [v0.2.3](https://github.com/remla25-team3/model-training/tree/v0.2.3)
 * operation: [this repo](https://github.com/remla25-team3/operation)
 
 ## Assignment 5
