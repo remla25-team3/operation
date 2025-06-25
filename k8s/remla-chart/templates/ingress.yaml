@@ -57,13 +57,13 @@ spec:
                   number: {{ .Values.appService.servicePort }}
 
           # Frontend SPA fallback (everything else)
-          - path: /{{ .Release.Name }}
-            pathType: Prefix
-            backend:
-              service:
-                name: {{ .Release.Name }}-{{ .Values.appFrontend.name }}
-                port:
-                  number: {{ .Values.appFrontend.servicePort }}
+          # - path: /{{ .Release.Name }}
+          #   pathType: Prefix
+          #   backend:
+          #     service:
+          #       name: {{ .Release.Name }}-{{ .Values.appFrontend.name }}
+          #       port:
+          #         number: {{ .Values.appFrontend.servicePort }}
 
 ---
 # Ingress specifically for API paths that REQUIRE a URL rewrite.
@@ -99,3 +99,24 @@ spec:
                 name: {{ .Release.Name }}-{{ .Values.modelService.name }}
                 port:
                   number: {{ .Values.modelService.servicePort }}
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ .Release.Name }}-remla-app-ingress-frontend
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: {{ .Values.grafana.ingress.hostname | quote }}
+      http:
+        paths:
+          - path: /{{ .Release.Name }}
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ .Release.Name }}-{{ .Values.appFrontend.name }}
+                port:
+                  number: {{ .Values.appFrontend.servicePort }}

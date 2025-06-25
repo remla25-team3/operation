@@ -170,3 +170,6 @@ grafana:
 
 apiIngress:
   hostname: api.local
+
+appIngress:
+  hostname: remla.local
