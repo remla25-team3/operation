@@ -63,3 +63,4 @@ spec:
     - protocol: TCP
       port: {{ .Values.appFrontend.servicePort }}
       targetPort: {{ .Values.appFrontend.containerPort }}
+      name: http-frontend
