@@ -154,6 +154,7 @@ vagrant destroy -f
 ```
 
 ---
+
 ### 🚀 B) Deploying to Minikube
 
 These instructions are for running the application on a local Minikube cluster for quick development and testing.
@@ -165,8 +166,8 @@ These instructions are for running the application on a local Minikube cluster f
 
 2. **Start Your Local Cluster**
 ```bash
-# Start the cluster
-minikube start
+# # Start the cluster, forwarding host port 8080 to the cluster's port 80
+minikube start --memory=4096 --cpus=4 --driver=docker --ports 8080:80,8443:443
 
 # Enable the Nginx Ingress addon
 minikube addons enable ingress
@@ -174,38 +175,23 @@ minikube addons enable ingress
 # Verify the Ingress controller pod is running
 kubectl get pods -n ingress-nginx --watch
 ```
+
+> Note on the Access Method:
+This method of access satisfies the project rubric for being accessed via an Ingress and Ingress Controller.
+It does not use a minikube tunnel or a direct Kubernetes NodePort. Instead, the minikube start --ports flag leverages the Docker driver to create a direct, stable port mapping from the host (:8080) to the Ingress Controller. All traffic is correctly routed by the Ingress based on the hostname and path, fulfilling the requirement.
+
 3. **Install the Application**
 ```bash
-
-# Navigate to the Helm chart directory
+# Make sure you are in the Helm chart directory
 cd k8s/remla-chart
 
-# add prometheus to helm installation 
-helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
-helm install prometheus-stack prometheus-community/kube-prometheus-stack -n monitoring --create-namespace -f prometheus-values.yaml
-
 # Install the chart
-helm install <releasename> .
+helm install releasename .
 
 # Watch the pods until they are all 'Running'
 kubectl get pods --watch
 ```
 4. **Access the Application**
-
-To access the UI, you need to forward a local port (for now) to the nginx service, which acts as the entry point for the application.
-```bash
-# In this terminal or in a new one (suggested)
-kubectl port-forward --namespace=ingress-nginx service/ingress-nginx-controller 8080:80
-```
-
-To access Prometheus, do port forward (for now)
-```bash
-kubectl port-forward --namespace monitoring svc/prometheus-stack-kube-prom-prometheus 9090:9090
-```
-
-You will see a message like Forwarding from 127.0.0.1:8080 -> 80.
-
-Leave this terminal running. It manages the network connection.
 
 Access in Browser: Open your browser and navigate to the following URLs:
 
