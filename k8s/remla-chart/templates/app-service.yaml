@@ -23,7 +23,7 @@ spec:
     app.kubernetes.io/component: {{ .Values.appService.name }}
   ports:
   - protocol: TCP
-    name: http # Reference for servicemonitor
+    name: http-app-service # Reference for servicemonitor
     port: {{ .Values.appService.servicePort }}
     targetPort: {{ .Values.appService.containerPort }}
 ---
