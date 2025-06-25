@@ -53,5 +53,5 @@ modelService:
     - name: MODEL_VERSION
       value: "v0.2.3"
   persistence:
-    enabled: true
+    enabled: false
     size: 1Gi

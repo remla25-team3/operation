@@ -49,9 +49,10 @@ spec:
           mountPath: /mnt/shared
       volumes:
       - name: model-cache
-        persistentVolumeClaim:
-          claimName: {{ .Release.Name }}-model-cache-pvc
+        hostPath:
+          path: /mnt/model-cache
+          type: DirectoryOrCreate
       - name: shared-storage
         hostPath:
           path: /mnt/shared
-          type: Directory
+          type: DirectoryOrCreate
