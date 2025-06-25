@@ -1,24 +1,28 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Values.appFrontend.name }}-v1
+  name: {{ .Release.Name }}-{{ .Values.appFrontend.name }}-v1
   labels:
-    app.kubernetes.io/component: frontend
+    {{- include "remla-app.labels" . | nindent 4 }}
+    app.kubernetes.io/component: {{ .Values.appFrontend.name }}
     version: v1
 spec:
   replicas: {{ .Values.appFrontend.replicas }}
   selector:
     matchLabels:
-      app.kubernetes.io/component: frontend
+      app.kubernetes.io/name: {{ include "remla-app.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: {{ .Values.appFrontend.name }}
       version: v1
   template:
     metadata:
       labels:
-        app.kubernetes.io/component: frontend
+        {{- include "remla-app.labels" . | nindent 8 }}
+        app.kubernetes.io/component: {{ .Values.appFrontend.name }}
         version: v1
     spec:
       containers:
-      - name: frontend
+      - name: {{ .Values.appFrontend.name }}
         image: "{{ .Values.appFrontend.image.repository }}:{{ .Values.appFrontend.image.tag }}"
         imagePullPolicy: {{ .Values.appFrontend.image.pullPolicy }}
         ports:
@@ -27,24 +31,28 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Values.appFrontend.name }}-v2
+  name: {{ .Release.Name }}-{{ .Values.appFrontend.name }}-v2
   labels:
-    app.kubernetes.io/component: frontend
+    {{- include "remla-app.labels" . | nindent 4 }}
+    app.kubernetes.io/component: {{ .Values.appFrontend.name }}
     version: v2
 spec:
   replicas: {{ .Values.appFrontend.replicas }}
   selector:
     matchLabels:
-      app.kubernetes.io/component: frontend
+      app.kubernetes.io/name: {{ include "remla-app.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: {{ .Values.appFrontend.name }}
       version: v2
   template:
     metadata:
       labels:
-        app.kubernetes.io/component: frontend
+        {{- include "remla-app.labels" . | nindent 8 }}
+        app.kubernetes.io/component: {{ .Values.appFrontend.name }}
         version: v2
     spec:
       containers:
-      - name: frontend
+      - name: {{ .Values.appFrontend.name }}
         image: "{{ .Values.appFrontend.image.repository }}:{{ .Values.appFrontend.image.tagCanary }}"
         imagePullPolicy: {{ .Values.appFrontend.image.pullPolicy }}
         ports:
@@ -53,14 +61,17 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ .Values.appFrontend.name }}
+  name: {{ .Release.Name }}-{{ .Values.appFrontend.name }}
   labels:
-    app.kubernetes.io/component: frontend
+    {{- include "remla-app.labels" . | nindent 4 }}
+    app.kubernetes.io/component: {{ .Values.appFrontend.name }}
 spec:
   selector:
-    app.kubernetes.io/component: frontend
+    app.kubernetes.io/name: {{ include "remla-app.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: {{ .Values.appFrontend.name }}
   ports:
     - protocol: TCP
       port: {{ .Values.appFrontend.servicePort }}
       targetPort: {{ .Values.appFrontend.containerPort }}
-      name: http-frontend
+      name: http-{{ .Values.appFrontend.name }}

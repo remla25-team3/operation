@@ -32,7 +32,7 @@ spec:
         uri: /
       route:
         - destination:
-            host: {{ .Values.modelService.name }}
+            host: {{ .Release.Name }}-{{ .Values.modelService.name }}
             port: { number: {{ .Values.modelService.servicePort }} }
 
     # app-service
@@ -43,7 +43,7 @@ spec:
         uri: /
       route:
         - destination:
-            host: {{ .Values.appService.name }}
+            host: {{ .Release.Name }}-{{ .Values.appService.name }}
             port: { number: {{ .Values.appService.servicePort }} }
 
     # frontend
@@ -53,12 +53,12 @@ spec:
       route:
         # Load balancing with 90% going to v1, 10% to v2
         - destination:
-            host: {{ .Values.appFrontend.name }}
+            host: {{ .Release.Name }}-{{ .Values.appFrontend.name }}
             subset: v1
             port: { number: {{ .Values.appFrontend.servicePort }} }
           weight: 90
         - destination:
-            host: {{ .Values.appFrontend.name }}
+            host: {{ .Release.Name }}-{{ .Values.appFrontend.name }}
             subset: v2
             port: { number: {{ .Values.appFrontend.servicePort }} }
           weight: 10
@@ -67,9 +67,9 @@ spec:
 apiVersion: networking.istio.io/v1alpha3
 kind: DestinationRule
 metadata:
-  name: {{ .Values.appService.name }}-destination-rule
+  name: {{ .Release.Name }}-{{ .Values.appService.name }}-destination-rule
 spec:
-  host: {{ .Values.appService.name }}
+  host: {{ .Release.Name }}-{{ .Values.appService.name }}
   trafficPolicy:
     loadBalancer:
       consistentHash:
@@ -79,9 +79,9 @@ spec:
 apiVersion: networking.istio.io/v1alpha3
 kind: DestinationRule
 metadata:
-  name: {{ .Values.modelService.name }}-destination-rule
+  name: {{ .Release.Name }}-{{ .Values.modelService.name }}-destination-rule
 spec:
-  host: {{ .Values.modelService.name }}
+  host: {{ .Release.Name }}-{{ .Values.modelService.name }}
   trafficPolicy:
     loadBalancer:
       consistentHash:
@@ -91,9 +91,9 @@ spec:
 apiVersion: networking.istio.io/v1alpha3
 kind: DestinationRule
 metadata:
-  name: {{ .Values.appFrontend.name }}-destination-rule
+  name: {{ .Release.Name }}-{{ .Values.appFrontend.name }}-destination-rule
 spec:
-  host: {{ .Values.appFrontend.name }}
+  host: {{ .Release.Name }}-{{ .Values.appFrontend.name }}
   subsets:
     - name: v1
       labels: { version: v1 }

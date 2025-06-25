@@ -12,70 +12,7 @@ This repository contains the operational configuration to run our complete appli
 
 For a detailed, itemized checklist of our compliance with the course rubrics for each assignment, please see the `RUBRICS.md` file in this repository.
 
-## Assignment 3
-
-##### Prerequisites
-- **Minikube** installed and configured
-- **kubectl**
-
-##### Running the application in a kubernetes cluster
-
-_Please note:_ there is currently an issue in the setup of the `app-service` pod, causing requests from the frontend to fail. The below steps can still be followed to set up pods for the `app-frontend` and `model-service` services. Any code related to the kubernetes setup is located in the folder `operation/kubernetes`.
-
-1. Run `minikube start`
-2. Navigate to `operation/kubernetes`
-3. Run `kubectl apply -f appfrontend.yml`, `kubectl apply -f appservice.yml`, `kubectl apply -f modelservice.yml`
-4. Open a tunnel: `minikube tunnel`
-5. You can access the frontend by navigating to http://localhost:80
-
-## Assignment 2
-
-##### Prerequisites
-- **Vagrant** & **VirtualBox** installed  
-- **Ansible** on host machine
-- OS user must be able to edit `/etc/hosts`
-- To use SSH access, your **SSH public key** (e.g., `~/.ssh/<your_key>.pub`) must be copied to:
-
-```plaintext
-<repo-dir>/provisioning/public_keys/
-```
-
-##### Clone & Start
-```bash
-git clone git@github.com:remla25-team3/operation.git (using SSH)
-vagrant up
-ansible-playbook -u vagrant -i 192.168.56.100, provisioning/finalization.yml --ask-vault-pass
-````
-and type the password `1234` when prompted.
-
-Then follow the instructions printed in the last message (repeated here):
-
-##### 1. Open your terminal on the host machine and run:
-```bash
-sudo nano /etc/hosts
-```
-##### 2. Add the following line to the bottom of the file:
-```bash
-192.168.56.91   dashboard.local
-```
-##### 3. Save and exit nano:
-    Press Ctrl + O (to write the file), then Enter, then Ctrl + X (to exit)
-##### 4. Open your browser and visit: https://dashboard.local
-##### 5. To log in, run the following command on the controller VM to generate a token:
-```bash
-vagrant ssh ctrl
-kubectl -n kubernetes-dashboard create token admin-user
-```
-##### 6. Paste the token into the Dashboard login screen.
-##### 7. Exit the Controller VM
-Once you have retrieved the token, you can exit the controller VM by pressing Ctrl + D
-
-##### 8. Free Disk Space
-To remove the virtual machines and free up disk space when you're done, run the following command from the provisioning directory on your host machine:
-```bash
-vagrant destroy -f
-```
-This will forcefully stop and delete all Vagrant-managed virtual machines related to this project.
+---
 
 ## 🚀 Docker Compose Deployment
 
@@ -102,85 +39,188 @@ docker-compose up -d  # Bring up all services in detached mode
 docker-compose down
 ```
 
+---
 
-## Running on Kubernetes with Minikube
+## 🚀 Deploying with Kubernetes
 
-This guide outlines the process for deploying the application stack to a local Kubernetes cluster using Minikube and Helm.
+This project can be deployed to two different Kubernetes environments:
 
-### Prerequisites
+- **Provisioned Cluster**: A multi-node cluster running on dedicated VMs, managed by Vagrant and Ansible.
 
-Before you begin, ensure you have the following command-line tools installed and configured on your system:
+- **Minikube**: A single-node local cluster for quick testing.
 
-- Minikube: For running a local Kubernetes cluster.
-- kubectl: The Kubernetes command-line tool.
-- Helm: The package manager for Kubernetes.
+Please follow the instructions for the environment you are using.
 
-1. Start Your Local Cluster
+---
 
-First, start your Minikube cluster
+### A) 🚀 Deploying to the Provisioned Cluster
+
+These steps will set up the virtual machines, provision a complete Kubernetes cluster, and deploy the application.
+
+1. **Prerequisites**
+
+    - Vagrant & VirtualBox installed.
+
+    - Ansible installed on your host machine.
+
+    - Sufficient permissions to edit /etc/hosts (or your system's equivalent).
+
+    - Your SSH public key (e.g., ~/.ssh/id_rsa.pub) copied into the <repo-dir>/provisioning/public_keys/ directory to enable SSH access.
+
+2. **Provision the Cluster Infrastructure**
+
+These commands will create the VMs, install Kubernetes, and configure all necessary services like MetalLB and NGINX Ingress.
+```bash
+# Clone the repository (if you haven't already)
+git clone git@github.com:remla25-team3/operation.git
+
+# Navigate to the project root
+cd operation
+
+# Start and provision the VMs
+vagrant up
+
+# Run the finalization playbook to install cluster services
+ansible-playbook -u vagrant -i 192.168.56.100, provisioning/finalization.yml
+```
+3. **Deploy the Application**
+
+Once the cluster is running, deploy the application using Helm.
+```bash
+# IMPORTANT: Configure your terminal to use the new cluster's credentials
+export KUBECONFIG=$(pwd)/provisioning/config/admin.conf
+
+# Verify connection by listing nodes
+kubectl get nodes
+# Expected output: ctrl, node-1, and node-2 should be listed and 'Ready'
+
+# Navigate to the Helm chart directory
+cd k8s/remla-chart
+
+# Install the application
+helm install releasename .
+
+# Watch the pods until they are all in the 'Running' state
+kubectl get pods --watch
+```
+4. **Access the Application**
+
+The application is exposed via the NGINX Ingress Controller, which has a stable external IP.
+
+Check the Ingress IP:
+```bash
+kubectl get service -n ingress-nginx
+```
+Confirm the EXTERNAL-IP for the ingress-nginx-controller is 192.168.56.91.
+
+Access in Browser: Open your browser and navigate to the following URLs:
+
+- **Main Application**: http://192.168.56.91/
+
+- **App Service API Docs**: http://192.168.56.91/app/apidocs
+
+- **Model Service API Docs**: http://192.168.56.91/model/apidocs
+
+5. **Access the Kubernetes Dashboard (Optional)**
+
+Add Host Entry: Edit your local /etc/hosts:
+```bash
+sudo nano /etc/hosts
+```
+Add the following line to the bottom of the file:
+
+```bash
+192.168.56.91   dashboard.local
+```
+Save and exit nano: Press Ctrl + O (to write the file), then Enter, then Ctrl + X (to exit)
+
+Open your browser and visit: https://dashboard.local
+
+To log in, run the following command on the controller VM to generate a token:
+```bash
+vagrant ssh ctrl
+kubectl -n kubernetes-dashboard create token admin-user
+```
+
+Paste the token into the Dashboard login screen.
+
+Exit the Controller VM: Once you have retrieved the token, you can exit the controller VM by pressing Ctrl + D
+
+6. **Cleaning Up**
+
+To stop and delete all virtual machines, run the following command from the project root:
+```bash
+vagrant destroy -f
+```
+
+---
+### 🚀 B) Deploying to Minikube
+
+These instructions are for running the application on a local Minikube cluster for quick development and testing.
+
+1. **Prerequisites**
+    - macOS or Linux (host operating system)
+    - Helm 3 CLI
+    - Istioctl (tested with version 1.26.0)
+
+2. **Start Your Local Cluster**
 ```bash
 # Start the cluster
 minikube start
+
 # Enable the Nginx Ingress addon
 minikube addons enable ingress
-```
 
-The Ingress Controller pod may take a moment to initialize. You can monitor its status with the following command. Wait until the pod shows 1/1 in the READY column and Running in the STATUS column before proceeding.
-```bash
-# Watch the Ingress controller pods until they are ready
+# Verify the Ingress controller pod is running
 kubectl get pods -n ingress-nginx --watch
 ```
-Once ready, press Ctrl+C to exit the watch command.
-
-2. Install the Application
-
-Navigate to the Helm chart directory (/k8s/remla-app) and use Helm to install the application. This command will create all the necessary Kubernetes resources (Deployments, Services, Ingress, etc.). We will give our deployment a "release name" of `remla-app`
-
+3. **Install the Application**
 ```bash
-# Navigate to the chart directory
+
+# Navigate to the Helm chart directory
 cd k8s/remla-chart
 
+# add prometheus to helm installation 
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm install prometheus-stack prometheus-community/kube-prometheus-stack -n monitoring --create-namespace -f prometheus-values.yaml
+
 # Install the chart
-helm install remla-app .
-```
+helm install <releasename> .
 
-3. Wait for All Pods to Be Ready
-
-The containers need some time to pull their images and start up. You can watch the status of the pods with the following command:
-```bash
+# Watch the pods until they are all 'Running'
 kubectl get pods --watch
 ```
-
-Wait until all pods show 1/1 in the READY column and Running in the STATUS column. This may take a minute or two. Press Ctrl+C to exit the watch command once they are all running.
-
-4. Access the Application
+4. **Access the Application**
 
 To access the UI, you need to forward a local port (for now) to the nginx service, which acts as the entry point for the application.
 ```bash
+# In this terminal or in a new one (suggested)
 kubectl port-forward --namespace=ingress-nginx service/ingress-nginx-controller 8080:80
 ```
 
-You will see a message like Forwarding from 127.0.0.1:8080 -> 80. Now, you can open your web browser and navigate to:
-
-http://localhost:8080
-
-You should see the application's frontend and be able to interact with it fully.
-
-Furthermore, you can access the APIdocs by navigating:
-- **App-service API Docs (Swagger)**: http://localhost:8080/app/apidocs
-- **Model-service API Docs (Swagger)**: http://localhost:8080/model/apidocs
-
-### Cleaning Up
-
-Once you are finished, you can remove the resources from your cluster.
-
-To delete all the Kubernetes resources created by the Helm chart (Deployments, Services, etc.), but keep your Minikube cluster running:
+To access Prometheus, do port forward (for now)
 ```bash
-helm uninstall remla-app
+kubectl port-forward --namespace monitoring svc/prometheus-stack-kube-prom-prometheus 9090:9090
 ```
 
-To completely delete the local Minikube cluster and all its contents:
+You will see a message like Forwarding from 127.0.0.1:8080 -> 80.
+
+Leave this terminal running. It manages the network connection.
+
+Access in Browser: Open your browser and navigate to the following URLs:
+
+- **Main Application**: http://localhost:8080/
+
+- **App Service API Docs**: http://localhost:8080/app/apidocs
+
+- **Model Service API Docs**: http://localhost:8080/model/apidocs
+
+5. **Cleaning Up**
 ```bash
+# Uninstall the application from your cluster
+helm uninstall releasename
+
+# Delete the Minikube cluster entirely
 minikube delete
 ```
-
+---

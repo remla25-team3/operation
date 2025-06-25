@@ -138,21 +138,21 @@ For clarity and to assist in the grading process, we have compiled the following
     - ✅ The relevant deployment files contain at least a working Deployment and a working Service. 
     - ✅ The app is accessed through an Ingress and IngressController. 
 - ✅ **Good:**
-    - 🟡 The deployed application defines the location of the model service through an environment variable. 
-    - 🟡 The model service can be relocated just by changing the Kubernetes config. 
+    - ✅ The deployed application defines the location of the model service through an environment variable. 
+    - ✅ The model service can be relocated just by changing the Kubernetes config. 
     - 🟡 The deployed application successfully **🟡uses🟡** a ConfigMap and a Secret. 
 - ✅ **Excellent:**
-    - 🟡 All VMs mount the same shared VirtualBox folder as /mnt/shared into the VM. 
-    - 🟡 The deployed application mounts this path as a hostPath Volume into at least one Deployment. 
+    - ✅ All VMs mount the same shared VirtualBox folder as /mnt/shared into the VM. 
+    - ✅ The deployed application mounts this path as a hostPath Volume into at least one Deployment. 
 
 #### Helm Installation
 
-- 🟡 **Sufficient:**
-    - 🟡 A Helm chart exists that covers the complete deployment. 
-- 🟡 **Good:**
-    - 🟡 The chart has a values.xml and allows changing the (DNS) service name of the model service. 
-- 🟡 **Excellent:**
-    - 🟡 The Helm chart can be installed more than once into the same cluster. 
+- ✅ **Sufficient:**
+    - ✅ A Helm chart exists that covers the complete deployment. 
+- ✅ **Good:**
+    - ✅ The chart has a values.xml and allows changing the (DNS) service name of the model service. 
+- ✅ **Excellent:**
+    - ✅ The Helm chart can be installed more than once into the same cluster. 
 
 #### App Monitoring
 

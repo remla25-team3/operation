@@ -29,7 +29,7 @@ appService:
     - name: PORT
       value: "{{ .Values.appService.servicePort }}"
     - name: MODEL_SERVICE_URL
-      value: "{{ .Values.modelService.name }}"
+      value: "{{ .Release.Name }}-{{ .Values.modelService.name }}"
     - name: MODEL_SERVICE_PORT
       value: "{{ .Values.modelService.servicePort }}"
 
@@ -54,6 +54,24 @@ modelService:
     - name: MODEL_VERSION
       value: "v0.2.3"
   persistence:
+    enabled: false
+    size: 1Gi
+
+# Configuration for monitoring components like Grafana dashboards and ServiceMonitors.
+serviceMonitor:
+  # When true, the Grafana dashboard ConfigMap will be created.
+  enabled: true
+  # The path to scrape for metrics on the app-service.
+  path: /metrics
+  # The interval at which Prometheus should scrape the metrics endpoint.
+  interval: 30s
+  # This label must match the release name of your kube-prometheus-stack installation.
+  prometheusReleaseLabel: "prometheus-stack"
+
+# Configuration for exposing Grafana via an Ingress
+grafana:
+  ingress:
+    # Set to true to create an Ingress for the Grafana service.
     enabled: true
     size: 1Gi
 
