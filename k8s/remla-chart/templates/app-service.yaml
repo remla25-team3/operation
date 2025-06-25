@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ .Values.appService.name }}-config
+  name: {{ .Release.Name }}-{{ .Values.appService.name }}-config
 data:
   IS_PRODUCTION: {{ .Values.appService.configData.IS_PRODUCTION | quote }}
   LOG_LEVEL: {{ .Values.appService.configData.LOG_LEVEL | quote }}
@@ -9,13 +9,13 @@ data:
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ .Values.appService.name }}
+  name: {{ .Release.Name }}-{{ .Values.appService.name }}
   labels: # Explicitly add labels for ServiceMonitor discovery
-    app: {{ .Values.appService.name }}
+    app: {{ .Release.Name }}-{{ .Values.appService.name }}
     app.kubernetes.io/component: app-service # dashboard compatibility
 spec:
   selector:
-    app: {{ .Values.appService.name }}
+    app: {{ .Release.Name }}-{{ .Values.appService.name }}
     app.kubernetes.io/component: app-service  # dashboard compatibility
   ports:
   - protocol: TCP
@@ -26,32 +26,32 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Values.appService.name }}
+  name: {{ .Release.Name }}-{{ .Values.appService.name }}
   labels: # explicit resource identification
-    app: {{ .Values.appService.name }}
+    app: {{ .Release.Name }}-{{ .Values.appService.name }}
     app.kubernetes.io/component: app-service
 spec:
   replicas: {{ .Values.appService.replicas }}
   selector:
     matchLabels:
-      app: {{ .Values.appService.name }}
+      app: {{ .Release.Name }}-{{ .Values.appService.name }}
       app.kubernetes.io/component: app-service # dashboard compatibility
   template:
     metadata:
       labels:
-        app: {{ .Values.appService.name }}
+        app: {{ .Release.Name }}-{{ .Values.appService.name }}
         app.kubernetes.io/component: app-service # dashboard compatibility
     spec:
       automountServiceAccountToken: false
       containers:
-      - name: {{ .Values.appService.name }}
+      - name: {{ .Release.Name }}-{{ .Values.appService.name }}
         image: "{{ .Values.appService.image.repository }}:{{ .Values.appService.image.tag }}"
         imagePullPolicy: {{ .Values.appService.image.pullPolicy }}
         ports:
         - containerPort: {{ .Values.appService.containerPort }}
         envFrom:
         - configMapRef:
-            name: {{ .Values.appService.name }}-config
+            name: {{ .Release.Name }}-{{ .Values.appService.name }}-config
         env: {{- tpl (toYaml .Values.appService.env) . | nindent 10 }}
         volumeMounts:
         - name: secret-volume

@@ -1,7 +1,7 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: remla-app-ingress-main
+  name: {{ .Release.Name }}-remla-app-ingress-main
   annotations:
     nginx.ingress.kubernetes.io/use-regex: "true"
 spec:
@@ -10,57 +10,57 @@ spec:
   - http:
       paths:
         # model-service Swagger UI & JSON
-        - path: /model/apidocs
+        - path: /{{ .Release.Name }}/model/apidocs
           pathType: Exact
           backend:
             service:
-              name: {{ .Values.modelService.name }}
+              name: {{ .Release.Name }}-{{ .Values.modelService.name }}
               port:
                 number: {{ .Values.modelService.servicePort }}
-        - path: /model/flasgger_static
+        - path: /{{ .Release.Name }}/model/flasgger_static
           pathType: Prefix
           backend:
             service:
-              name: {{ .Values.modelService.name }}
+              name: {{ .Release.Name }}-{{ .Values.modelService.name }}
               port:
                 number: {{ .Values.modelService.servicePort }}
-        - path: /model/apispec_
+        - path: /{{ .Release.Name }}/model/apispec_
           pathType: Prefix
           backend:
             service:
-              name: {{ .Values.modelService.name }}
+              name: {{ .Release.Name }}-{{ .Values.modelService.name }}
               port:
                 number: {{ .Values.modelService.servicePort }}
 
         # app-service Swagger UI & JSON
-        - path: /app/apidocs
+        - path: /{{ .Release.Name }}/app/apidocs
           pathType: Exact
           backend:
             service:
-              name: {{ .Values.appService.name }}
+              name: {{ .Release.Name }}-{{ .Values.appService.name }}
               port:
                 number: {{ .Values.appService.servicePort }}
-        - path: /app/flasgger_static
+        - path: /{{ .Release.Name }}/app/flasgger_static
           pathType: Prefix
           backend:
             service:
-              name: {{ .Values.appService.name }}
+              name: {{ .Release.Name }}-{{ .Values.appService.name }}
               port:
                 number: {{ .Values.appService.servicePort }}
-        - path: /app/apispec_
+        - path: /{{ .Release.Name }}/app/apispec_
           pathType: Prefix
           backend:
             service:
-              name: {{ .Values.appService.name }}
+              name: {{ .Release.Name }}-{{ .Values.appService.name }}
               port:
                 number: {{ .Values.appService.servicePort }}
 
         # Frontend SPA fallback (everything else)
-        - path: /
+        - path: /{{ .Release.Name }}(/|$)(.*)
           pathType: Prefix
           backend:
             service:
-              name: {{ .Values.appFrontend.name }}
+              name: {{ .Release.Name }}-{{ .Values.appFrontend.name }}
               port:
                 number: {{ .Values.appFrontend.servicePort }}
 
@@ -70,7 +70,7 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: remla-app-ingress-rewrite
+  name: {{ .Release.Name }}-remla-app-ingress-rewrite
   annotations:
     nginx.ingress.kubernetes.io/use-regex: "true"
     nginx.ingress.kubernetes.io/rewrite-target: /$2
@@ -80,20 +80,20 @@ spec:
   - http:
       paths:
         # app-service API (rewrite /api/<x> → /<x>)
-        - path: /api(/|$)(.*)
+        - path: /{{ .Release.Name }}/api(/|$)(.*)
           pathType: ImplementationSpecific
           backend:
             service:
-              name: {{ .Values.appService.name }}
+              name: {{ .Release.Name }}-{{ .Values.appService.name }}
               port:
                 number: {{ .Values.appService.servicePort }}
 
         # model-service API (rewrite /model/<x> → /<x>)
         # /model/(?!apidocs|flasgger_static|apispec_)(.*)
-        - path: /model(/|$)(?!apidocs|flasgger_static|apispec_)(.*)
+        - path: /{{ .Release.Name }}/model(/|$)(?!apidocs|flasgger_static|apispec_)(.*)
           pathType: ImplementationSpecific
           backend:
             service:
-              name: {{ .Values.modelService.name }}
+              name: {{ .Release.Name }}-{{ .Values.modelService.name }}
               port:
                 number: {{ .Values.modelService.servicePort }}

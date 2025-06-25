@@ -2,9 +2,9 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ .Values.appService.name }}-grafana-dashboard
+  name: {{ .Release.Name }}-{{ .Values.appService.name }}-grafana-dashboard
   labels:
-    app: {{ .Values.appService.name }} 
+    app: {{ .Release.Name }}-{{ .Values.appService.name }} 
     app.kubernetes.io/component: app-service 
     grafana_dashboard: "1" # Label for Grafana
 data:

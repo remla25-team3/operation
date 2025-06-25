@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ .Values.appFrontend.name }}
+  name: {{ .Release.Name }}-{{ .Values.appFrontend.name }}
 spec:
   selector:
-    app: {{ .Values.appFrontend.name }}
+    app: {{ .Release.Name }}-{{ .Values.appFrontend.name }}
   ports:
   - protocol: TCP
     port: {{ .Values.appFrontend.servicePort }}
@@ -13,16 +13,16 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Values.appFrontend.name }}
+  name: {{ .Release.Name }}-{{ .Values.appFrontend.name }}
 spec:
   replicas: {{ .Values.appFrontend.replicas }}
   selector:
     matchLabels:
-      app: {{ .Values.appFrontend.name }}
+      app: {{ .Release.Name }}-{{ .Values.appFrontend.name }}
   template:
     metadata:
       labels:
-        app: {{ .Values.appFrontend.name }}
+        app: {{ .Release.Name }}-{{ .Values.appFrontend.name }}
     spec:
       containers:
       - name: {{ .Values.appFrontend.name }}
