@@ -32,7 +32,7 @@
       "datasource": { "type": "prometheus", "uid": "prometheus" },
       "targets": [
         {
-          "expr": "active_prediction_requests{app_kubernetes_io_component=\"app-service\", namespace=\"{{ .Release.Namespace }}\"}",
+          "expr": "active_prediction_requests{job=\"remla-app-app-service\"}",
           "legendFormat": "Active Requests",
           "refId": "A"
         }
@@ -46,7 +46,7 @@
       "datasource": { "type": "prometheus", "uid": "prometheus" },
       "targets": [
         {
-          "expr": "sum by (prediction) (increase(prediction_count_by_type_total{app_kubernetes_io_component=\"app-service\", namespace=\"{{ .Release.Namespace }}\"}[$__range]))",
+          "expr": "sum by (prediction) (increase(prediction_count_by_type_total{job=\"remla-app-app-service\"}[$__range]))",
           "legendFormat": "{{`{{prediction}}`}}",
           "refId": "A"
         }
@@ -60,7 +60,7 @@
       "datasource": { "type": "prometheus", "uid": "prometheus" },
       "targets": [
         {
-          "expr": "sum(rate(input_length_vs_prediction_bucket{app_kubernetes_io_component=\"app-service\", namespace=\"{{ .Release.Namespace }}\", prediction=~\"$prediction\"}[5m])) by (le)",
+          "expr": "sum(rate(input_length_vs_prediction_bucket{job=\"remla-app-app-service\"}[5m])) by (le)",
           "legendFormat": "{{`{{le}}`}}",
           "refId": "A"
         }
@@ -74,7 +74,7 @@
       "datasource": { "type": "prometheus", "uid": "prometheus" },
       "targets": [
         {
-          "expr": "app_info{app_kubernetes_io_component=\"app-service\", namespace=\"{{ .Release.Namespace }}\"}",
+          "expr": "app_info{job=\"remla-app-app-service\"}",
           "refId": "A",
           "format": "table",
           "instant": true
@@ -97,14 +97,14 @@
           "type": "prometheus",
           "uid": "prometheus"
         },
-        "definition": "label_values(prediction_count_by_type_total{app_kubernetes_io_component=\"app-service\", namespace=\"{{ .Release.Namespace }}\"}, prediction)",
+        "definition": "label_values(prediction_count_by_type_total{job=\"remla-app-app-service\"}, prediction)",
         "hide": 0,
         "includeAll": true,
         "label": "Prediction",
         "multi": true,
         "name": "prediction",
         "options": [],
-        "query": "label_values(prediction_count_by_type_total{app_kubernetes_io_component=\"app-service\", namespace=\"{{ .Release.Namespace }}\"}, prediction)",
+        "query": "label_values(prediction_count_by_type_total{job=\"remla-app-app-service\"}, prediction)",
         "refresh": 1,
         "regex": "",
         "skipUrlSync": false,

@@ -28,7 +28,7 @@ appService:
     - name: PORT
       value: "3000"
     - name: MODEL_SERVICE_URL
-      value: "{{ .Values.modelService.name }}"
+      value: "{{ .Release.Name }}-{{ .Values.modelService.name }}"
     - name: MODEL_SERVICE_PORT
       value: "{{ .Values.modelService.servicePort }}"
 
@@ -146,6 +146,9 @@ kube-prometheus-stack:
     configMapOverrideName: "{{ .Release.Name }}-alert-manager-config"
 
   prometheus:
+    # This section exposes the Prometheus service
+    service:
+      type: NodePort # Use NodePort to get a direct URL from Minikube
     prometheusSpec:
       maximumStartupDurationSeconds: 120
       alerting:
@@ -155,18 +158,23 @@ kube-prometheus-stack:
           port: web
       serviceMonitorSelectorNilUsesHelmValues: false
       serviceMonitorNamespaceSelector: {}
-
-grafana:
-  enabled: true
-  ingress:
+  
+  grafana:
     enabled: true
-    hostname: grafana.local
-    serviceName: grafana
-  servicePort: 80
-  sidecar:
-    dashboards:
-      enabled: true
-      searchNamespace: monitoring
+    # The service block must be at the top level of the grafana config
+    service:
+      type: NodePort # This will now be correctly applied
+    
+    # Ensure the ingress is disabled
+    ingress:
+      enabled: false
+    
+    # The rest of the grafana config can follow
+    servicePort: 80
+    sidecar:
+      dashboards:
+        enabled: true
+        searchNamespace: monitoring
 
 apiIngress:
   hostname: api.local
