@@ -1,0 +1,75 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "remla-app.appServiceName" . }}
+  labels:
+    {{- include "remla-app.labels" . | nindent 4 }}
+    app.kubernetes.io/component: app-service
+spec:
+  replicas: {{ .Values.appService.replicas }}
+  selector:
+    matchLabels:
+      {{- include "remla-app.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: app-service
+  template:
+    metadata:
+      labels:
+        {{- include "remla-app.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: app-service
+    spec:
+      containers:
+        - name: app-service
+          image: "{{ .Values.appService.image.repository }}:{{ .Values.appService.image.tag }}"
+          imagePullPolicy: {{ .Values.appService.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.appService.service.targetPort }}
+          env:
+            - name: MODEL_SERVICE_URL
+              value: "http://{{ include "remla-app.modelServiceName" . }}:{{ .Values.modelService.service.port }}"
+            - name: MODEL_SERVICE_PORT
+              value: "{{ .Values.modelService.service.port }}"
+            - name: APP_ENV
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "remla-app.fullname" . }}-config
+                  key: APP_ENV
+            - name: LOG_LEVEL
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "remla-app.fullname" . }}-config
+                  key: LOG_LEVEL
+            - name: API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "remla-app.fullname" . }}-secrets
+                  key: API_KEY
+          {{- if .Values.volumes.sharedData.enabled }}
+          volumeMounts:
+            - name: shared-data
+              mountPath: /mnt/shared
+          {{- end }}
+      {{- if .Values.volumes.sharedData.enabled }}
+      volumes:
+        - name: shared-data
+          hostPath:
+            path: {{ .Values.volumes.sharedData.hostPath }}
+            type: DirectoryOrCreate
+      {{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "remla-app.appServiceName" . }}
+  labels:
+    {{- include "remla-app.labels" . | nindent 4 }}
+    app.kubernetes.io/component: app-service
+spec:
+  type: {{ .Values.appService.service.type }}
+  ports:
+    - name: http
+      port: {{ .Values.appService.service.port }}
+      targetPort: {{ .Values.appService.service.targetPort }}
+  selector:
+    {{- include "remla-app.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: app-service
+
