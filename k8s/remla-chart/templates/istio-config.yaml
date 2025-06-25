@@ -28,6 +28,8 @@ spec:
     - match:
         - uri:
             prefix: /model
+      rewrite:
+        uri: /
       route:
         - destination:
             host: {{ .Values.modelService.name }}
@@ -37,6 +39,8 @@ spec:
     - match:
         - uri:
             prefix: /app
+      rewrite:
+        uri: /
       route:
         - destination:
             host: {{ .Values.appService.name }}

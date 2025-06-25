@@ -9,6 +9,7 @@ spec:
   - protocol: TCP
     port: {{ .Values.modelService.servicePort }}
     targetPort: {{ .Values.modelService.containerPort }}
+    name: http-model-service
 ---
 apiVersion: apps/v1
 kind: Deployment
