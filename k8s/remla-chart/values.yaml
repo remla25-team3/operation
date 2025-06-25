@@ -2,8 +2,6 @@
 
 replicaCount: 1
 
-testSecret: "REPLACE_WITH_SECRET"
-
 appFrontend:
   name: app-frontend
   image:
@@ -127,105 +125,48 @@ alerting:
   alertmanager:
     enabled: true
     smtp:
-      smarthost: "smtp.gmail.com:587"
-      from: "your-alert-email@example.com"
-      username: "your-alert-email@example.com"
-      passwordSecretName: "alertmanager-secret"
-      passwordSecretKey: "password"
-      requireTLS: true
+      smtp_require_tls: true
+      passwordSecret:
+        name: "{{ .Release.Name }}-alert-manager-secret"
+        key: smtp_auth_password
+      usernameSecret:
+        name: "{{ .Release.Name }}-alert-manager-secret"
+        key: smtp_auth_username
 
     recipients:
-      critical: "your-critical-recipient@example.com"
-      warning: "your-warning-recipient@example.com"
-      info: "your-info-recipient@example.com"
-      default: "your-default-recipient@example.com"
+      # I'm really desperate for emails
+      critical: "dkrylov@tudelft.nl"
+      warning: "dkrylov@tudelft.nl"
+      info: "dkrylov@tudelft.nl"
+      default: "dkrylov@tudelft.nl"
 
 kube-prometheus-stack:
-  enabled: true
-  prometheusOperator:
-    admissionWebhooks:
-      enabled: true
+  alertmanager:
+    enabled: true
+    configMapOverrideName: "{{ .Release.Name }}-alert-manager-config"
 
   prometheus:
     prometheusSpec:
       maximumStartupDurationSeconds: 120
       alerting:
         alertmanagers:
-        - namespace: {{ .Release.Namespace }}
-          name: {{ .Release.Name }}-kube-prometheus-stack-alertmanager
+        - namespace: monitoring
+          name: "remla-app-kube-prometheus-stack-alertmanager"
           port: web
       serviceMonitorSelectorNilUsesHelmValues: false
       serviceMonitorNamespaceSelector: {}
 
-  alertmanager:
+grafana:
+  enabled: true
+  ingress:
     enabled: true
-    config:
-      global:
-        resolve_timeout: 5m
-        smtp_smarthost: {{ .Values.alerting.alertmanager.smtp.smarthost | quote }}
-        smtp_from: {{ .Values.alerting.alertmanager.smtp.from | quote }}
-        smtp_auth_username: {{ .Values.alerting.alertmanager.smtp.username | quote }}
-        smtp_auth_password:
-          name: {{ .Values.alerting.alertmanager.smtp.passwordSecretName }}
-          key: {{ .Values.alerting.alertmanager.smtp.passwordSecretKey }}
-        smtp_require_tls: {{ .Values.alerting.alertmanager.smtp.requireTLS }}
+    hostname: grafana.local
+    serviceName: grafana
+  servicePort: 80
+  sidecar:
+    dashboards:
+      enabled: true
+      searchNamespace: monitoring
 
-      route:
-        group_by: ['alertname', 'severity', 'instance']
-        group_wait: 30s
-        group_interval: 5m
-        repeat_interval: 3h
-        receiver: 'default-email'
-        routes:
-        - match:
-            severity: critical
-          receiver: 'critical-email'
-          continue: true
-        - match:
-            severity: warning
-          receiver: 'warning-email'
-          continue: true
-        - match:
-            severity: info
-          receiver: 'info-email'
-          continue: true
-
-      receivers:
-      - name: "critical-email"
-        email_configs:
-        - to: {{ .Values.alerting.alertmanager.recipients.critical | quote }}
-          send_resolved: true
-          headers:
-            subject: "[CRITICAL] {{`{{ template \"email.subject\" . }}`}}"
-          html: "{{`{{ template \"email.html\" . }}`}}"
-
-      - name: "warning-email"
-        email_configs:
-        - to: {{ .Values.alerting.alertmanager.recipients.warning | quote }}
-          send_resolved: true
-          headers:
-            subject: "[WARNING] {{`{{ template \"email.subject\" . }}`}}"
-          html: "{{`{{ template \"email.html\" . }}`}}"
-
-      - name: "info-email"
-        email_configs:
-        - to: {{ .Values.alerting.alertmanager.recipients.info | quote }}
-          send_resolved: true
-          headers:
-            subject: "[INFO] {{`{{ template \"email.subject\" . }}`}}"
-          html: "{{`{{ template \"email.html\" . }}`}}"
-
-      - name: "default-email"
-        email_configs:
-        - to: {{ .Values.alerting.alertmanager.recipients.default | quote }}
-          send_resolved: true
-          headers:
-            subject: "[DEFAULT][{{`{{ .CommonLabels.severity | default \"none\" | upper }}`}}] {{`{{ template \"email.html\" . }}`}}"
-          html: "{{`{{ template \"email.html\" . }}`}}"
-
-  grafana:
-    enabled: true
-    sidecar:
-      dashboards:
-        enabled: true
-        searchNamespace: {{ .Release.Namespace }}
+apiIngress:
+  hostname: api.local

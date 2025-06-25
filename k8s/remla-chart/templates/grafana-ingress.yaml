@@ -20,5 +20,5 @@ spec:
           service:
             name: {{ .Release.Name }}-{{ .Values.grafana.ingress.serviceName }}
             port:
-              number: {{ .Values.grafana.ingress.servicePort }}
+              number: {{ .Values.grafana.servicePort }}
 {{- end }}

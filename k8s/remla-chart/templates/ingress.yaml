@@ -7,62 +7,63 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-  - http:
-      paths:
-        # model-service Swagger UI & JSON
-        - path: /{{ .Release.Name }}/model/apidocs
-          pathType: Exact
-          backend:
-            service:
-              name: {{ .Release.Name }}-{{ .Values.modelService.name }}
-              port:
-                number: {{ .Values.modelService.servicePort }}
-        - path: /{{ .Release.Name }}/model/flasgger_static
-          pathType: Prefix
-          backend:
-            service:
-              name: {{ .Release.Name }}-{{ .Values.modelService.name }}
-              port:
-                number: {{ .Values.modelService.servicePort }}
-        - path: /{{ .Release.Name }}/model/apispec_
-          pathType: Prefix
-          backend:
-            service:
-              name: {{ .Release.Name }}-{{ .Values.modelService.name }}
-              port:
-                number: {{ .Values.modelService.servicePort }}
+    - host: {{ .Values.grafana.ingress.hostname | quote }}
+      http:
+        paths:
+          # model-service Swagger UI & JSON
+          - path: /{{ .Release.Name }}/model/apidocs
+            pathType: Exact
+            backend:
+              service:
+                name: {{ .Release.Name }}-{{ .Values.modelService.name }}
+                port:
+                  number: {{ .Values.modelService.servicePort }}
+          - path: /{{ .Release.Name }}/model/flasgger_static
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ .Release.Name }}-{{ .Values.modelService.name }}
+                port:
+                  number: {{ .Values.modelService.servicePort }}
+          - path: /{{ .Release.Name }}/model/apispec_
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ .Release.Name }}-{{ .Values.modelService.name }}
+                port:
+                  number: {{ .Values.modelService.servicePort }}
 
-        # app-service Swagger UI & JSON
-        - path: /{{ .Release.Name }}/app/apidocs
-          pathType: Exact
-          backend:
-            service:
-              name: {{ .Release.Name }}-{{ .Values.appService.name }}
-              port:
-                number: {{ .Values.appService.servicePort }}
-        - path: /{{ .Release.Name }}/app/flasgger_static
-          pathType: Prefix
-          backend:
-            service:
-              name: {{ .Release.Name }}-{{ .Values.appService.name }}
-              port:
-                number: {{ .Values.appService.servicePort }}
-        - path: /{{ .Release.Name }}/app/apispec_
-          pathType: Prefix
-          backend:
-            service:
-              name: {{ .Release.Name }}-{{ .Values.appService.name }}
-              port:
-                number: {{ .Values.appService.servicePort }}
+          # app-service Swagger UI & JSON
+          - path: /{{ .Release.Name }}/app/apidocs
+            pathType: Exact
+            backend:
+              service:
+                name: {{ .Release.Name }}-{{ .Values.appService.name }}
+                port:
+                  number: {{ .Values.appService.servicePort }}
+          - path: /{{ .Release.Name }}/app/flasgger_static
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ .Release.Name }}-{{ .Values.appService.name }}
+                port:
+                  number: {{ .Values.appService.servicePort }}
+          - path: /{{ .Release.Name }}/app/apispec_
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ .Release.Name }}-{{ .Values.appService.name }}
+                port:
+                  number: {{ .Values.appService.servicePort }}
 
-        # Frontend SPA fallback (everything else)
-        - path: /{{ .Release.Name }}(/|$)(.*)
-          pathType: Prefix
-          backend:
-            service:
-              name: {{ .Release.Name }}-{{ .Values.appFrontend.name }}
-              port:
-                number: {{ .Values.appFrontend.servicePort }}
+          # Frontend SPA fallback (everything else)
+          - path: /{{ .Release.Name }}
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ .Release.Name }}-{{ .Values.appFrontend.name }}
+                port:
+                  number: {{ .Values.appFrontend.servicePort }}
 
 ---
 # Ingress specifically for API paths that REQUIRE a URL rewrite.
@@ -77,23 +78,24 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-  - http:
-      paths:
-        # app-service API (rewrite /api/<x> → /<x>)
-        - path: /{{ .Release.Name }}/api(/|$)(.*)
-          pathType: ImplementationSpecific
-          backend:
-            service:
-              name: {{ .Release.Name }}-{{ .Values.appService.name }}
-              port:
-                number: {{ .Values.appService.servicePort }}
+    - host: {{ .Values.apiIngress.hostname | quote }}
+      http:
+        paths:
+          # app-service API (rewrite /api/<x> → /<x>)
+          - path: /{{ .Release.Name }}
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: {{ .Release.Name }}-{{ .Values.appService.name }}
+                port:
+                  number: {{ .Values.appService.servicePort }}
 
-        # model-service API (rewrite /model/<x> → /<x>)
-        # /model/(?!apidocs|flasgger_static|apispec_)(.*)
-        - path: /{{ .Release.Name }}/model(/|$)(?!apidocs|flasgger_static|apispec_)(.*)
-          pathType: ImplementationSpecific
-          backend:
-            service:
-              name: {{ .Release.Name }}-{{ .Values.modelService.name }}
-              port:
-                number: {{ .Values.modelService.servicePort }}
+          # model-service API (rewrite /model/<x> → /<x>)
+          # /model/(?!apidocs|flasgger_static|apispec_)(.*)
+          - path: /{{ .Release.Name }}/model(/|$)(?!apidocs|flasgger_static|apispec_)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: {{ .Release.Name }}-{{ .Values.modelService.name }}
+                port:
+                  number: {{ .Values.modelService.servicePort }}
