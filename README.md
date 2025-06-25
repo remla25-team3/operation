@@ -176,11 +176,16 @@ kubectl get pods -n ingress-nginx --watch
 ```
 3. **Install the Application**
 ```bash
+
 # Navigate to the Helm chart directory
 cd k8s/remla-chart
 
+# add prometheus to helm installation 
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm install prometheus-stack prometheus-community/kube-prometheus-stack -n monitoring --create-namespace -f prometheus-values.yaml
+
 # Install the chart
-helm install releasename .
+helm install <releasename> .
 
 # Watch the pods until they are all 'Running'
 kubectl get pods --watch
@@ -191,6 +196,11 @@ To access the UI, you need to forward a local port (for now) to the nginx servic
 ```bash
 # In this terminal or in a new one (suggested)
 kubectl port-forward --namespace=ingress-nginx service/ingress-nginx-controller 8080:80
+```
+
+To access Prometheus, do port forward (for now)
+```bash
+kubectl port-forward --namespace monitoring svc/prometheus-stack-kube-prom-prometheus 9090:9090
 ```
 
 You will see a message like Forwarding from 127.0.0.1:8080 -> 80.
