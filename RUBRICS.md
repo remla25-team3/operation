@@ -280,12 +280,8 @@ For clarity and to assist in the grading process, we have compiled the following
 
 #### Additional Use Case
 
-- 🔴 **Sufficient:**
-    - 🔴 One of the described use cases has been partially realized, with observable effects.
-- 🔴 **Good:**
-    - 🔴 One of the described use cases has been realized. It generally works, but falls short in some aspects.
-- 🔴 **Excellent:**
-    - 🔴 One of the described use cases has been fully realized.
+- ✅ **Excellent:**
+    - ✅ One of the described use cases has been fully realized. (Global+local rate limiting)
 
 #### Continuous Experimentation
 
