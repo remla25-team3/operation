@@ -38,7 +38,7 @@ spec:
     # app-service
     - match:
         - uri:
-            prefix: /app
+            prefix: /api
       rewrite:
         uri: /
       route:
