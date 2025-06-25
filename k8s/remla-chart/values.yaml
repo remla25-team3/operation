@@ -2,6 +2,9 @@ replicaCount: 1
 
 testSecret: "REPLACE_WITH_SECRET"
 
+rateLimiting:
+  enabled: false
+
 appFrontend:
   name: app-frontend
   image:
