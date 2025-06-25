@@ -3,7 +3,6 @@ apiVersion: networking.istio.io/v1alpha3
 kind: Gateway
 metadata:
   name: {{ .Release.Name }}-gateway
-  # namespace: istio-system
 spec:
   selector:
     istio: ingressgateway
@@ -20,7 +19,6 @@ apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
   name: {{ .Release.Name }}-virtual-service
-  # namespace: istio-system
 spec:
   gateways: [ {{ .Release.Name }}-gateway ]
   hosts:
@@ -66,7 +64,6 @@ apiVersion: networking.istio.io/v1alpha3
 kind: DestinationRule
 metadata:
   name: {{ .Values.appService.name }}-destination-rule
-  # namespace: istio-system
 spec:
   host: {{ .Values.appService.name }}
   trafficPolicy:
@@ -79,7 +76,6 @@ apiVersion: networking.istio.io/v1alpha3
 kind: DestinationRule
 metadata:
   name: {{ .Values.modelService.name }}-destination-rule
-  # namespace: istio-system
 spec:
   host: {{ .Values.modelService.name }}
   trafficPolicy:
@@ -92,7 +88,6 @@ apiVersion: networking.istio.io/v1alpha3
 kind: DestinationRule
 metadata:
   name: {{ .Values.appFrontend.name }}-destination-rule
-  # namespace: istio-system
 spec:
   host: {{ .Values.appFrontend.name }}
   subsets:
