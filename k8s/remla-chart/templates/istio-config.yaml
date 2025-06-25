@@ -30,8 +30,8 @@ spec:
             prefix: /model
       route:
         - destination:
-            host: {{ include "remla-app.modelServiceName" . }}
-            port: { number: {{ .Values.modelService.service.port }} }
+            host: {{ .Values.modelService.name }}
+            port: { number: {{ .Values.modelService.servicePort }} }
 
     # app-service
     - match:
@@ -39,8 +39,8 @@ spec:
             prefix: /app
       route:
         - destination:
-            host: {{ include "remla-app.appServiceName" . }}
-            port: { number: {{ .Values.appService.service.port }} }
+            host: {{ .Values.appService.name }}
+            port: { number: {{ .Values.appService.servicePort }} }
 
     # frontend
     - match:
@@ -51,12 +51,12 @@ spec:
         - destination:
             host: {{ .Values.appFrontend.name }}
             subset: v1
-            port: { number: 80 }
+            port: { number: {{ .Values.appFrontend.servicePort }} }
           weight: 90
         - destination:
             host: {{ .Values.appFrontend.name }}
             subset: v2
-            port: { number: 80 }
+            port: { number: {{ .Values.appFrontend.servicePort }} }
           weight: 10
 ---
 # Destination rule: app-service
