@@ -1,7 +1,10 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ .Values.appService.name }}-config
+  name: {{ .Release.Name }}-{{ .Values.appService.name }}-config
+  labels:
+    {{- include "remla-app.labels" . | nindent 4 }}
+    app.kubernetes.io/component: {{ .Values.appService.name }}
 data:
   IS_PRODUCTION: {{ .Values.appService.configData.IS_PRODUCTION | quote }}
   LOG_LEVEL: {{ .Values.appService.configData.LOG_LEVEL | quote }}
@@ -9,14 +12,15 @@ data:
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ .Values.appService.name }}
-  labels: # Explicitly add labels for ServiceMonitor discovery
-    app: {{ .Values.appService.name }}
-    app.kubernetes.io/component: app-service # dashboard compatibility
+  name: {{ .Release.Name }}-{{ .Values.appService.name }}
+  labels:
+    {{- include "remla-app.labels" . | nindent 4 }}
+    app.kubernetes.io/component: {{ .Values.appService.name }}
 spec:
   selector:
-    app: {{ .Values.appService.name }}
-    app.kubernetes.io/component: app-service  # dashboard compatibility
+    app.kubernetes.io/name: {{ include "remla-app.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: {{ .Values.appService.name }}
   ports:
   - protocol: TCP
     name: http # Reference for servicemonitor
@@ -26,21 +30,22 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Values.appService.name }}
-  labels: # explicit resource identification
-    app: {{ .Values.appService.name }}
-    app.kubernetes.io/component: app-service
+  name: {{ .Release.Name }}-{{ .Values.appService.name }}
+  labels:
+    {{- include "remla-app.labels" . | nindent 4 }}
+    app.kubernetes.io/component: {{ .Values.appService.name }}
 spec:
   replicas: {{ .Values.appService.replicas }}
   selector:
     matchLabels:
-      app: {{ .Values.appService.name }}
-      app.kubernetes.io/component: app-service # dashboard compatibility
+      app.kubernetes.io/name: {{ include "remla-app.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: {{ .Values.appService.name }}
   template:
     metadata:
       labels:
-        app: {{ .Values.appService.name }}
-        app.kubernetes.io/component: app-service # dashboard compatibility
+        {{- include "remla-app.labels" . | nindent 8 }}
+        app.kubernetes.io/component: {{ .Values.appService.name }}
     spec:
       automountServiceAccountToken: false
       containers:
@@ -51,7 +56,7 @@ spec:
         - containerPort: {{ .Values.appService.containerPort }}
         envFrom:
         - configMapRef:
-            name: {{ .Values.appService.name }}-config
+            name: {{ .Release.Name }}-{{ .Values.appService.name }}-config
         env: {{- tpl (toYaml .Values.appService.env) . | nindent 10 }}
         volumeMounts:
         - name: secret-volume
@@ -60,4 +65,4 @@ spec:
       volumes:
       - name: secret-volume
         secret:
-          secretName: test-secret
+          secretName: {{ .Release.Name }}-test-secret

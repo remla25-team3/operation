@@ -1,10 +1,15 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ .Values.appFrontend.name }}
+  name: {{ .Release.Name }}-{{ .Values.appFrontend.name }}
+  labels:
+    {{- include "remla-app.labels" . | nindent 4 }}
+    app.kubernetes.io/component: {{ .Values.appFrontend.name }}
 spec:
   selector:
-    app: {{ .Values.appFrontend.name }}
+    app.kubernetes.io/name: {{ include "remla-app.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: {{ .Values.appFrontend.name }}
   ports:
   - protocol: TCP
     port: {{ .Values.appFrontend.servicePort }}
@@ -13,16 +18,22 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Values.appFrontend.name }}
+  name: {{ .Release.Name }}-{{ .Values.appFrontend.name }}
+  labels:
+    {{- include "remla-app.labels" . | nindent 4 }}
+    app.kubernetes.io/component: {{ .Values.appFrontend.name }}
 spec:
   replicas: {{ .Values.appFrontend.replicas }}
   selector:
     matchLabels:
-      app: {{ .Values.appFrontend.name }}
+      app.kubernetes.io/name: {{ include "remla-app.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: {{ .Values.appFrontend.name }}
   template:
     metadata:
       labels:
-        app: {{ .Values.appFrontend.name }}
+        {{- include "remla-app.labels" . | nindent 8 }}
+        app.kubernetes.io/component: {{ .Values.appFrontend.name }}
     spec:
       containers:
       - name: {{ .Values.appFrontend.name }}

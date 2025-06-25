@@ -1,7 +1,9 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: remla-app-ingress-main
+  name: {{ .Release.Name }}-remla-app-ingress-main
+  labels:
+    {{- include "remla-app.labels" . | nindent 4 }}
   annotations:
     nginx.ingress.kubernetes.io/use-regex: "true"
 spec:
@@ -14,21 +16,21 @@ spec:
           pathType: Exact
           backend:
             service:
-              name: {{ .Values.modelService.name }}
+              name: {{ .Release.Name }}-{{ .Values.modelService.name }}
               port:
                 number: {{ .Values.modelService.servicePort }}
         - path: /model/flasgger_static
           pathType: Prefix
           backend:
             service:
-              name: {{ .Values.modelService.name }}
+              name: {{ .Release.Name }}-{{ .Values.modelService.name }}
               port:
                 number: {{ .Values.modelService.servicePort }}
         - path: /model/apispec_
           pathType: Prefix
           backend:
             service:
-              name: {{ .Values.modelService.name }}
+              name: {{ .Release.Name }}-{{ .Values.modelService.name }}
               port:
                 number: {{ .Values.modelService.servicePort }}
 
@@ -37,21 +39,21 @@ spec:
           pathType: Exact
           backend:
             service:
-              name: {{ .Values.appService.name }}
+              name: {{ .Release.Name }}-{{ .Values.appService.name }}
               port:
                 number: {{ .Values.appService.servicePort }}
         - path: /app/flasgger_static
           pathType: Prefix
           backend:
             service:
-              name: {{ .Values.appService.name }}
+              name: {{ .Release.Name }}-{{ .Values.appService.name }}
               port:
                 number: {{ .Values.appService.servicePort }}
         - path: /app/apispec_
           pathType: Prefix
           backend:
             service:
-              name: {{ .Values.appService.name }}
+              name: {{ .Release.Name }}-{{ .Values.appService.name }}
               port:
                 number: {{ .Values.appService.servicePort }}
 
@@ -60,7 +62,7 @@ spec:
           pathType: Prefix
           backend:
             service:
-              name: {{ .Values.appFrontend.name }}
+              name: {{ .Release.Name }}-{{ .Values.appFrontend.name }}
               port:
                 number: {{ .Values.appFrontend.servicePort }}
 
@@ -70,7 +72,9 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: remla-app-ingress-rewrite
+  name: {{ .Release.Name }}-remla-app-ingress-rewrite
+  labels:
+    {{- include "remla-app.labels" . | nindent 4 }}
   annotations:
     nginx.ingress.kubernetes.io/use-regex: "true"
     nginx.ingress.kubernetes.io/rewrite-target: /$2
@@ -84,7 +88,7 @@ spec:
           pathType: ImplementationSpecific
           backend:
             service:
-              name: {{ .Values.appService.name }}
+              name: {{ .Release.Name }}-{{ .Values.appService.name }}
               port:
                 number: {{ .Values.appService.servicePort }}
 
@@ -94,6 +98,6 @@ spec:
           pathType: ImplementationSpecific
           backend:
             service:
-              name: {{ .Values.modelService.name }}
+              name: {{ .Release.Name }}-{{ .Values.modelService.name }}
               port:
                 number: {{ .Values.modelService.servicePort }}

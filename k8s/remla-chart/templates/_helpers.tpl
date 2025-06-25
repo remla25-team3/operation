@@ -1,14 +1,6 @@
 {{/*
-Expand the name of the chart.
-*/}}
-{{- define "remla-app.name" -}}
-{{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
-{{- end }}
-
-{{/*
 Create a default fully qualified app name.
 We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
-If release name contains chart name it will be used as a full name.
 */}}
 {{- define "remla-app.fullname" -}}
 {{- if .Values.fullnameOverride }}
@@ -16,9 +8,9 @@ If release name contains chart name it will be used as a full name.
 {{- else }}
 {{- $name := default .Chart.Name .Values.nameOverride }}
 {{- if contains $name .Release.Name }}
-{{- printf "%s%s" .Values.global.namePrefix .Release.Name | trunc 63 | trimSuffix "-" }}
+{{- .Release.Name | trunc 63 | trimSuffix "-" }}
 {{- else }}
-{{- printf "%s%s-%s" .Values.global.namePrefix .Release.Name $name | trunc 63 | trimSuffix "-" }}
+{{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" }}
 {{- end }}
 {{- end }}
 {{- end }}
@@ -36,8 +28,11 @@ Common labels
 {{- define "remla-app.labels" -}}
 helm.sh/chart: {{ include "remla-app.chart" . }}
 {{ include "remla-app.selectorLabels" . }}
-app.kubernetes.io/version: {{ .Values.labels.version | quote }}
+{{- if .Chart.AppVersion }}
+app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+{{- end }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
+app.kubernetes.io/part-of: {{ include "remla-app.fullname" . }}
 {{- end }}
 
 {{/*
@@ -49,23 +44,17 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 {{/*
-Frontend name
+Create the name of the service account to use
 */}}
-{{- define "remla-app.frontendName" -}}
-{{- printf "%s-frontend" (include "remla-app.fullname" .) }}
+{{- define "remla-app.name" -}}
+{{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 {{/*
-App Service name
+Component-specific name with release prefix
 */}}
-{{- define "remla-app.appServiceName" -}}
-{{- printf "%s-app-service" (include "remla-app.fullname" .) }}
-{{- end }}
-
-{{/*
-Model Service name
-*/}}
-{{- define "remla-app.modelServiceName" -}}
-{{- printf "%s-model-service" (include "remla-app.fullname" .) }}
+{{- define "remla-app.componentName" -}}
+{{- $component := . -}}
+{{- printf "%s-%s" $.Release.Name $component | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
