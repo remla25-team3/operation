@@ -437,6 +437,33 @@
         - "Istio control plane and ingress gateway have been successfully installed."
         - "The gateway is exposed on the fixed IP: {{ istio_ip }}"
         - "Your cluster is now prepared for Istio-based deployments."
+  
+  - name: Create monitoring namespace
+    kubernetes.core.k8s:
+      state: present
+      definition:
+        apiVersion: v1
+        kind: Namespace
+        metadata:
+          name: "{{ monitoring_namespace }}"
+      kubeconfig: "{{ kubeconfig }}"
+
+  - name: Copy the entire remla-chart directory to the controller node
+    copy:
+      src: "{{ playbook_dir }}/../k8s/remla-chart"
+      dest: /home/vagrant
+      owner: vagrant
+      group: vagrant
+      mode: '0755'
+  
+  - name: Install the REMLA application stack via Helm chart
+    kubernetes.core.helm:
+      name: remla-app
+      chart_ref: /home/vagrant/remla-chart
+      release_namespace: "{{ monitoring_namespace }}"
+      kubeconfig: "{{ kubeconfig }}"
+      state: present
+      update_repo_cache: yes
 
   #A5
 
