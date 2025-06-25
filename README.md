@@ -157,49 +157,85 @@ vagrant destroy -f
 
 ### 🚀 B) Deploying to Minikube
 
-These instructions are for running the application on a local Minikube cluster for quick development and testing.
+These instructions are for running the application on a local Minikube cluster with the Istio service mesh for traffic management, rate limiting, and experimentation.
 
-1. **Prerequisites**
-    - macOS or Linux (host operating system)
-    - Helm 3 CLI
-    - Istioctl (tested with version 1.26.0)
+#### 1. Prerequisites
+- macOS or Linux (host operating system)
+- Helm 3 CLI
+- Istioctl (tested with version 1.26.0)
+- `sudo` privileges are required to run `minikube tunnel`.
 
-2. **Start Your Local Cluster**
+#### 2. Installation Steps
+
+Follow these steps in order to set up the cluster and deploy the application.
+
+1.  **Start Your Local Cluster**
 ```bash
-# # Start the cluster, forwarding host port 8080 to the cluster's port 80
-minikube start --memory=4096 --cpus=4 --driver=docker --ports 8080:80,8443:443
-
-# Enable the Nginx Ingress addon
-minikube addons enable ingress
-
-# Verify the Ingress controller pod is running
-kubectl get pods -n ingress-nginx --watch
+# Start the Minikube cluster with the recommended resources
+minikube start --memory=4096 --cpus=4 --driver=docker
 ```
 
-> Note on the Access Method:
-This method of access satisfies the project rubric for being accessed via an Ingress and Ingress Controller.
-It does not use a minikube tunnel or a direct Kubernetes NodePort. Instead, the minikube start --ports flag leverages the Docker driver to create a direct, stable port mapping from the host (:8080) to the Ingress Controller. All traffic is correctly routed by the Ingress based on the hostname and path, fulfilling the requirement.
-
-3. **Install the Application**
+2.  **Install Istio and Prepare Namespace**
 ```bash
-# Make sure you are in the Helm chart directory
-cd k8s/remla-chart
+# Install Istio's control plane and gateway resources
+istioctl install --set profile=default -y
 
-# Install the chart
+# Label the 'default' namespace to enable automatic Istio sidecar injection
+kubectl label namespace default istio-injection=enabled
+```
+
+3.  **Install Monitoring Stack**
+```bash
+# Add the Prometheus community Helm repository
+helm repo add prometheus-community [https://prometheus-community.github.io/helm-charts](https://prometheus-community.github.io/helm-charts)
+
+# Install the Prometheus stack for monitoring
+helm install prometheus-stack prometheus-community/kube-prometheus-stack -n monitoring --create-namespace -f prometheus-values.yaml
+```
+
+4.  **Deploy the Application**
+```bash
+# Navigate to the Helm chart directory
+cd operation/k8s/remla-chart/
+
+# Install the application using Helm
 helm install releasename .
 
-# Watch the pods until they are all 'Running'
+# Watch the pods until they are all 'Running' and '2/2' READY
 kubectl get pods --watch
 ```
+
+#### 3. Accessing the Application
+
+Accessing the application requires using `minikube tunnel` and editing your local hosts file.
+
+Add Host Entry: Edit your local /etc/hosts:
+```bash
+sudo nano /etc/hosts
+```
+Add the following line to the bottom of the file:
+
+```bash
+127.0.0.1   frontend.local
+```
+Save and exit nano: Press Ctrl + O (to write the file), then Enter, then Ctrl + X (to exit)
+
+Now, start the tunnel and leave this terminal open.
+```bash
+minikube tunnel
+```
+
 4. **Access the Application**
 
 Access in Browser: Open your browser and navigate to the following URLs:
 
-- **Main Application**: http://localhost:8080/
+- **Main Application**: http://frontend.local/
 
-- **App Service API Docs**: http://localhost:8080/app/apidocs
+- **App Service API Docs**: http://frontend.local/app/apidocs
 
-- **Model Service API Docs**: http://localhost:8080/model/apidocs
+- **Model Service API Docs**: http://frontend.local/model/apidocs
+
+> Note: We apply local rate limiting to app-service, so you will be able to interact with app-service for a maximum of 6 times per minute. The frontend page, however, can be reload up to 10 times, as that is the setting for global rate limiting. Addional rule: you can query http://frontend.local/model/health for a maximum of 2 times per minute.
 
 5. **Cleaning Up**
 ```bash

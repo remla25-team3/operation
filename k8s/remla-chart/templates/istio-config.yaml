@@ -1,10 +1,11 @@
 # Gateway
-apiVersion: networking.istio.io/v1alpha3
+apiVersion: networking.istio.io/v1beta1
 kind: Gateway
 metadata:
   name: {{ .Release.Name }}-gateway
 spec:
   selector:
+    app: istio-ingressgateway
     istio: ingressgateway
   servers:
   - port:
@@ -15,7 +16,7 @@ spec:
     - "frontend.local"
 ---
 # Virtual services
-apiVersion: networking.istio.io/v1alpha3
+apiVersion: networking.istio.io/v1beta1
 kind: VirtualService
 metadata:
   name: {{ .Release.Name }}-virtual-service
@@ -24,6 +25,31 @@ spec:
   hosts:
   - "frontend.local"
   http:
+    # API documentation routes
+    - match:
+        - uri:
+            exact: /model/apidocs
+        - uri:
+            prefix: /model/flasgger_static
+        - uri:
+            prefix: /model/apispec_
+      route:
+        - destination:
+            host: {{ .Release.Name }}-{{ .Values.modelService.name }}
+            port: { number: {{ .Values.modelService.servicePort }} }
+      
+    - match:
+        - uri:
+            exact: /app/apidocs
+        - uri:
+            prefix: /app/flasgger_static
+        - uri:
+            prefix: /app/apispec_
+      route:
+        - destination:
+            host: {{ .Release.Name }}-{{ .Values.appService.name }}
+            port: { number: {{ .Values.appService.servicePort }} }
+
     # model-service
     - match:
         - uri:
@@ -64,7 +90,7 @@ spec:
           weight: 10
 ---
 # Destination rule: app-service
-apiVersion: networking.istio.io/v1alpha3
+apiVersion: networking.istio.io/v1beta1
 kind: DestinationRule
 metadata:
   name: {{ .Release.Name }}-{{ .Values.appService.name }}-destination-rule
@@ -76,7 +102,7 @@ spec:
         httpHeaderName: x-sticky-user
 ---
 # Destination rule: model-service
-apiVersion: networking.istio.io/v1alpha3
+apiVersion: networking.istio.io/v1beta1
 kind: DestinationRule
 metadata:
   name: {{ .Release.Name }}-{{ .Values.modelService.name }}-destination-rule
@@ -88,7 +114,7 @@ spec:
         httpHeaderName: x-sticky-user
 ---
 # Destination rule: frontend
-apiVersion: networking.istio.io/v1alpha3
+apiVersion: networking.istio.io/v1beta1
 kind: DestinationRule
 metadata:
   name: {{ .Release.Name }}-{{ .Values.appFrontend.name }}-destination-rule
