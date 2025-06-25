@@ -104,7 +104,7 @@ For clarity and to assist in the grading process, we have compiled the following
     - ✅ The Ansible playbook generates a correct /etc/hosts, so all VMs are reachable by name. 
     - ✅ The file contains all (but only existing) workers, so information must be passed from Vagrant to Ansible. 
     - ✅ Ansible contains at least one example of a waiting step to prevent errors in steps that depend on the completion of slow Kubernetes deployments 
-    - 🟡 The playbook contains a regexp-based replacement in a configuration file. 
+    - ✅ The playbook contains a regexp-based replacement in a configuration file. 
     - ✅ The replacement is idempotent, i.e., the file does not change anymore for repeated executions. 
 
 #### Setting up Kubernetes
@@ -112,17 +112,17 @@ For clarity and to assist in the grading process, we have compiled the following
 - ✅ **Sufficient:**
     - 🟡 A working kubectl configuration is generated or copied to the host folder during provisioning. 
     - 🟡 A host-based kubectl can communicate with the control plane and apply/delete resources. 
-    - 🟡 The vagrant user has a working kubectl configuration on the controller node. 
+    - ✅ The vagrant user has a working kubectl configuration on the controller node. 
     - 🔴? The in-class exercises of the Kubernetes and Istio lectures can be deployed and are functional. 
 - ✅ **Good:**
     - ✅ Cluster has a proxy (e.g., metallb) that can provide IPs to Load Balancer services. 
     - ✅ Cluster has a working HTTP Ingress Controller (e.g., Nginx). 
-    - 🟡 Cluster has a working Istio Gateway. 
+    - ✅ Cluster has a working Istio Gateway. 
 - ✅ **Excellent:**
-    - 🟡 The Kubernetes Dashboard is directly reachable without opening a tunnel. 
+    - ✅ The Kubernetes Dashboard is directly reachable without opening a tunnel. 
     - ✅ Ingress Controller has fixed IP. 
     - ✅ Istio Gateway has fixed IP. 
-    - 🟡 Cluster has an HTTPS Ingress Controller (e.g., Nginx) with self-signed certificates. 
+    - ✅ Cluster has an HTTPS Ingress Controller (e.g., Nginx) with self-signed certificates. 
 
 ---
 
