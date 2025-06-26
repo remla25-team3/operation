@@ -294,7 +294,7 @@ For clarity and to assist in the grading process, we have compiled the following
 - 🔴 **Good:**
     - ✅ Prometheus picks up the metric.
     - ✅ Grafana has a dashboard to visualize the differences and support the decision process.
-    - 🔴 The documentation contains a screenshot of the visualization.
+    - ✅ The documentation contains a screenshot of the visualization.
 - ✅ **Excellent:**
     - ✅ The documentation explains the decision process for accepting or rejecting the experiment in details, ie.g., which criteria is used and how the available dashboard supports the decision.
 
