@@ -42,8 +42,8 @@ For clarity and to assist in the grading process, we have compiled the following
     - ✅ The model-service pre-processes queries the same as the training pipeline does. 
     - ✅ The version string in lib-version is automatically updated with the actual package version in the release workflow, i.e., either it is directly taken from automatically updated project metadata, or it is taken from an automatically generated file. 
 - ✅ **Excellent:**
-    - 🟡 The model is not part of the container image, i.e., it can be updated without creating a new image by refering to a specific model version that is downloaded on-start. 
-    - 🟡 A local cache is used so the model is not just downloaded on every container start. 
+    - ✅ The model is not part of the container image, i.e., it can be updated without creating a new image by refering to a specific model version that is downloaded on-start. 
+    - ✅ A local cache is used so the model is not just downloaded on every container start. 
 
 ### Containers & Orchestration
 
@@ -82,7 +82,7 @@ For clarity and to assist in the grading process, we have compiled the following
     - ✅ All expected VMs exist, can be booted and have correct hostnames. 
     - ✅ All VM are attached to a private network and can directly communicate with all other VMs. 
     - ✅ All VMs are directly reachable from the host through a host-only network, i.e., without port-forward. 
-    - 🟡 The VMs are provisioned with Ansible and the provisioning finishes within a maximum of 5 minutes (might take a bit longer)
+    - ✅ The VMs are provisioned with Ansible and the provisioning finishes within a maximum of 5 minutes (might take a bit longer)
 - ✅ **Good:**
     - ✅ The Vagrantfile uses a loop and template arithmetic when defining node names or IPs. 
     - ✅ Used CPU cores, memory size, and number of provisioned worker nodes are controlled via variables. 
@@ -94,9 +94,9 @@ For clarity and to assist in the grading process, we have compiled the following
 
 - ✅ **Sufficient:**
     - ✅ At least on automation installs a package with apt. 
-    - 🟡 At least on automation starts a service and registers it for auto-start. 
-    - 🟡 At least on automation copies a file into the VM. 
-    - 🟡 At least on automation edits a configuration inside the VM. 
+    - ✅ At least on automation starts a service and registers it for auto-start. 
+    - ✅ At least on automation copies a file into the VM. 
+    - ✅ At least on automation edits a configuration inside the VM. 
 - ✅ **Good:**
     - ✅ The playbook uses several built-in modules to achieve an idempotent provisioning. 
     - ✅ The playbook registers variables to share values between different tasks. 
@@ -112,10 +112,10 @@ For clarity and to assist in the grading process, we have compiled the following
 #### Setting up Kubernetes
 
 - ✅ **Sufficient:**
-    - 🟡 A working kubectl configuration is generated or copied to the host folder during provisioning. 
-    - 🟡 A host-based kubectl can communicate with the control plane and apply/delete resources. 
+    - ✅ A working kubectl configuration is generated or copied to the host folder during provisioning. 
+    - ✅ A host-based kubectl can communicate with the control plane and apply/delete resources. 
     - ✅ The vagrant user has a working kubectl configuration on the controller node. 
-    - 🔴? The in-class exercises of the Kubernetes and Istio lectures can be deployed and are functional. 
+    - ✅ The in-class exercises of the Kubernetes and Istio lectures can be deployed and are functional. 
 - ✅ **Good:**
     - ✅ Cluster has a proxy (e.g., metallb) that can provide IPs to Load Balancer services. 
     - ✅ Cluster has a working HTTP Ingress Controller (e.g., Nginx). 
@@ -134,7 +134,6 @@ For clarity and to assist in the grading process, we have compiled the following
 
 #### Kubernetes Usage
 
-- 🔴 **Poor:** The deployment is successful, but can only be accessed through a node port or a service tunnel. 
 - ✅ **Sufficient:**
     - ✅ The application can be deployed to a Kubernetes cluster. 
     - ✅ The relevant deployment files contain at least a working Deployment and a working Service. 
@@ -142,7 +141,7 @@ For clarity and to assist in the grading process, we have compiled the following
 - ✅ **Good:**
     - ✅ The deployed application defines the location of the model service through an environment variable. 
     - ✅ The model service can be relocated just by changing the Kubernetes config. 
-    - ✅ The deployed application successfully **🟡uses🟡** a ConfigMap and a Secret. 
+    - ✅ The deployed application successfully uses a ConfigMap and a Secret. 
 - ✅ **Excellent:**
     - ✅ All VMs mount the same shared VirtualBox folder as /mnt/shared into the VM. 
     - ✅ The deployed application mounts this path as a hostPath Volume into at least one Deployment. 
