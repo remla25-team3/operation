@@ -107,9 +107,12 @@ flowchart TD
     
     PATHCHECK -->|/model/apidocs<br/>/model/flasgger_static<br/>/model/apispec_*| MS[model-service<br/>Swagger UI]
     PATHCHECK -->|/app/apidocs<br/>/app/flasgger_static<br/>/app/apispec_*| AS[app-service<br/>Swagger UI]
-    PATHCHECK -->|/api/*| REWRITE1[Rewrite to /*<br/>→ app-service]
-    PATHCHECK -->|/model/*<br/>(!docs paths)| REWRITE2[Rewrite to /*<br/>→ model-service]
-    PATHCHECK -->|/* (default)| AF[app-frontend<br/>SPA Fallback]
+    PATHCHECK -->|/api/*| REWRITE1[Rewrite /api/* to /*<br/>Route to app-service]
+    PATHCHECK -->|/model/*<br/>excluding docs| REWRITE2[Rewrite /model/* to /*<br/>Route to model-service]
+    PATHCHECK -->|/*<br/>default| AF[app-frontend<br/>SPA Fallback]
+    
+    REWRITE1 --> AS
+    REWRITE2 --> MS
 ```
 
 #### 2. Istio Service Mesh Routing (90/10 Split)
@@ -117,21 +120,23 @@ flowchart TD
 ```mermaid
 flowchart TD
     ISTIO[Istio Gateway<br/>frontend.local] --> VS[VirtualService]
-    VS --> SPLIT{Traffic Split Decision}
+    VS --> PATHROUTE{Path Routing}
+    VS --> SPLIT{Frontend Traffic Split}
+    
+    PATHROUTE -->|/api/*| APPAPI[Rewrite to /<br/>app-service]
+    PATHROUTE -->|/model/*| MODELAPI[Rewrite to /<br/>model-service]
     
     SPLIT -->|90% Weight| V1[app-frontend v1<br/>Stable Version]
     SPLIT -->|10% Weight| V2[app-frontend v2<br/>Canary Version]
     
-    VS --> APPAPI[/api/* → app-service]
-    VS --> MODELAPI[/model/* → model-service]
-    
-    subgraph "Load Balancing Strategy"
-        LB[Consistent Hash<br/>x-sticky-user header]
-        V1 --> LB
-        V2 --> LB
-        APPAPI --> LB
-        MODELAPI --> LB
+    subgraph LB [Load Balancing Strategy]
+        HASH[Consistent Hash<br/>x-sticky-user header]
     end
+    
+    V1 --> HASH
+    V2 --> HASH
+    APPAPI --> HASH
+    MODELAPI --> HASH
 ```
 
 ## Deployed Resource Types and Relations
