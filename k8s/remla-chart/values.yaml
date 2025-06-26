@@ -61,7 +61,7 @@ serviceMonitor:
   enabled: true
   path: /metrics
   interval: 30s
-  prometheusReleaseLabel: "prometheus-stack"
+  prometheusReleaseLabel: "releasename"
 
 alerting:
   rulesEnabled: true
@@ -154,7 +154,7 @@ kube-prometheus-stack:
       maximumStartupDurationSeconds: 120
       alerting:
         alertmanagers:
-        - namespace: monitoring
+        - namespace: default
           name: "remla-app-kube-prometheus-stack-alertmanager"
           port: web
       serviceMonitorSelectorNilUsesHelmValues: false
@@ -175,7 +175,17 @@ kube-prometheus-stack:
     sidecar:
       dashboards:
         enabled: true
-        searchNamespace: monitoring
+        searchNamespace: ALL
+        label: grafana_dashboard
+        labelValue: "1"
+        folder: /tmp/dashboards
+        folderAnnotation: grafana_folder
+        provider:
+          foldersFromFilesStructure: true
+      # Also ensure datasources sidecar is configured
+      datasources:
+        enabled: true
+        searchNamespace: ALL
 
 apiIngress:
   hostname: api.local
