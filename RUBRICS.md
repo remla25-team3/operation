@@ -30,6 +30,8 @@ For clarity and to assist in the grading process, we have compiled the following
     - ✅ The released container images support multiple architectures, at least amd64 and arm64. 
     - ✅ The Dockerfile uses multiple stages, e.g., to reduce image size by avoiding apt cache in image. 
     - ✅ The automation supports to release multiple versions of the same pre-release, like 1.2.3-pre-<n>
+          NOTE: Our prerelease is in format 1.2.3-canary.n
+
 
 #### Software Reuse in Libraries
 
