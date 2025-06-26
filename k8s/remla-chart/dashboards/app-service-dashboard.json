@@ -1,18 +1,12 @@
 {
-  "__requires": [
-    { "type": "grafana", "id": "grafana", "name": "Grafana", "version": "8.5.2" },
-    { "type": "panel", "id": "piechart", "name": "Pie chart", "version": "" },
-    { "type": "datasource", "id": "prometheus", "name": "Prometheus", "version": "1.0.0" },
-    { "type": "panel", "id": "stat", "name": "Stat", "version": "" },
-    { "type": "panel", "id": "heatmap", "name": "Heatmap", "version": "" }, 
-    { "type": "panel", "id": "graph", "name": "Graph", "version": "" },
-    { "type": "panel", "id": "table", "name": "Table", "version": "" }
-  ],
   "annotations": {
     "list": [
       {
         "builtIn": 1,
-        "datasource": { "type": "grafana", "uid": "-- Grafana --" },
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
         "enable": true,
         "hide": true,
         "iconColor": "rgba(0, 211, 255, 1)",
@@ -22,124 +16,282 @@
     ]
   },
   "editable": true,
-  "gnetId": null,
+  "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": null,
+  "id": 33,
   "links": [],
   "panels": [
     {
-      "title": "Active Prediction Requests",
-      "type": "stat",
-      "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "targets": [
-        {
-          "expr": "sum({__name__=~'.*_active_prediction_requests'})",
-          "legendFormat": "Active Requests",
-          "refId": "A"
-        }
-      ],
-      "id": 1,
-      "gridPos": { "h": 8, "w": 6, "x": 0, "y": 0 }
-    },
-    {
-      "title": "Prediction Count by Type",
-      "type": "piechart",
-      "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "targets": [
-        {
-          "expr": "sum by (prediction) (increase({__name__=~'.*_prediction_count_by_type_total'}[$__range]))",
-          "legendFormat": "{{`{{prediction}}`}}",
-          "refId": "A"
-        }
-      ],
-      "id": 2,
-      "gridPos": { "h": 8, "w": 6, "x": 6, "y": 0 }
-    },
-    {
-      "title": "Application Info",
-      "type": "table",
-      "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "targets": [
-        {
-          "expr": "{__name__=~'.*_app_info'}",
-          "refId": "A",
-          "format": "table",
-          "instant": true
-        }
-      ],
-      "id": 4,
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 }
-    },
-    {
-      "title": "Requests to /predict Endpoint",
-      "type": "graph",
-      "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "targets": [
-        {
-          "expr": "sum(rate({__name__=~'.*_http_requests_total', path=\"/predict\"}[$__interval]))",
-          "legendFormat": "Requests to /predict",
-          "refId": "A"
-        }
-      ],
-      "id": 5,
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 }
-    },
-    {
-      "title": "Prediction Length Distribution by Sentiment",
-      "type": "heatmap",
-      "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "targets": [
-        {
-          "expr": "sum(rate({__name__=~'.*_input_length_vs_prediction_bucket', prediction='positive'}[$__interval])) by (le)",
-          "legendFormat": "Positive ({{le}})",
-          "refId": "A"
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
         },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 0
+      },
+      "id": 3,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.0.2",
+      "targets": [
         {
-          "expr": "sum(rate({__name__=~'.*_input_length_vs_prediction_bucket', prediction='negative'}[$__interval])) by (le)",
-          "legendFormat": "Negative ({{le}})",
-          "refId": "B"
+          "disableTextWrap": false,
+          "editorMode": "code",
+          "expr": "sum(increase(predictions_made_total{app_kubernetes_io_instance=\"remla-app\", namespace=\"default\"}[$__interval]))",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
+          "legendFormat": "Predictions",
+          "range": true,
+          "refId": "A",
+          "useBackend": false
         }
       ],
-      "id": 3,
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 }
+      "title": "Total amount of predictions queried over time",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "scaleDistribution": {
+              "type": "linear"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 8
+      },
+      "id": 2,
+      "options": {
+        "calculate": true,
+        "calculation": {
+          "xBuckets": {
+            "mode": "size",
+            "value": ""
+          },
+          "yBuckets": {
+            "mode": "size",
+            "value": ""
+          }
+        },
+        "cellGap": 1,
+        "color": {
+          "exponent": 0.5,
+          "fill": "dark-orange",
+          "mode": "scheme",
+          "reverse": false,
+          "scale": "exponential",
+          "scheme": "Oranges",
+          "steps": 64
+        },
+        "exemplars": {
+          "color": "rgba(255,0,255,0.7)"
+        },
+        "filterValues": {
+          "le": 1e-9
+        },
+        "legend": {
+          "show": true
+        },
+        "rowsFrame": {
+          "layout": "auto"
+        },
+        "tooltip": {
+          "mode": "single",
+          "showColorScale": false,
+          "yHistogram": false
+        },
+        "yAxis": {
+          "axisPlacement": "left",
+          "reverse": false
+        }
+      },
+      "pluginVersion": "12.0.2",
+      "targets": [
+        {
+          "disableTextWrap": false,
+          "editorMode": "code",
+          "expr": "sum by (le) (increase(review_length_characters_bucket{app_kubernetes_io_instance=\"remla-app\", namespace=\"default\"}[$__interval]))",
+          "fullMetaSearch": false,
+          "includeNullMetadata": false,
+          "legendFormat": "{{le}}",
+          "range": true,
+          "refId": "A",
+          "useBackend": false
+        }
+      ],
+      "title": "Amount of characters used in a review",
+      "type": "heatmap"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 16
+      },
+      "id": 1,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.0.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "disableTextWrap": false,
+          "editorMode": "code",
+          "expr": "time() - max(last_feedback_timestamp_seconds{app_kubernetes_io_instance=\"remla-app\", namespace=\"default\"})",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
+          "legendFormat": "Time since last feedback",
+          "range": true,
+          "refId": "A",
+          "useBackend": false
+        }
+      ],
+      "title": "Amount of time since last prediction feedback was received",
+      "type": "stat"
     }
   ],
-  "refresh": "5s",
-  "schemaVersion": 36,
-  "style": "dark",
-  "tags": [
-    "remla-app"
-  ],
+  "preload": false,
+  "schemaVersion": 41,
+  "tags": [],
   "templating": {
-    "list": [
-      {
-        "datasource": {
-          "type": "prometheus",
-          "uid": "prometheus"
-        },
-        "definition": "label_values({__name__=~'.*_prediction_count_by_type_total'}, prediction)",
-        "hide": 0,
-        "includeAll": true,
-        "label": "Prediction",
-        "multi": true,
-        "name": "prediction",
-        "options": [],
-        "query": "label_values({__name__=~'.*_prediction_count_by_type_total'}, prediction)",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": false,
-        "sort": 0,
-        "type": "query"
-      }
-    ]
+    "list": []
   },
   "time": {
-    "from": "now-1h",
+    "from": "now-6h",
     "to": "now"
   },
   "timepicker": {},
-  "timezone": "",
-  "title": "REMLA Application Dashboard",
-  "uid": "remla-app-service-dashboard",
-  "version": 1
+  "timezone": "browser",
+  "title": "REMLA-app-dashboard",
+  "uid": "d60946a1-73c8-42a7-b27c-90c04aba7b11",
+  "version": 4
 }
