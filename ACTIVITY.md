@@ -13,8 +13,10 @@ Created PR: [operation (A5)](https://github.com/remla25-team3/operation/pull/63)
 Approved PR: https://github.com/remla25-team3/operation/pull/69
 
 -- Denis --
+
 Created PR: [operation (A3)](https://github.com/remla25-team3/operation/pull/71)
-Approved PR:
+
+Approved PR: [operation (A3)](https://github.com/remla25-team3/operation/pull/72#pullrequestreview-2962097615)
 
 -- Alberto --
 
