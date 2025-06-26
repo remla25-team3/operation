@@ -1,12 +1,9 @@
 # Deployment Documentation
 
-## Overview
-
-This document details the deployment structure and data flow in our application.... maybe add overall explanation
-
+> Links to the repositories cited in this document can be found at the start of the README of this same repository (`operation`)
 ## Project overview
 
-This project provides a sentiment analysis platform for restaurant reviews. Our system is built on a distributed, microservices-based architecture designed for scalability and independent development. The project is composed of several distinct repositories, including three core containerized services, two shared libraries, and a model training pipeline. Figure 1 illustrates the high-level design and the interactions between these components.
+This project provides a sentiment analysis platform for restaurant reviews. Our system is built on a distributed, microservices-based architecture designed for scalability and independent development. The project is composed of several distinct repositories, including three core containerized services, two shared libraries, and a model training pipeline. Here are illustrated the high-level design and the interactions between these components:
 
 <img src="images/a1.png" alt="Overview" width="1000">
 
@@ -36,7 +33,7 @@ These libraries are also automatically versioned and published using GitHub Acti
 
 - **`model-training`**: This repository contains the pipeline responsible for training, evaluating, and publishing new versions of our sentiment analysis model. Its output is a versioned model artifact that gets stored for the `model-servic`e to consume. It is not run as part of the live application.
 
-- **`operation*`*: This repository is the central hub for deployment and infrastructure-as-code. It contains all documentation, configuration files, and automation scripts for Docker, Kubernetes, Ansible, and other operational tooling.
+- **`operation`**: This repository is the central hub for deployment and infrastructure-as-code. It contains all documentation, configuration files, and automation scripts for Docker, Kubernetes, Ansible, and other operational tooling.
 
 ## ML Pipeline
 
@@ -74,11 +71,7 @@ The pipeline executes as follows:
 
 ### Core Components
 
-The deployment consists of three main application services:
-
-- **app-frontend**: React-based web interface serving the user interface
-- **app-service**: Python Flask backend providing API endpoints and business logic
-- **model-service**: Machine learning service handling sentiment analysis predictions
+The deployment consists of three main application services cited before: `app-frontend`, `app-service` and `model-service`.
 
 ### Infrastructure Components
 
@@ -89,253 +82,101 @@ The deployment consists of three main application services:
 - **MetalLB**: Load balancer for bare-metal Kubernetes
 
 ## Architecture Diagram
+Deployment Architecture
 
-<img src="images/architecture.png" alt="Arhitecture" width="400">
+Our application runs on a Kubernetes cluster that is provisioned on using Vagrant and Ansible or by manually configuring the deployment with minikube (see README). This section details the structure and key components of our deployment, which are visually summarized in the following Figure. The diagram provides a high-level overview of the deployed resources, their relationships, and their logical grouping within Kubernetes namespaces.
 
-(leaving the code for now if we need to change it)
-```mermaid
-graph TB
-    subgraph "External Access"
-        U[Users] --> LB[MetalLB LoadBalancer<br/>192.168.56.90-99]
-    end
-    
-    subgraph "Ingress Layer"
-        LB --> IG[NGINX Ingress<br/>192.168.56.91]
-        LB --> IST[Istio Gateway<br/>192.168.56.90]
-    end
-    
-    subgraph "Application Layer"
-        IG --> AF[app-frontend<br/>Port 80]
-        IG --> AS[app-service<br/>Port 5000]
-        IG --> MS[model-service<br/>Port 5000]
-        
-        IST --> AF
-        IST --> AS  
-        IST --> MS
-        
-        AF --> AS
-        AS --> MS
-    end
-    
-    subgraph "Storage Layer"
-        MS --> PVC[PersistentVolume<br/>Model Cache]
-        MS --> HS[HostPath Storage<br/>/mnt/model-cache]
-    end
-    
-    subgraph "Monitoring Layer"
-        PROM[Prometheus] --> AS
-        PROM --> MS
-        PROM --> GR[Grafana<br/>grafana.local]
-    end
-    
-    subgraph "Configuration"
-        CM[ConfigMaps] --> AS
-        SEC[Secrets] --> AS
-    end
-```
+<img src="images/deploy-overview.png" alt="Deploy" width="800">
 
-## Data Flow and Request Routing
+Our Helm chart orchestrates the deployment of all application-specific and service mesh components, which are organized into the following namespaces:
 
-### Primary Data Flow
+1. The **default** Namespace: Core Application Services
 
-<img src="images/dataflow.png" alt="Dataflow" width="800">
+This namespace houses the core services that constitute our application:
 
-```mermaid
-sequenceDiagram
-    participant U as User
-    participant IG as NGINX Ingress
-    participant AF as app-frontend
-    participant AS as app-service  
-    participant MS as model-service
-    participant DB as Model Cache
-    
-    U->>IG: HTTP Request
-    IG->>AF: Route to Frontend (/)
-    AF->>U: Serve React App
-    
-    Note over U,AF: User interacts with UI
-    
-    U->>IG: API Request (/api/*)
-    IG->>AS: Route to app-service<br/>(rewrite /api/* → /*)
-    AS->>MS: ML Prediction Request
-    MS->>DB: Load/Cache Model
-    DB-->>MS: Model Data
-    MS-->>AS: Prediction Result
-    AS-->>IG: JSON Response
-    IG-->>U: API Response
-```
+- Three distinct microservices, each with its own Deployment and Service: `app-frontend`, `app-service` and `model-service`
+- Service Configuration:
+    - An app-service config ConfigMap injects runtime configuration into the backend.
+    - Environment variables (Model Release ENV Vars) are used to inform the model-service where to download its ML model artifacts.
 
-### Dynamic Routing Decisions
+The monitoring Namespace: Observability Stack
 
-The system implements multiple routing mechanisms with dynamic decision points:
+We use the popular kube-prometheus-stack Helm chart to deploy a comprehensive monitoring solution into its own dedicated namespace. Key components include:
+- Prometheus: For time-series data collection and alerting.
+- Grafana: For visualizing metrics through pre-configured dashboards.
+- AlertManager: For handling and routing alerts from Prometheus.
+- Configuration Resources:
+    - A ServiceMonitor that configures Prometheus to scrape the metrics on our app-service.
+    - A PrometheusRule that defines the specific alert conditions.
+    - SMTP Credentials stored in a Secret for sending email notifications.
 
-#### 1. Istio VirtualService Path Analysis
+2- The **istio-system** Namespace: Service Mesh and Ingress
+
+This namespace contains the Istio control plane and manages all ingress traffic and advanced network policies for our application.
+- Istio IngressGateway: The single entry point for all application traffic. It is configured by several Istio Custom Resource Definitions (CRDs):
+    - A Gateway to open the port.
+    - A VirtualService to perform path-based routing to the app-frontend, app-service, and model-service.
+    - DestinationRule resources to manage traffic policies, such as the 90/10 split for the frontend canary release.
+    - Rate Limiting: Our implementation uses a dual strategy configured via EnvoyFilter resources:
+        - Global Rate Limiting: A dedicated RateLimit service, backed by Redis, enforces cluster-wide limits.
+        - Local Rate Limiting: A second filter applies a specific rate limit directly to the app-service sidecar for fine-grained control.
+
+## Data Flow and Dynamic Routing
+
+This section details the end-to-end lifecycle of a user request within our system. It covers how traffic is initially handled, the dynamic routing decisions made by the service mesh, the interactions between microservices, and how our observability stack is integrated. The overall flow is visualized here:
+
+<img src="images/flow.png" alt="Flow" width="800">
+
+
+1. Initial Request and Ingress Processing
+
+A user's journey begins with an HTTP request to our application's domain. Every request is first handled by the Istio IngressGateway, which serves as the single, secure entry point to the cluster.
+
+Immediately upon entry, the gateway performs two critical actions:
+- Rate Limiting: The request is checked against our defined rate limits. If the user has sent too many requests in a given timeframe, the gateway rejects the request with a 429 Too Many Requests status code, protecting our services from overload.
+- Routing Rules: If the request is within the rate limits, the gateway forwards it to Istio's VirtualService to determine the correct destination based on the URL path.
+
+2. Dynamic Routing Decisions and Canary Release
+
+Our VirtualService implements sophisticated path-based routing to direct traffic to the appropriate backend service. This logic provides flexibility and enables advanced deployment strategies like canary releases.
 
 <img src="images/routing.png" alt="Routing" width="800">
 
+The primary routing rules are as follows:
+- **API Documentation**: Requests to specific API documentation paths (e.g., /model/apidocs or /app/apidocs) are routed directly to the corresponding service for developers.
+- **Backend Services**: API calls with prefixes like /api/* or /model/* are routed to the app-service or model-service, respectively. The VirtualService also rewrites the URI to simplify the endpoint logic within the services.
+- **Frontend Canary Release**: All other traffic, including requests to the root (/), is directed to the app-frontend. Here, we implement a canary release, splitting traffic 90% to the stable v1 version and 10% to the newer v2 version. This allows us to test new features safely with a small subset of users.
 
-```mermaid
-flowchart TD
-    %% --- Nodes Definition ---
-    REQ[Incoming Request]
-    IG[Istio Ingress Gateway]
-    PATH_ANALYSIS{VirtualService Path Analysis
-    Host: frontend.local}
-    
-    MS[model-service]
-    AS[app-service]
-    AF_V1[app-frontend v1]
-    AF_V2[app-frontend v2]
+3. Application and Service-to-Service Flow
 
-    REWRITE_MODEL["Rewrite URI to /"]
-    REWRITE_APP["Rewrite URI to /"]
-    CANARY_SPLIT["Frontend Canary Split
-    (90% / 10%)"]
-    
-    %% --- Styling ---
-    style IG fill:#D6EAF8,stroke:#333,stroke-width:2px
-    style MS fill:#E8DAEF,stroke:#333,stroke-width:2px
-    style AS fill:#D5F5E3,stroke:#333,stroke-width:2px
-    style AF_V1 fill:#FEF9E7,stroke:#333,stroke-width:2px
-    style AF_V2 fill:#FADBD8,stroke:#333,stroke-width:2px
-    style REWRITE_MODEL fill:#F2F3F4,stroke:#333
-    style REWRITE_APP fill:#F2F3F4,stroke:#333
-    style CANARY_SPLIT fill:#F2F3F4,stroke:#333
+Once the initial routing is complete, the request flows through our microservices:
 
-    %% --- Connections ---
-    REQ --> IG
-    IG --> PATH_ANALYSIS
+<img src="images/dataflow.png" alt="Dataflow" width="800">
 
-    %% --- API Documentation Routes ---
-    PATH_ANALYSIS -->|"/model/apidocs 
-    /model/flasgger_static
-    /model/apispec_*"| MS
-    PATH_ANALYSIS -->|"/app/apidocs
-    /app/flasgger_static
-    /app/apispec_*"| AS
+- The app-frontend is served to the user's browser. As the user interacts with the UI, the frontend makes API calls to our backend.
 
-    %% --- Service Routes with Rewrites & Sticky Sessions ---
-    PATH_ANALYSIS -- "uri: prefix /model" --> REWRITE_MODEL
-    REWRITE_MODEL -- "Route to service" --> MS
+- These API calls are directed by the gateway to the app-service, which contains the core business logic.
 
-    PATH_ANALYSIS -- "uri: prefix /api" --> REWRITE_APP
-    REWRITE_APP -- "Route to service" --> AS
+- For sentiment analysis, the app-service sends a prediction request to the model-service.
 
-    %% --- Default Frontend Canary Deployment ---
-    PATH_ANALYSIS -- "uri: prefix /
-    (default)" --> CANARY_SPLIT
-    CANARY_SPLIT -- "weight: 90%" --> AF_V1
-    CANARY_SPLIT -- "weight: 10%" --> AF_V2
-```
+- The model-service loads the required ML model artifacts from its cache and returns the prediction result to the app-service.
 
-## Deployed Resource Types and Relations
+- The app-service formats the final JSON response, which travels back through the gateway to the user's browser.
 
-### Kubernetes Resources
+4. Integrated Observability Loop
 
-```mermaid
-graph LR
-    subgraph "Workload Resources"
-        DEP[Deployments] --> RS[ReplicaSets]
-        RS --> PODS[Pods]
-    end
-    
-    subgraph "Service Resources"
-        SVC[Services] --> PODS
-        ING[Ingress] --> SVC
-    end
-    
-    subgraph "Configuration"
-        CM[ConfigMaps] --> PODS
-        SEC[Secrets] --> PODS
-        PVC[PersistentVolumeClaims] --> PODS
-    end
-    
-    subgraph "Istio Resources"
-        GW[Gateway] --> VS[VirtualService]
-        VS --> DR[DestinationRule]
-        DR --> SVC
-    end
-    
-    subgraph "Monitoring"
-        SM[ServiceMonitor] --> SVC
-        GD[GrafanaDashboard] --> CM
-    end
-```
+In parallel to the user-facing flow, our system continuously gathers data for monitoring and alerting:
+- The app-frontend emits metrics which are scraped by Prometheus.
+- Prometheus evaluates these metrics against predefined PrometheusRules. If an alert condition is met (e.g., high error rate), it triggers an alert.
+- AlertManager receives the alert and forwards it to the appropriate notification channel, i.e., sending an email via an SMTP provider.
+- All metric data is also available in Grafana, which provides dashboards for visualizing the health and performance of the system in real-time.
 
-### Resource Specifications
-
-| Resource Type | Count | Purpose |
-|---------------|-------|---------|
-| **Deployments** | 3 | app-frontend, app-service, model-service |
-| **Services** | 3 | Service discovery and load balancing |
-| **Ingress** | 2 | Main routing + rewrite rules |
-| **ConfigMaps** | 2+ | Application configuration + Grafana dashboards |
-| **Secrets** | 1+ | Sensitive configuration data |
-| **PersistentVolumeClaims** | 1 | Model cache storage |
-| **ServiceMonitors** | 1 | Prometheus metrics collection |
-| **Istio Gateway** | 1 | Service mesh ingress |
-| **VirtualServices** | 1 | Traffic routing rules |
-| **DestinationRules** | 3 | Load balancing policies |
-
-## Service Interconnections
-
-```mermaid
-graph TB
-    subgraph "External Traffic"
-        EXT[External Users] --> NGINX[NGINX Ingress<br/>dashboard.local]
-        EXT --> ISTIO[Istio Gateway<br/>frontend.local]
-    end
-    
-    subgraph "Application Services"
-        NGINX --> AF[app-frontend:80]
-        NGINX --> AS[app-service:5000] 
-        NGINX --> MS[model-service:5000]
-        ISTIO --> AF
-        ISTIO --> AS
-        ISTIO --> MS
-        
-        AF -.->|API Calls| AS
-        AS -.->|ML Requests| MS
-    end
-    
-    subgraph "Service Discovery"
-        AS --> SVC_MS[model-service.default.svc.cluster.local:5000]
-    end
-    
-    subgraph "Monitoring Stack"
-        PROM[Prometheus] -.->|Scrape /metrics| AS
-        PROM -.->|Scrape /metrics| MS
-        GRAF[Grafana] -.->|Query| PROM
-    end
-    
-    subgraph "Data Persistence"
-        MS --> CACHE[Model Cache<br/>/mnt/model-cache]
-        MS --> SHARED[Shared Storage<br/>/mnt/shared]
-    end
-```
-
-## Environment Configuration
-
-### Network Configuration
-- **IP Range**: 192.168.56.90-192.168.56.99
-- **Ingress IP**: 192.168.56.91  
-- **Istio IP**: 192.168.56.90
-- **Ingress Class**: nginx
-
-### Service Endpoints
-- **Frontend**: `http://frontend.local/` (Istio) or `http://192.168.56.91/` (NGINX)
-- **App Service API**: `http://192.168.56.91/api/*`
-- **Model Service API**: `http://192.168.56.91/model/*`
-- **Grafana Dashboard**: `http://grafana.local/`
-- **Service Documentation**: 
-  - App Service: `http://192.168.56.91/app/apidocs`
-  - Model Service: `http://192.168.56.91/model/apidocs`
 
 ## Deployment Process
 
 ### Infrastructure Provisioning
 
-The deployment uses Ansible playbooks for infrastructure setup:
+The deployment using Ansible playbooks for infrastructure setup works, in short, like this:
 
 1. **General Setup** (`general.yml`): Base system configuration on all nodes
 2. **Controller Setup** (`ctrl.yml`): Kubernetes master node initialization
@@ -345,53 +186,8 @@ The deployment uses Ansible playbooks for infrastructure setup:
 
 ### Application Deployment
 
-The application stack is deployed using Helm charts with the following pattern:
+Our application stack is deployed to Kubernetes using a Helm chart, which standardizes and automates the entire rollout process. The workflow, visualized in the next Figure, ensures a consistent and reliable deployment.
 
-```mermaid
-flowchart TD
-    HELM[helm install remla-chart] --> VALIDATE{Validation}
-    VALIDATE -->|Success| RUNNING[Services Running]
-    VALIDATE -->|Failure| DEBUG[Debug & Retry]
-    
-    RUNNING --> MONITOR[Monitoring Active]
-    MONITOR --> READY[System Ready]
-    
-    subgraph "Deployment Artifacts"
-        CHART[Helm Chart] --> TEMPLATES[K8s Templates]
-        VALUES[values.yaml] --> TEMPLATES
-        TEMPLATES --> MANIFESTS[Generated Manifests]
-    end
-```
+The process is initiated by the helm install command. Helm combines the templates in our chart with custom configurations from the values.yaml file to generate the final Kubernetes manifests. After a validation step, a successful deployment results in all services running and the monitoring systems becoming active. If any part of the process fails, it enters a debug and retry cycle.
 
-## Traffic Management Strategies
-
-### Canary Deployments (Istio)
-- **90%** traffic to stable version (v1)
-- **10%** traffic to canary version (v2)
-- Consistent hashing based on `x-sticky-user` header
-
-### Path-Based Routing (NGINX)
-- **API paths** (`/api/*`, `/model/*`) with URL rewriting
-- **Documentation paths** without rewriting
-- **SPA fallback** for all other paths to frontend
-
-### Load Balancing
-- **Session affinity** using consistent hashing
-- **Health checks** for service availability
-- **Circuit breaking** through Istio policies
-
-## Monitoring and Observability
-
-### Metrics Collection
-- **Prometheus** scrapes metrics from `/metrics` endpoints
-- **ServiceMonitor** resources define scraping configuration
-- **Custom dashboards** in Grafana for application insights
-
-### Key Metrics Monitored
-- HTTP request rates and latencies
-- Model prediction accuracy and response times
-- Resource utilization (CPU, memory, storage)
-- Error rates and availability
-
-This documentation provides comprehensive coverage for new team members to understand the deployment architecture and contribute effectively to design discussions and system improvements.
-
+<img src="images/helm.png" alt="Helm" width="800">
