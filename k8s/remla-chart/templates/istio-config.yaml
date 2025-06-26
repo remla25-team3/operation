@@ -5,6 +5,7 @@ metadata:
   name: {{ .Release.Name }}-gateway
 spec:
   selector:
+    app: istio-ingressgateway
     istio: ingressgateway
   servers:
   - port:
@@ -12,7 +13,7 @@ spec:
       name: http
       protocol: HTTP
     hosts:
-    - "{{ .Values.istioIngress.hostname }}"
+    - "frontend.local"
 ---
 # Virtual services
 apiVersion: networking.istio.io/v1beta1
@@ -22,8 +23,33 @@ metadata:
 spec:
   gateways: [ {{ .Release.Name }}-gateway ]
   hosts:
-  - "{{ .Values.istioIngress.hostname }}"
+  - "frontend.local"
   http:
+    # API documentation routes
+    - match:
+        - uri:
+            exact: /model/apidocs
+        - uri:
+            prefix: /model/flasgger_static
+        - uri:
+            prefix: /model/apispec_
+      route:
+        - destination:
+            host: {{ .Release.Name }}-{{ .Values.modelService.name }}
+            port: { number: {{ .Values.modelService.servicePort }} }
+      
+    - match:
+        - uri:
+            exact: /app/apidocs
+        - uri:
+            prefix: /app/flasgger_static
+        - uri:
+            prefix: /app/apispec_
+      route:
+        - destination:
+            host: {{ .Release.Name }}-{{ .Values.appService.name }}
+            port: { number: {{ .Values.appService.servicePort }} }
+
     # model-service
     - match:
         - uri:

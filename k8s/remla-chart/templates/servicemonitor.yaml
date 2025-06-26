@@ -12,8 +12,10 @@ metadata:
 spec:
   selector:
     matchLabels:
-      # This selector should match the labels on your app-service's Service resource.
-      app: {{ .Release.Name }}-{{ .Values.appService.name }}
+      # These selectors should match the labels on your app-service's Service and Deployment resources.
+      app.kubernetes.io/name: {{ include "remla-app.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: {{ .Values.appService.name }}
   endpoints:
   - port: http # This should match the 'name' of the port in the app-service Service.
     path: {{ .Values.serviceMonitor.path | default "/metrics" }}

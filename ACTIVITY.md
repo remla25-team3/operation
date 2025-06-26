@@ -1,3 +1,21 @@
+# Week Q4.10 (June 23+)
+
+-- Amin --
+
+-- Joost --
+
+Created PR: https://github.com/remla25-team3/operation/pull/67 (related to A5)
+
+-- Lennard --
+
+Created PR: [operation (A5)](https://github.com/remla25-team3/operation/pull/63)
+
+Approved PR: https://github.com/remla25-team3/operation/pull/69
+
+-- Denis --
+
+-- Alberto --
+
 # Week Q4.9 (June 16+)
 
 -- Amin --
@@ -8,13 +26,13 @@ Approved PR: https://github.com/remla25-team3/app-service/pull/9
 
 -- Joost --
 
-Created PR: 
+Created PR: worked and approved PR's, not relevant for knockout
 
 Approved PR: 
 
 -- Lennard --
 
-Created PR: [operation (A5)](https://github.com/remla25-team3/operation/pull/53)
+Created PR: [operation (A5)](https://github.com/remla25-team3/operation/pull/53) (later updated to another PR due to base changes; see Q4.10)
 
 Approved PR: https://github.com/remla25-team3/operation/pull/52
 
