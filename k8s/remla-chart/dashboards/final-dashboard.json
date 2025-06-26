@@ -372,7 +372,7 @@
         {
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "review_length_characters_bucket",
+          "expr": "review_length_characters_bucket{instance=\"$instance\"}",
           "fullMetaSearch": false,
           "includeNullMetadata": false,
           "legendFormat": "__auto",

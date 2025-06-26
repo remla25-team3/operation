@@ -11,5 +11,5 @@ metadata:
     grafana_folder: "REMLA App"
 data:
   app-service-dashboard.json: |-
-{{ .Files.Get "dashboards/app-service-dashboard.json" | nindent 4 }}
+{{ .Files.Get "dashboards/final-dashboard.json" | nindent 4 }}
 {{- end }}
