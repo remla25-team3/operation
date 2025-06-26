@@ -63,83 +63,63 @@ serviceMonitor:
   interval: 30s
   prometheusRelease: "prometheus-stack"
 
-alerting:
-  rulesEnabled: true
-  prometheusRules:
-    - name: request-rate
-      rules:
-      - alert: HighRequestRate
-        expr: sum(rate({__name__=~".*_http_requests_total"}[1m])) > 15
-        for: 2m
-        labels:
-          severity: critical
-        annotations:
-          summary: "High request rate detected!"
-          description: "The application is receiving more than 15 requests per minute for 2 minutes."
-    - name: error-rate
-      rules:
-      - alert: ErrorRateHigh
-        expr: sum(rate({__name__=~".*_http_requests_errors_total"}[5m])) / sum(rate({__name__=~".*_http_requests_total"}[5m])) * 100 > 5
-        for: 5m
-        labels:
-          severity: critical
-        annotations:
-          summary: "High error rate detected!"
-          description: "Error rate is above 5% for the last 5 minutes."
-    - name: resource-usage
-      rules:
-      - alert: HighMemoryUsage
-        expr: sum(container_memory_working_set_bytes{container!=""}) by (container) / sum(container_spec_memory_limit_bytes{container!=""}) by (container) * 100 > 85
-        for: 5m
-        labels:
-          severity: warning
-        annotations:
-          summary: "High memory usage detected!"
-          description: "Container {{`{{ $labels.container }}`}} is using more than 85% of its memory limit."
-      - alert: HighCPUUsage
-        expr: sum(rate(container_cpu_usage_seconds_total{container!=""}[5m])) by (container) * 100 > 80
-        for: 5m
-        labels:
-          severity: warning
-        annotations:
-          summary: "High CPU usage detected!"
-          description: "Container {{`{{ $labels.container }}`}} is using more than 80% of CPU."
-    - name: availability
-      rules:
-      - alert: ServiceDown
-        expr: up == 0
-        for: 1m
-        labels:
-          severity: critical
-        annotations:
-          summary: "Service is down!"
-          description: "Service {{`{{ $labels.service }}`}} has been down for more than 1 minute."
-      - alert: HighLatency
-        expr: histogram_quantile(0.95, sum(rate({__name__=~".*_http_request_duration_seconds_bucket"}[5m])) by (le)) > 1
-        for: 5m
-        labels:
-          severity: warning
-        annotations:
-          summary: "High latency detected!"
-          description: "95th percentile of request latency is above 1 second."
+kube-prometheus-stack:
 
+  prometheus:
+    prometheusSpec:
+      ruleSelector:
+          matchLabels:
+            release: "{{ .Release.Name }}"
+      ruleSelectorNilUsesHelmValues: false
+  
+  defaultRules:
+    create: false
+  
   alertmanager:
-    enabled: true
-    smtp:
-      smtp_require_tls: true
-      passwordSecret:
-        name: "{{ .Release.Name }}-alert-manager-secret"
-        key: smtp_auth_password
-      usernameSecret:
-        name: "{{ .Release.Name }}-alert-manager-secret"
-        key: smtp_auth_username
+    alertmanagerSpec:
+        secrets:
+          - "alertmanager-smtp-password"
+    
+    config:
+      global:
+        resolve_timeout: 5m
+        # Add your SMTP server details here
+        smtp_smarthost: 'smtp.gmail.com:587'
+        smtp_from: 'denskrlv@gmail.com'
+        smtp_auth_username: 'denskrlv@gmail.com'
+        # This references the secret you created
+        smtp_auth_password_file: /etc/alertmanager/secrets/alertmanager-smtp-password/password
+        smtp_require_tls: true
 
-    recipients:
-      # I'm really desperate for emails
-      critical: "dkrylov@tudelft.nl"
-      warning: "dkrylov@tudelft.nl"
-      info: "dkrylov@tudelft.nl"
-      default: "dkrylov@tudelft.nl"
+      route:
+        group_by: ['alertname', 'severity', 'instance']
+        group_wait: 30s
+        group_interval: 5m
+        repeat_interval: 3h
+        receiver: 'default-email'
+        routes:
+          - matchers:
+            - severity = critical
+            receiver: 'critical-email'
+            continue: true
+          - matchers:
+            - severity = warning
+            receiver: 'warning-email'
+            continue: true
+
+      receivers:
+        - name: "critical-email"
+          email_configs:
+            - to: "dkrylov@tudelft.nl"
+              send_resolved: true
+        - name: "warning-email"
+          email_configs:
+            - to: "dkrylov@tudelft.nl"
+              send_resolved: true
+        - name: "default-email"
+          email_configs:
+            - to: "dkrylov@tudelft.nl"
+              send_resolved: true
 
 apiIngress:
   hostname: api.local
