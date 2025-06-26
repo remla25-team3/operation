@@ -476,18 +476,4 @@
       kubeconfig: "{{ kubeconfig }}"
       state: present
       update_repo_cache: yes
-
-  #A5
-
-  # - name: Copy gateway setup configuration (A5, Traffic Management)
-  #   copy:
-  #     src: "{{ playbook_dir }}/resources/gateway-setup.yml"
-  #     dest: /tmp/gateway-setup.yml
-  #     mode: '0644'
-
-  # - name: Start VirtualService (A5, Traffic Management)
-  #   kubernetes.core.k8s:
-  #     state: present
-  #     src: /tmp/gateway-setup.yml
-  #     kubeconfig: "{{ kubeconfig }}"
  

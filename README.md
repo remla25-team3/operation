@@ -85,23 +85,10 @@ ansible-playbook -u vagrant -i 192.168.56.100, provisioning/finalization.yml
 ```
 3. **Deploy the Application**
 
-Once the cluster is running, deploy the application using Helm.
+Once the cluster is running, ssh into ctrl and watch.
 ```bash
-# IMPORTANT: Configure your terminal to use the new cluster's credentials
-export KUBECONFIG=$(pwd)/provisioning/config/admin.conf
-
-# Verify connection by listing nodes
-kubectl get nodes
-# Expected output: ctrl, node-1, and node-2 should be listed and 'Ready'
-
-# Navigate to the Helm chart directory
-cd k8s/remla-chart
-
-# Install the application
-helm install releasename .
-
-# Watch the pods until they are all in the 'Running' state
-kubectl get pods --watch
+vagrant ssh ctrl
+kubectl get pods -A --watch
 ```
 4. **Access the Application**
 
@@ -120,6 +107,11 @@ Access in Browser: Open your browser and navigate to the following URLs:
 - **App Service API Docs**: http://192.168.56.91/app/apidocs
 
 - **Model Service API Docs**: http://192.168.56.91/model/apidocs
+
+- **Prometheus**: http://192.168.56.93/
+
+- **Grafana**: http://192.168.56.92/
+
 
 5. **Access the Kubernetes Dashboard (Optional)**
 
