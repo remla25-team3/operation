@@ -268,14 +268,14 @@ For clarity and to assist in the grading process, we have compiled the following
 
 #### Traffic Management
 
-- 🔴 **Sufficient:**
-    - 🔴 The project resembles the state of the in-class exercise.
-    - 🔴 The app defines a Gateway and VirtualServices.
-    - 🔴 The application is accessible through the IngressGateway (i.e., minikube tunnel).
-- 🔴 **Good:**
-    - 🔴 It uses Destination Rules and weights to enable a $90/10$ routing of the app service.
-    - 🔴 The versions of model-service and app are consistent.
-- 🔴 **Excellent:**
+- ✅ **Sufficient:**
+    - ✅ The project resembles the state of the in-class exercise.
+    - ✅ The app defines a Gateway and VirtualServices.
+    - ✅ The application is accessible through the IngressGateway (i.e., minikube tunnel).
+- ✅ **Good:**
+    - ✅ It uses Destination Rules and weights to enable a $90/10$ routing of the app service.
+    - ✅ The versions of model-service and app are consistent (it also shows "canary release" in the frontend)
+- ✅ **Excellent:**
     - 🔴 The project implements Sticky Sessions, i.e., requests from the same origin have a stable routing.
 
 #### Additional Use Case
@@ -285,17 +285,17 @@ For clarity and to assist in the grading process, we have compiled the following
 
 #### Continuous Experimentation
 
-- 🔴 **Sufficient:**
-    - 🔴 The documentation describes the experiment. It explains the implemented changes, the expected effect that gets experimented on, and the relevant metric that is tailored to the experiment.
-    - 🔴 The experiment involves two deployed versions of at least one container image.
-    - 🔴 Both component versions are reachable through the deployed experiment.
-    - 🔴 The system implements the metric that allows exploring the concrete hypothesis.
+- ✅ **Sufficient:**
+    - ✅ The documentation describes the experiment. It explains the implemented changes, the expected effect that gets experimented on, and the relevant metric that is tailored to the experiment.
+    - ✅ The experiment involves two deployed versions of at least one container image.
+    - ✅ Both component versions are reachable through the deployed experiment.
+    - ✅ The system implements the metric that allows exploring the concrete hypothesis.
 - 🔴 **Good:**
-    - 🔴 Prometheus picks up the metric.
-    - 🔴 Grafana has a dashboard to visualize the differences and support the decision process.
+    - ✅ Prometheus picks up the metric.
+    - ✅ Grafana has a dashboard to visualize the differences and support the decision process.
     - 🔴 The documentation contains a screenshot of the visualization.
-- 🔴 **Excellent:**
-    - 🔴 The documentation explains the decision process for accepting or rejecting the experiment in details, ie.g., which criteria is used and how the available dashboard supports the decision.
+- ✅ **Excellent:**
+    - ✅ The documentation explains the decision process for accepting or rejecting the experiment in details, ie.g., which criteria is used and how the available dashboard supports the decision.
 
 ### Documentation
 
@@ -321,7 +321,7 @@ For clarity and to assist in the grading process, we have compiled the following
 - ✅ **Good:**
     - ✅ The shortcoming is critically reflected on and its negative effects get elaborated in detail.
     - ✅ The presented extension improves the described shortcoming.
-    - 🔴 The documentation explains how an improvement could be measured objectively in an experiment.
+    - ✅ The documentation explains how an improvement could be measured objectively in an experiment.
 - ✅ **Excellent:**
     - ✅ The presented extension is general in nature and applicable beyond the concrete project.
     - ✅ The presented extension clearly overcomes the described shortcoming.
