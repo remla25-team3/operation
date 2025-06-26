@@ -5,8 +5,8 @@ metadata:
   name: {{ .Release.Name }}-gateway
 spec:
   selector:
-    app: istio-ingressgateway
-    istio: ingressgateway
+    app: istio-ingress
+    istio: ingress
   servers:
   - port:
       number: 80

@@ -214,13 +214,13 @@
       src: /tmp/dashboard-ingress.yaml
       kubeconfig: "{{ kubeconfig }}"
 
-  - name: Wait for Dashboard proxy service to become available (step 22)
-    shell: |
-      kubectl wait --namespace={{ dashboard_namespace }} \
-        --for=condition=ready pod \
-        -l app.kubernetes.io/instance={{ dashboard_release }} \
-        --timeout=300s --kubeconfig={{ kubeconfig }}
-    changed_when: false
+  # - name: Wait for Dashboard proxy service to become available (step 22)
+  #   shell: |
+  #     kubectl wait --namespace={{ dashboard_namespace }} \
+  #       --for=condition=ready pod \
+  #       -l app.kubernetes.io/instance={{ dashboard_release }} \
+  #       --timeout=300s --kubeconfig={{ kubeconfig }}
+  #   changed_when: false
 
   - name: Display dashboard instructions (step 22)
     debug:
@@ -407,7 +407,7 @@
               targetPort: 15021
             - name: http
               port: 80
-              targetPort: 8080
+              targetPort: 80
             - name: https
               port: 443
               targetPort: 8443
