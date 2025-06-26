@@ -4,7 +4,7 @@
 This experiment will test if moving the prediction button away from the text input field affects the amount of prediction requests made by the user. 
 
 # Deploying the Experiment
-You can view both conditions of the experiment yourself. With the deployment of the app two frontend versions are deployed, one of which is the base version and the other the experimental version, with the only change from the experiment that the experimental version is made green so you know when you are in that condition. To view the two versions of the frontend, enter ```frontend.local``` in your web browser (after deployment). You will see one version of the app. Now you can refresh the page untill you see the other version.
+You can view both conditions of the experiment yourself. With the deployment of the app two frontend versions are deployed, one of which is the base version and the other the experimental version, with the only change from the experiment that the experimental version is made green so you know when you are in that condition. To view the two versions of the frontend, enter ```frontend.local``` in your web browser (after deploying the app following the root-level readme). You will see one version of the app. Now you can refresh the page untill you see the other version.
 
 # Changes
 Compared to the base design of our frontend, the "Analyze Sentiment" button is moved below the prediciton feedback buttons after a prediction has been made. 
