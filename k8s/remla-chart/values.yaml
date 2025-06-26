@@ -74,6 +74,15 @@ kube-prometheus-stack:
   
   defaultRules:
     create: false
+
+  prometheusOperator:
+    admissionWebhooks:
+      create:
+        podAnnotations:
+          sidecar.istio.io/inject: "false"
+      patch:
+        podAnnotations:
+          sidecar.istio.io/inject: "false"
   
   alertmanager:
     alertmanagerSpec:

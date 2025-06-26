@@ -58,11 +58,11 @@ spec:
         - configMapRef:
             name: {{ .Release.Name }}-{{ .Values.appService.name }}-config
         env: {{- tpl (toYaml .Values.appService.env) . | nindent 10 }}
-        volumeMounts:
-        - name: secret-volume
-          mountPath: /run/secrets
-          readOnly: true
-      volumes:
-      - name: secret-volume
-        secret:
-          secretName: {{ .Release.Name }}-alert-manager-secret
+      #   volumeMounts:
+      #   - name: secret-volume
+      #     mountPath: /run/secrets
+      #     readOnly: true
+      # volumes:
+      # - name: secret-volume
+      #   secret:
+      #     secretName: {{ .Release.Name }}-alert-manager-secret
