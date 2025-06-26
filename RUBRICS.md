@@ -25,11 +25,11 @@ For clarity and to assist in the grading process, we have compiled the following
     - ✅ The packaging and releases of all artifacts are performed in workflows. 
 - ✅ **Good:**
     - ✅ Release workflows automatically version all artifacts through using a Git release tag like v1.2.3. 
-    - ✅ After a stable release, main is set to a pre-release version that is higher than the latest release. 
+    - 🟡 After a stable release, main is set to a pre-release version that is higher than the latest release. 
 - ✅ **Excellent:**
     - 🟡 The released container images support multiple architectures, at least amd64 and arm64. 
-    - ✅ The Dockerfile uses multiple stages, e.g., to reduce image size by avoiding apt cache in image. 
-    - ✅ The automation supports to release multiple versions of the same pre-release, like 1.2.3-pre-<n>
+    - 🟡 The Dockerfile uses multiple stages, e.g., to reduce image size by avoiding apt cache in image. 
+    - 🟡 The automation supports to release multiple versions of the same pre-release, like 1.2.3-pre-<n>
 
 #### Software Reuse in Libraries
 
@@ -40,8 +40,8 @@ For clarity and to assist in the grading process, we have compiled the following
     - ✅ The model-service pre-processes queries the same as the training pipeline does. 
     - ✅ The version string in lib-version is automatically updated with the actual package version in the release workflow, i.e., either it is directly taken from automatically updated project metadata, or it is taken from an automatically generated file. 
 - ✅ **Excellent:**
-    - ✅ The model is not part of the container image, i.e., it can be updated without creating a new image by refering to a specific model version that is downloaded on-start. 
-    - ✅ A local cache is used so the model is not just downloaded on every container start. 
+    - 🟡 The model is not part of the container image, i.e., it can be updated without creating a new image by refering to a specific model version that is downloaded on-start. 
+    - 🟡 A local cache is used so the model is not just downloaded on every container start. 
 
 ### Containers & Orchestration
 
