@@ -3,3 +3,4 @@
 config/
 Chart.lock
 charts
+shared

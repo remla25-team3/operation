@@ -214,13 +214,13 @@
       src: /tmp/dashboard-ingress.yaml
       kubeconfig: "{{ kubeconfig }}"
 
-  - name: Wait for Dashboard proxy service to become available (step 22)
-    shell: |
-      kubectl wait --namespace={{ dashboard_namespace }} \
-        --for=condition=ready pod \
-        -l app.kubernetes.io/instance={{ dashboard_release }} \
-        --timeout=300s --kubeconfig={{ kubeconfig }}
-    changed_when: false
+  # - name: Wait for Dashboard proxy service to become available (step 22)
+  #   shell: |
+  #     kubectl wait --namespace={{ dashboard_namespace }} \
+  #       --for=condition=ready pod \
+  #       -l app.kubernetes.io/instance={{ dashboard_release }} \
+  #       --timeout=300s --kubeconfig={{ kubeconfig }}
+  #   changed_when: false
 
   - name: Display dashboard instructions (step 22)
     debug:
@@ -407,7 +407,7 @@
               targetPort: 15021
             - name: http
               port: 80
-              targetPort: 8080
+              targetPort: 80
             - name: https
               port: 443
               targetPort: 8443
@@ -437,18 +437,57 @@
         - "Istio control plane and ingress gateway have been successfully installed."
         - "The gateway is exposed on the fixed IP: {{ istio_ip }}"
         - "Your cluster is now prepared for Istio-based deployments."
+  
+  # - name: Create monitoring namespace
+  #   kubernetes.core.k8s:
+  #     state: present
+  #     definition:
+  #       apiVersion: v1
+  #       kind: Namespace
+  #       metadata:
+  #         name: "{{ monitoring_namespace }}"
+  #     kubeconfig: "{{ kubeconfig }}"
+
+  - name: Label monitoring namespace for Istio injection
+    kubernetes.core.k8s:
+      state: present
+      definition:
+        apiVersion: v1
+        kind: Namespace
+        metadata:
+          name: default
+          labels:
+            istio-injection: enabled
+      kubeconfig: "{{ kubeconfig }}"
+
+  - name: Copy the entire remla-chart directory to the controller node
+    copy:
+      src: "{{ playbook_dir }}/../k8s/remla-chart"
+      dest: /home/vagrant
+      owner: vagrant
+      group: vagrant
+      mode: '0755'
+  
+  - name: Install the REMLA application stack via Helm chart
+    kubernetes.core.helm:
+      name: remla-app
+      chart_ref: /home/vagrant/remla-chart
+      release_namespace: default
+      kubeconfig: "{{ kubeconfig }}"
+      state: present
+      update_repo_cache: yes
 
   #A5
 
-  - name: Copy gateway setup configuration (A5, Traffic Management)
-    copy:
-      src: "{{ playbook_dir }}/resources/gateway-setup.yml"
-      dest: /tmp/gateway-setup.yml
-      mode: '0644'
+  # - name: Copy gateway setup configuration (A5, Traffic Management)
+  #   copy:
+  #     src: "{{ playbook_dir }}/resources/gateway-setup.yml"
+  #     dest: /tmp/gateway-setup.yml
+  #     mode: '0644'
 
-  - name: Start VirtualService (A5, Traffic Management)
-    kubernetes.core.k8s:
-      state: present
-      src: /tmp/gateway-setup.yml
-      kubeconfig: "{{ kubeconfig }}"
+  # - name: Start VirtualService (A5, Traffic Management)
+  #   kubernetes.core.k8s:
+  #     state: present
+  #     src: /tmp/gateway-setup.yml
+  #     kubeconfig: "{{ kubeconfig }}"
  

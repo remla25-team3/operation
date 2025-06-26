@@ -49,7 +49,7 @@ spec:
     spec:
       automountServiceAccountToken: false
       containers:
-      - name: {{ .Values.appService.name }}
+      - name: {{ .Release.Name }}-{{ .Values.appService.name }}
         image: "{{ .Values.appService.image.repository }}:{{ .Values.appService.image.tag }}"
         imagePullPolicy: {{ .Values.appService.image.pullPolicy }}
         ports:
@@ -58,11 +58,11 @@ spec:
         - configMapRef:
             name: {{ .Release.Name }}-{{ .Values.appService.name }}-config
         env: {{- tpl (toYaml .Values.appService.env) . | nindent 10 }}
-        volumeMounts:
-        - name: secret-volume
-          mountPath: /run/secrets
-          readOnly: true
-      volumes:
-      - name: secret-volume
-        secret:
-          secretName: {{ .Release.Name }}-test-secret
+      #   volumeMounts:
+      #   - name: secret-volume
+      #     mountPath: /run/secrets
+      #     readOnly: true
+      # volumes:
+      # - name: secret-volume
+      #   secret:
+      #     secretName: {{ .Release.Name }}-alert-manager-secret

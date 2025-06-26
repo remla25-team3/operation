@@ -4,10 +4,12 @@ kind: ConfigMap
 metadata:
   name: {{ .Release.Name }}-{{ .Values.appService.name }}-grafana-dashboard
   labels:
-    app: {{ .Values.appService.name }} 
+    app: {{ .Release.Name }}-{{ .Values.appService.name }} 
     app.kubernetes.io/component: app-service 
-    grafana_dashboard: "1" # Label for Grafana
+    grafana_dashboard: "1"
+  annotations:
+    grafana_folder: "REMLA App"
 data:
   app-service-dashboard.json: |-
-{{ tpl (.Files.Get "dashboards/app-service-dashboard.json") . | nindent 4 }}
+{{ .Files.Get "dashboards/final-dashboard.json" | nindent 4 }}
 {{- end }}

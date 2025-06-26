@@ -1,6 +1,6 @@
-replicaCount: 1
+# operation/k8s/remla-chart/values.yaml
 
-testSecret: "REPLACE_WITH_SECRET"
+replicaCount: 1
 
 rateLimiting:
   enabled: false
@@ -20,7 +20,7 @@ appService:
   name: app-service
   image:
     repository: ghcr.io/remla25-team3/app-service
-    tag: v1.4.1
+    tag: v1.5.0
     pullPolicy: IfNotPresent
   servicePort: 5000
   containerPort: 5000
@@ -60,68 +60,91 @@ modelService:
     enabled: false
     size: 1Gi
 
-# Configuration for monitoring components like Grafana dashboards and ServiceMonitors.
 serviceMonitor:
-  # When true, the Grafana dashboard ConfigMap will be created.
   enabled: true
-  # The path to scrape for metrics on the app-service.
   path: /metrics
-  # The interval at which Prometheus should scrape the metrics endpoint.
   interval: 30s
-  # This label must match the release name of your kube-prometheus-stack installation.
-  prometheusReleaseLabel: "prometheus-stack"
+  prometheusRelease: "prometheus-stack"
 
-# Configuration for exposing Grafana via an Ingress
-grafana:
-  ingress:
-    # Set to true to create an Ingress for the Grafana service.
-    enabled: true
-    size: 1Gi
-
-# Configuration for monitoring components like Grafana dashboards and ServiceMonitors.
-serviceMonitor:
-  # When true, the Grafana dashboard ConfigMap will be created.
-  enabled: true
-  # The path to scrape for metrics on the app-service.
-  path: /metrics
-  # The interval at which Prometheus should scrape the metrics endpoint.
-  interval: 30s
-  # This label must match the release name of your kube-prometheus-stack installation.
-  prometheusReleaseLabel: "prometheus-stack"
-
-# Configuration for exposing Grafana via an Ingress
-grafana:
-  ingress:
-    # Set to true to create an Ingress for the Grafana service.
-    enabled: true
-    # The hostname to access Grafana. Remember to update your /etc/hosts file.
-    hostname: grafana.local
-    # The name of the Grafana service from the separate prometheus-stack release.
-    # This is typically <prometheus-release-name>-grafana.
-    serviceName: prometheus-stack-grafana
-    # The port of the Grafana service.
-    servicePort: 80
-
-# Values for the kube-prometheus-stack subchart.
-# This key MUST match the name of the dependency in Chart.yaml.
 kube-prometheus-stack:
-  # Disable the subchart since we are installing it as a separate release.
-  enabled: false
-  # Disable components that require more resources or special setup for local dev.
-  prometheusOperator:
-    # In a low-resource environment, admission webhooks can sometimes cause issues.
-    admissionWebhooks:
-      enabled: false
 
-  # Configure Prometheus itself
+  grafana:
+    service:
+      type: LoadBalancer
+      loadBalancerIP: "192.168.56.92"
+
   prometheus:
+    service:
+      type: LoadBalancer
+      loadBalancerIP: "192.168.56.93"
+      port: 80
+      targetPort: 9090
     prometheusSpec:
-      # Give Prometheus more time to start up on slow systems.
-      maximumStartupDurationSeconds: 120
+      ruleSelector:
+          matchLabels:
+            release: "{{ .Release.Name }}"
+      ruleSelectorNilUsesHelmValues: false
+  
+  defaultRules:
+    create: false
 
-  # We can disable components we don't need for this setup
+  prometheusOperator:
+    admissionWebhooks:
+      create:
+        podAnnotations:
+          sidecar.istio.io/inject: "false"
+      patch:
+        podAnnotations:
+          sidecar.istio.io/inject: "false"
+  
   alertmanager:
-    enabled: false
-  # Grafana is enabled by default, which is what we want.
-  # The Grafana dashboard from our chart will be picked up automatically
-  # due to the 'grafana_dashboard: "1"' label.
+    alertmanagerSpec:
+        secrets:
+          - "alertmanager-smtp-password"
+    
+    config:
+      global:
+        resolve_timeout: 5m
+        # Add your SMTP server details here
+        smtp_smarthost: 'smtp.gmail.com:587'
+        smtp_from: 'denskrlv@gmail.com'
+        smtp_auth_username: 'denskrlv@gmail.com'
+        # This references the secret you created
+        smtp_auth_password_file: /etc/alertmanager/secrets/alertmanager-smtp-password/password
+        smtp_require_tls: true
+
+      route:
+        group_by: ['alertname', 'severity', 'instance']
+        group_wait: 30s
+        group_interval: 5m
+        repeat_interval: 3h
+        receiver: 'default-email'
+        routes:
+          - matchers:
+            - severity = critical
+            receiver: 'critical-email'
+            continue: true
+          - matchers:
+            - severity = warning
+            receiver: 'warning-email'
+            continue: true
+
+      receivers:
+        - name: "critical-email"
+          email_configs:
+            - to: "dkrylov@tudelft.nl"
+              send_resolved: true
+        - name: "warning-email"
+          email_configs:
+            - to: "dkrylov@tudelft.nl"
+              send_resolved: true
+        - name: "default-email"
+          email_configs:
+            - to: "dkrylov@tudelft.nl"
+              send_resolved: true
+
+apiIngress:
+  hostname: api.local
+
+appIngress:
+  hostname: frontend.local
