@@ -2,8 +2,8 @@
 
 This repository contains the operational configuration to run our complete application stack, including deployment files and documentation. The list below links to the specific, stable versions of each microservice and library that constitute the current deployment.
 
-* app-frontend: [v1.3.2](https://github.com/remla25-team3/app-frontend/tree/v1.3.2)
-* app-service: [v1.4.1](https://github.com/remla25-team3/app-service/tree/v1.4.1)
+* app-frontend: [v1.5.0](https://github.com/remla25-team3/app-frontend/tree/v1.5.0)
+* app-service: [v1.5.0](https://github.com/remla25-team3/app-service/tree/v1.5.0)
 * lib-ml: [v0.5.0](https://github.com/remla25-team3/lib-ml/tree/v0.5.0)
 * lib-version: [v1.2.0](https://github.com/remla25-team3/lib-version/tree/v1.2.0)
 * model-service: [v0.4.1](https://github.com/remla25-team3/model-service/tree/v0.4.1)
