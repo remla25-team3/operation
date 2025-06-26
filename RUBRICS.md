@@ -25,11 +25,11 @@ For clarity and to assist in the grading process, we have compiled the following
     - ✅ The packaging and releases of all artifacts are performed in workflows. 
 - ✅ **Good:**
     - ✅ Release workflows automatically version all artifacts through using a Git release tag like v1.2.3. 
-    - 🟡 After a stable release, main is set to a pre-release version that is higher than the latest release. 
+    - ✅ After a stable release, main is set to a pre-release version that is higher than the latest release. 
 - ✅ **Excellent:**
-    - 🟡 The released container images support multiple architectures, at least amd64 and arm64. 
-    - 🟡 The Dockerfile uses multiple stages, e.g., to reduce image size by avoiding apt cache in image. 
-    - 🟡 The automation supports to release multiple versions of the same pre-release, like 1.2.3-pre-<n>
+    - ✅ The released container images support multiple architectures, at least amd64 and arm64. 
+    - ✅ The Dockerfile uses multiple stages, e.g., to reduce image size by avoiding apt cache in image. 
+    - ✅ The automation supports to release multiple versions of the same pre-release, like 1.2.3-pre-<n>
 
 #### Software Reuse in Libraries
 
@@ -140,7 +140,7 @@ For clarity and to assist in the grading process, we have compiled the following
 - ✅ **Good:**
     - ✅ The deployed application defines the location of the model service through an environment variable. 
     - ✅ The model service can be relocated just by changing the Kubernetes config. 
-    - 🟡 The deployed application successfully **🟡uses🟡** a ConfigMap and a Secret. 
+    - ✅ The deployed application successfully **🟡uses🟡** a ConfigMap and a Secret. 
 - ✅ **Excellent:**
     - ✅ All VMs mount the same shared VirtualBox folder as /mnt/shared into the VM. 
     - ✅ The deployed application mounts this path as a hostPath Volume into at least one Deployment. 
