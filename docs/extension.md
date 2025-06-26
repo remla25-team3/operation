@@ -15,6 +15,23 @@ To overcome the challenges in our current deployment process, we propose to inte
 | Limited visibility on deployment status and reconciliation health. | Flux provides detailed status reports and alerts on deployment success or failure. |
 | SSH access to cluster nodes is required to run `helm upgrade` or `kubectl apply` commands manually or trigger any workflows. | No need to SSH into nodes; Flux automatically applies changes by syncing with Git, streamlining operations. |
 
+## Measuring the Improvement: An Experiment
+
+To objectively measure the impact of this extension, we will conduct an experiment based on the industry-standard DORA metrics.
+
+Establish a Baseline (Pre-Flux): We will analyze the last 10-15 deployments to measure our current performance:
+
+- Deployment Frequency: How often we currently deploy to production.
+
+- Lead Time for Changes: The average time from a code commit to it being successfully deployed.
+
+- Change Failure Rate: The percentage of deployments that result in a production failure requiring a hotfix or rollback.
+
+- Mean Time to Recovery (MTTR): The average time it takes to restore service after a deployment-related failure.
+
+Hypothesis: We hypothesize that implementing Flux will lead to a higher deployment frequency, a lower lead time for changes, a reduced change failure rate, and a significantly faster mean time to recovery.
+
+Analysis (Post-Flux): After integrating Flux and using it for several release cycles, we will measure the same four metrics. By comparing the "before" and "after" data, we can objectively quantify the improvements in deployment velocity, stability, and resilience, thereby proving the value of the extension.
 
 ## Steps to implement
 1. Install Flux CLI both on the cluster and on the local machine by following [this](https://fluxcd.io/flux/installation/)
@@ -39,3 +56,5 @@ To overcome the challenges in our current deployment process, we propose to inte
 - [Flux official documentation](https://fluxcd.io/docs/)
 - [GitOps Principles by Weaveworks](https://www.weave.works/technologies/gitops/)
 - [Continuous Deployment Best Practices](https://www.weave.works/blog/gitops-why-and-how)
+- [DORA metrics 1](https://dora.dev/guides/dora-metrics-four-keys/)
+- [DORA metrics 2](https://docs.gitlab.com/user/analytics/dora_metrics/)
