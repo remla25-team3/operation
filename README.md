@@ -187,7 +187,7 @@ kubectl label namespace default istio-injection=enabled
 3.  **Install Monitoring Stack**
 ```bash
 # Add the Prometheus community Helm repository
-helm repo add prometheus-community [https://prometheus-community.github.io/helm-charts](https://prometheus-community.github.io/helm-charts)
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 
 # Install the Prometheus stack for monitoring
 helm install prometheus-stack prometheus-community/kube-prometheus-stack -n monitoring --create-namespace -f prometheus-values.yaml
