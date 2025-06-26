@@ -65,7 +65,16 @@ serviceMonitor:
 
 kube-prometheus-stack:
 
+  grafana:
+    service:
+      type: LoadBalancer
+      loadBalancerIP: "192.168.56.92"
+
   prometheus:
+    service:
+      type: LoadBalancer
+      loadBalancerIP: "192.168.56.93"
+      port: 9090
     prometheusSpec:
       ruleSelector:
           matchLabels:
