@@ -24,6 +24,12 @@ We hypothesize that the experimental release will have a lower amount of ```pred
 For one user, the base design is deployed, for another user, the experimental design is deployed. We let both users interact with the app. This generates metrics for ```predictions_made_total```. We can view this metric for both versions in a grafana dashboard panel. From this panel, we can infer by the height of the timeseries data, we can infer for which version of the app more predictions were made. We use this to decide whether the base version or the experimental version of the app induces more user engagement.
 
 # Grafana Results
+This is fake data. First the result from the base version:
+![This is the base version](./experimentation-screenshots/base_result.png)
+
+
+Then the result from the experimental version:
+![This is the experimental version](./experimentation-screenshots/experimental_result.png)
 
 
 # Limitations
