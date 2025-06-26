@@ -1,0 +1,22 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: {{ .Release.Name }}-custom-rules
+  labels:
+    # This label is required by the Prometheus Operator to discover the rules.
+    release: {{ .Release.Name }}
+spec:
+  groups:
+  - name: custom.rules
+    rules:
+    - alert: HighPodRestarts
+      # This expression fires if the rate of container restarts in the 'default'
+      # namespace is greater than 0 over the last 15 minutes.
+      expr: rate(kube_pod_container_status_restarts_total{namespace="default"}[15m]) * 60 * 5 > 0
+      # The alert fires immediately once the condition is met.
+      for: 1m
+      labels:
+        severity: critical
+      annotations:
+        summary: "High pod restarts detected in pod {{`{{ $labels.pod }}`}}"
+        description: "The container {{`{{ $labels.container }}`}} in pod {{`{{ $labels.pod }}`}} has restarted. This indicates a potential crash loop."

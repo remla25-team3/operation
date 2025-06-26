@@ -2,11 +2,11 @@
 
 This repository contains the operational configuration to run our complete application stack, including deployment files and documentation. The list below links to the specific, stable versions of each microservice and library that constitute the current deployment.
 
-* app-frontend: [v1.5.0](https://github.com/remla25-team3/app-frontend/tree/v1.5.0)
-* app-service: [v1.5.0](https://github.com/remla25-team3/app-service/tree/v1.5.0)
+* app-frontend: [v1.5.1](https://github.com/remla25-team3/app-frontend/tree/v1.5.1)
+* app-service: [v1.6.0](https://github.com/remla25-team3/app-service/tree/v1.6.0)
 * lib-ml: [v0.5.0](https://github.com/remla25-team3/lib-ml/tree/v0.5.0)
 * lib-version: [v1.2.0](https://github.com/remla25-team3/lib-version/tree/v1.2.0)
-* model-service: [v0.4.1](https://github.com/remla25-team3/model-service/tree/v0.4.1)
+* model-service: [v0.5.0](https://github.com/remla25-team3/model-service/tree/v0.5.0)
 * model-training: [v0.2.3](https://github.com/remla25-team3/model-training/tree/v0.2.3)
 * operation: [this repo](https://github.com/remla25-team3/operation)
 
@@ -85,23 +85,10 @@ ansible-playbook -u vagrant -i 192.168.56.100, provisioning/finalization.yml
 ```
 3. **Deploy the Application**
 
-Once the cluster is running, deploy the application using Helm.
+Once the cluster is running, ssh into ctrl and watch.
 ```bash
-# IMPORTANT: Configure your terminal to use the new cluster's credentials
-export KUBECONFIG=$(pwd)/provisioning/config/admin.conf
-
-# Verify connection by listing nodes
-kubectl get nodes
-# Expected output: ctrl, node-1, and node-2 should be listed and 'Ready'
-
-# Navigate to the Helm chart directory
-cd k8s/remla-chart
-
-# Install the application
-helm install releasename .
-
-# Watch the pods until they are all in the 'Running' state
-kubectl get pods --watch
+vagrant ssh ctrl
+kubectl get pods -A --watch
 ```
 4. **Access the Application**
 
@@ -120,6 +107,11 @@ Access in Browser: Open your browser and navigate to the following URLs:
 - **App Service API Docs**: http://192.168.56.91/app/apidocs
 
 - **Model Service API Docs**: http://192.168.56.91/model/apidocs
+
+- **Prometheus**: http://192.168.56.93/
+
+- **Grafana**: http://192.168.56.92/
+
 
 5. **Access the Kubernetes Dashboard (Optional)**
 
@@ -187,7 +179,7 @@ kubectl label namespace default istio-injection=enabled
 3.  **Install Monitoring Stack**
 ```bash
 # Add the Prometheus community Helm repository
-helm repo add prometheus-community [https://prometheus-community.github.io/helm-charts](https://prometheus-community.github.io/helm-charts)
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 
 # Install the Prometheus stack for monitoring
 helm install prometheus-stack prometheus-community/kube-prometheus-stack -n monitoring --create-namespace -f prometheus-values.yaml
@@ -236,6 +228,14 @@ Access in Browser: Open your browser and navigate to the following URLs:
 - **Model Service API Docs**: http://frontend.local/model/apidocs
 
 > Note: We apply local rate limiting to app-service, so you will be able to interact with app-service for a maximum of 6 times per minute. The frontend page, however, can be reload up to 10 times, as that is the setting for global rate limiting. Addional rule: you can query http://frontend.local/model/health for a maximum of 2 times per minute.
+
+
+- **Grafana**
+http://grafana.local/
+
+![picture of grafana dashboard](./docs/images/grafana.png)
+
+
 
 5. **Cleaning Up**
 ```bash

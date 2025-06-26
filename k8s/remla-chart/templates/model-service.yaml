@@ -37,7 +37,7 @@ spec:
         app.kubernetes.io/component: {{ .Values.modelService.name }}
     spec:
       containers:
-      - name: {{ .Values.modelService.name }}
+      - name: {{ .Release.Name }}-{{ .Values.modelService.name }}
         image: "{{ .Values.modelService.image.repository }}:{{ .Values.modelService.image.tag }}"
         imagePullPolicy: {{ .Values.modelService.image.pullPolicy }}
         ports:

@@ -157,22 +157,21 @@ For clarity and to assist in the grading process, we have compiled the following
 
 #### App Monitoring
 
-- 🔴 **Poor:** The metrics are lacking an example for either Gauge or Counter. 
-- 🔴 **Sufficient:**
-    - 🔴 The app has 3+ app-specific metrics for reasoning about users behavior or model performance. 
-    - 🔴 These metrics include a Gauge and a Counter. 
-    - 🔴 The metrics are automatically discovered and collected by Prometheus, either through applying ServiceMonitor resources or later by adding appropriate labels to the deployments. 
-- 🔴 **Good:**
-    - 🔴 An app-specific Histogram metric is introduced. 
-    - 🔴 Each metric types has at least one example, in which the metric is broken down with labels. 
-- 🔴 **Excellent:**
-    - 🔴 An AlertManager is configured with at least one non-trivial PrometheusRule. 
-    - 🔴 A corresponding Alert is raised in any type of channel (e.g., via email). 
-    - 🔴 The deployment files and the source code must not contain credentials (e.g., SMTP passwords). 
+- ✅ **Sufficient:**
+    - ✅ The app has 3+ app-specific metrics for reasoning about users behavior or model performance. 
+    - ✅ These metrics include a Gauge and a Counter. 
+    - ✅ The metrics are automatically discovered and collected by Prometheus, either through applying ServiceMonitor resources or later by adding appropriate labels to the deployments. 
+- ✅ **Good:**
+    - ✅ An app-specific Histogram metric is introduced. 
+    - ✅ Each metric types has at least one example, in which the metric is broken down with labels. 
+- ✅ **Excellent:**
+    - ✅ An AlertManager is configured with at least one non-trivial PrometheusRule. 
+    - ✅ A corresponding Alert is raised in any type of channel (e.g., via email). 
+    - ✅ The deployment files and the source code must not contain credentials (e.g., SMTP passwords). 
 
 #### Grafana
 
-- 🔴 **Poor:** A serious dashboard attempt exists, but it is incomplete or can only be imported with errors. 
+- ✅ **Poor:** A serious dashboard attempt exists, but it is incomplete or can only be imported with errors. 
 - 🔴 **Sufficient:**
     - 🔴 A basic Grafana dashboard exists that illustrates all app-specific metrics. 
     - 🔴 The dashboard is defined in a JSON file and can be manually imported in the Web UI. 
@@ -291,10 +290,10 @@ For clarity and to assist in the grading process, we have compiled the following
     - ✅ The experiment involves two deployed versions of at least one container image.
     - ✅ Both component versions are reachable through the deployed experiment.
     - ✅ The system implements the metric that allows exploring the concrete hypothesis.
-- 🔴 **Good:**
+- ✅ **Good:**
     - ✅ Prometheus picks up the metric.
     - ✅ Grafana has a dashboard to visualize the differences and support the decision process.
-    - 🔴 The documentation contains a screenshot of the visualization.
+    - ✅ The documentation contains a screenshot of the visualization.
 - ✅ **Excellent:**
     - ✅ The documentation explains the decision process for accepting or rejecting the experiment in details, ie.g., which criteria is used and how the available dashboard supports the decision.
 

@@ -5,15 +5,15 @@ metadata:
   name: {{ .Release.Name }}-gateway
 spec:
   selector:
-    app: istio-ingressgateway
-    istio: ingressgateway
+    app: istio-ingress
+    istio: ingress
   servers:
   - port:
       number: 80
       name: http
       protocol: HTTP
     hosts:
-    - "frontend.local"
+    - "{{ .Values.appIngress.hostname }}"
 ---
 # Virtual services
 apiVersion: networking.istio.io/v1beta1
@@ -23,7 +23,7 @@ metadata:
 spec:
   gateways: [ {{ .Release.Name }}-gateway ]
   hosts:
-  - "frontend.local"
+  - "{{ .Values.appIngress.hostname }}"
   http:
     # API documentation routes
     - match:

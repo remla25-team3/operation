@@ -2,8 +2,8 @@ apiVersion: v2
 name: remla-chart
 description: A Helm chart for the REMLA application stack - frontend, app-service, and model-service
 type: application
-version: 1.4.0
-appVersion: "1.4.0"
+version: 1.5.0
+appVersion: "1.5.0"
 home: https://github.com/remla25-team3
 maintainers:
   - name: REMLA 2025 Team 3 @ TU Delft
