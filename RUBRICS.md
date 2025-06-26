@@ -301,15 +301,15 @@ For clarity and to assist in the grading process, we have compiled the following
 
 #### Deployment Documentation
 
-- 🔴 **Sufficient:**
-    - 🔴 The documentation describes the deployment structure, i.e., the entities and their connections.
-    - 🔴 The documentation describes the data flow for incoming requests.Also indicate at which points dynamic routing decisions are taken (e.g., 90/10-split).
-    - 🔴 The documentation contains visualizations that are connected to the text.
-- 🔴 **Good:**
-    - 🔴 The documentation includes all deployed resource types and relations.
-- 🔴 **Excellent:**
-    - 🔴 The documentation is visually appealing and clear.
-    - 🔴 A new team member could contribute in a design discussion after studying the documentation.
+- ✅ **Sufficient:**
+    - ✅ The documentation describes the deployment structure, i.e., the entities and their connections.
+    - ✅ The documentation describes the data flow for incoming requests.Also indicate at which points dynamic routing decisions are taken (e.g., 90/10-split).
+    - ✅ The documentation contains visualizations that are connected to the text.
+- ✅ **Good:**
+    - ✅ The documentation includes all deployed resource types and relations.
+- ✅ **Excellent:**
+    - ✅ The documentation is visually appealing and clear.
+    - ✅ A new team member could contribute in a design discussion after studying the documentation.
 
 #### Extension Proposal
 
