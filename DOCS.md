@@ -1,5 +1,7 @@
 # Deployment Documentation
 
+NOTE: If you are reading this document, please use something to render your Markdown so that you can see the charts properly or read the document on github.com
+
 ## Overview
 
 The application is deployed as a microservices architecture on Kubernetes, featuring a machine learning sentiment analysis application with monitoring and traffic management.
