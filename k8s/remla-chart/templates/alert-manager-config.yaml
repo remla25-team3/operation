@@ -3,8 +3,8 @@ kind: ConfigMap
 metadata:
   name: {{ .Release.Name }}-alert-manager-config
   namespace: {{ .Release.Namespace }}
-labels:
-  app: alert-manager
+  labels:
+    app: alert-manager
 data:
   alertmanager.yaml: |-
     global:

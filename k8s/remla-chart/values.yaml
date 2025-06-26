@@ -61,7 +61,7 @@ serviceMonitor:
   enabled: true
   path: /metrics
   interval: 30s
-  prometheusReleaseLabel: "releasename"
+  prometheusRelease: "prometheus-stack"
 
 alerting:
   rulesEnabled: true
@@ -69,7 +69,7 @@ alerting:
     - name: request-rate
       rules:
       - alert: HighRequestRate
-        expr: sum(rate(http_requests_total[1m])) > 15
+        expr: sum(rate({__name__=~".*_http_requests_total"}[1m])) > 15
         for: 2m
         labels:
           severity: critical
@@ -79,7 +79,7 @@ alerting:
     - name: error-rate
       rules:
       - alert: ErrorRateHigh
-        expr: sum(rate(http_requests_errors_total[5m])) / sum(rate(http_requests_total[5m])) * 100 > 5
+        expr: sum(rate({__name__=~".*_http_requests_errors_total"}[5m])) / sum(rate({__name__=~".*_http_requests_total"}[5m])) * 100 > 5
         for: 5m
         labels:
           severity: critical
@@ -89,7 +89,7 @@ alerting:
     - name: resource-usage
       rules:
       - alert: HighMemoryUsage
-        expr: container_memory_usage_bytes{container!=""} / container_spec_memory_limit_bytes{container!=""} * 100 > 85
+        expr: sum(container_memory_working_set_bytes{container!=""}) by (container) / sum(container_spec_memory_limit_bytes{container!=""}) by (container) * 100 > 85
         for: 5m
         labels:
           severity: warning
@@ -115,7 +115,7 @@ alerting:
           summary: "Service is down!"
           description: "Service {{`{{ $labels.service }}`}} has been down for more than 1 minute."
       - alert: HighLatency
-        expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le)) > 1
+        expr: histogram_quantile(0.95, sum(rate({__name__=~".*_http_request_duration_seconds_bucket"}[5m])) by (le)) > 1
         for: 5m
         labels:
           severity: warning
@@ -141,54 +141,8 @@ alerting:
       info: "dkrylov@tudelft.nl"
       default: "dkrylov@tudelft.nl"
 
-kube-prometheus-stack:
-  alertmanager:
-    enabled: true
-    configMapOverrideName: "{{ .Release.Name }}-alert-manager-config"
-
-  prometheus:
-    # This section exposes the Prometheus service
-    service:
-      type: NodePort # Use NodePort to get a direct URL from Minikube
-    prometheusSpec:
-      maximumStartupDurationSeconds: 120
-      alerting:
-        alertmanagers:
-        - namespace: default
-          name: "remla-app-kube-prometheus-stack-alertmanager"
-          port: web
-      serviceMonitorSelectorNilUsesHelmValues: false
-      serviceMonitorNamespaceSelector: {}
-  
-  grafana:
-    enabled: true
-    # The service block must be at the top level of the grafana config
-    service:
-      type: NodePort # This will now be correctly applied
-    
-    # Ensure the ingress is disabled
-    ingress:
-      enabled: false
-    
-    # The rest of the grafana config can follow
-    servicePort: 80
-    sidecar:
-      dashboards:
-        enabled: true
-        searchNamespace: ALL
-        label: grafana_dashboard
-        labelValue: "1"
-        folder: /tmp/dashboards
-        folderAnnotation: grafana_folder
-        provider:
-          foldersFromFilesStructure: true
-      # Also ensure datasources sidecar is configured
-      datasources:
-        enabled: true
-        searchNamespace: ALL
-
 apiIngress:
   hostname: api.local
 
 appIngress:
-  hostname: remla.local
+  hostname: frontend.local

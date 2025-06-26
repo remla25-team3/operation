@@ -4,7 +4,8 @@
     { "type": "panel", "id": "piechart", "name": "Pie chart", "version": "" },
     { "type": "datasource", "id": "prometheus", "name": "Prometheus", "version": "1.0.0" },
     { "type": "panel", "id": "stat", "name": "Stat", "version": "" },
-    { "type": "panel", "id": "heatmap", "name": "Heatmap", "version": "" },
+    { "type": "panel", "id": "heatmap", "name": "Heatmap", "version": "" }, 
+    { "type": "panel", "id": "graph", "name": "Graph", "version": "" },
     { "type": "panel", "id": "table", "name": "Table", "version": "" }
   ],
   "annotations": {
@@ -32,7 +33,7 @@
       "datasource": { "type": "prometheus", "uid": "prometheus" },
       "targets": [
         {
-          "expr": "active_prediction_requests{job=\"remla-app-app-service\"}",
+          "expr": "sum({__name__=~'.*_active_prediction_requests'})",
           "legendFormat": "Active Requests",
           "refId": "A"
         }
@@ -46,7 +47,7 @@
       "datasource": { "type": "prometheus", "uid": "prometheus" },
       "targets": [
         {
-          "expr": "sum by (prediction) (increase(prediction_count_by_type_total{job=\"remla-app-app-service\"}[$__range]))",
+          "expr": "sum by (prediction) (increase({__name__=~'.*_prediction_count_by_type_total'}[$__range]))",
           "legendFormat": "{{`{{prediction}}`}}",
           "refId": "A"
         }
@@ -55,26 +56,12 @@
       "gridPos": { "h": 8, "w": 6, "x": 6, "y": 0 }
     },
     {
-      "title": "Review Input Length Distribution",
-      "type": "heatmap",
-      "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "targets": [
-        {
-          "expr": "sum(rate(input_length_vs_prediction_bucket{job=\"remla-app-app-service\"}[5m])) by (le)",
-          "legendFormat": "{{`{{le}}`}}",
-          "refId": "A"
-        }
-      ],
-      "id": 3,
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 }
-    },
-    {
       "title": "Application Info",
       "type": "table",
       "datasource": { "type": "prometheus", "uid": "prometheus" },
       "targets": [
         {
-          "expr": "app_info{job=\"remla-app-app-service\"}",
+          "expr": "{__name__=~'.*_app_info'}",
           "refId": "A",
           "format": "table",
           "instant": true
@@ -82,6 +69,39 @@
       ],
       "id": 4,
       "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 }
+    },
+    {
+      "title": "Requests to /predict Endpoint",
+      "type": "graph",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        {
+          "expr": "sum(rate({__name__=~'.*_http_requests_total', path=\"/predict\"}[$__interval]))",
+          "legendFormat": "Requests to /predict",
+          "refId": "A"
+        }
+      ],
+      "id": 5,
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 }
+    },
+    {
+      "title": "Prediction Length Distribution by Sentiment",
+      "type": "heatmap",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        {
+          "expr": "sum(rate({__name__=~'.*_input_length_vs_prediction_bucket', prediction='positive'}[$__interval])) by (le)",
+          "legendFormat": "Positive ({{le}})",
+          "refId": "A"
+        },
+        {
+          "expr": "sum(rate({__name__=~'.*_input_length_vs_prediction_bucket', prediction='negative'}[$__interval])) by (le)",
+          "legendFormat": "Negative ({{le}})",
+          "refId": "B"
+        }
+      ],
+      "id": 3,
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 }
     }
   ],
   "refresh": "5s",
@@ -97,14 +117,14 @@
           "type": "prometheus",
           "uid": "prometheus"
         },
-        "definition": "label_values(prediction_count_by_type_total{job=\"remla-app-app-service\"}, prediction)",
+        "definition": "label_values({__name__=~'.*_prediction_count_by_type_total'}, prediction)",
         "hide": 0,
         "includeAll": true,
         "label": "Prediction",
         "multi": true,
         "name": "prediction",
         "options": [],
-        "query": "label_values(prediction_count_by_type_total{job=\"remla-app-app-service\"}, prediction)",
+        "query": "label_values({__name__=~'.*_prediction_count_by_type_total'}, prediction)",
         "refresh": 1,
         "regex": "",
         "skipUrlSync": false,
@@ -119,7 +139,7 @@
   },
   "timepicker": {},
   "timezone": "",
-  "title": "REMLA App Service",
+  "title": "REMLA Application Dashboard",
   "uid": "remla-app-service-dashboard",
   "version": 1
 }
