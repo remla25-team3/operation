@@ -237,6 +237,14 @@ Access in Browser: Open your browser and navigate to the following URLs:
 
 > Note: We apply local rate limiting to app-service, so you will be able to interact with app-service for a maximum of 6 times per minute. The frontend page, however, can be reload up to 10 times, as that is the setting for global rate limiting. Addional rule: you can query http://frontend.local/model/health for a maximum of 2 times per minute.
 
+
+- **Grafana**
+http://grafana.local/
+
+![picture of grafana dashboard](./docs/images/grafana.png)
+
+
+
 5. **Cleaning Up**
 ```bash
 # Uninstall the application from your cluster
