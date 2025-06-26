@@ -1,7 +1,7 @@
 # Week Q4.10 (June 23+)
 
 -- Amin --
-Created PR: (auto releasing A3)[https://github.com/remla25-team3/app-frontend/commit/aca8e4d7e87b232e1725ac8a5e083083526cfe7b]
+Created PR: [auto releasing A3](https://github.com/remla25-team3/app-frontend/commit/aca8e4d7e87b232e1725ac8a5e083083526cfe7b)
 -- Joost --
 
 Created PR: https://github.com/remla25-team3/operation/pull/67 (related to A5)
