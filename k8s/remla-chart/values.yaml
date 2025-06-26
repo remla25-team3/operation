@@ -74,7 +74,8 @@ kube-prometheus-stack:
     service:
       type: LoadBalancer
       loadBalancerIP: "192.168.56.93"
-      port: 9090
+      port: 80
+      targetPort: 9090
     prometheusSpec:
       ruleSelector:
           matchLabels:
