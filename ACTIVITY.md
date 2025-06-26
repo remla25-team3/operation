@@ -72,9 +72,9 @@ Approved PR: missed
 
 -- Denis --
 
-Created PR:
+Created PR: missed
 
-Approved PR:
+Approved PR: missed
 
 -- Alberto --
 
@@ -104,9 +104,9 @@ Approved PR: https://github.com/remla25-team3/operation/pull/44
 
 -- Denis --
 
-Created PR:
+Created PR: missed
 
-Approved PR:
+Approved PR: missed
 
 -- Alberto --
 
