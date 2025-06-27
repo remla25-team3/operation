@@ -168,6 +168,7 @@ These instructions are for running the application on a local Minikube cluster w
 #### 1. Prerequisites
 - macOS or Linux (host operating system)
 - Helm 3 CLI
+- Docker daemon running
 - Istioctl (tested with version 1.26.0)
 - `sudo` privileges are required to run `minikube tunnel`.
 
