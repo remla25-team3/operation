@@ -220,8 +220,6 @@ sudo systemctl stop apache2
 
 #### 3. Accessing the Application
 
-Accessing the application requires using `minikube tunnel` and editing your local hosts file.
-
 Add Host Entry: Edit your local /etc/hosts:
 ```bash
 sudo nano /etc/hosts
