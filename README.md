@@ -8,7 +8,7 @@ This repository contains the operational configuration to run our complete appli
 * lib-version: [v1.2.0](https://github.com/remla25-team3/lib-version/tree/v1.2.0)
 * model-service: [v0.4.1](https://github.com/remla25-team3/model-service/tree/v0.4.1)
 * model-training: [v0.2.3](https://github.com/remla25-team3/model-training/tree/v0.2.3)
-* operation: [this repo](https://github.com/remla25-team3/operation)
+* operation: [this repo (correct branch, different from first submission, as we did mess up different version)](https://github.com/remla25-team3/operation/tree/pre-prometheus)
 
 For a detailed, itemized checklist of our compliance with the course rubrics for each assignment, please see the `RUBRICS.md` file in this repository.
 
