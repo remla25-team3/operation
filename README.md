@@ -53,7 +53,7 @@ Please follow the instructions for the environment you are using.
 
 ---
 
-### A) 🚀 Deploying to the Provisioned Cluster
+### A) 🚀 Deploying to the Provisioned Cluster (currently experiencing issues)
 
 These steps will set up the virtual machines, provision a complete Kubernetes cluster, and deploy the application.
 
@@ -214,7 +214,7 @@ helm install releasename .
 # Watch the pods until they are all 'Running' and '2/2' READY
 kubectl get pods --watch
 
-#Stop apache 2 to avoid errors later
+# (optional, if you can't see the frontend but can see apache) Stop apache 2 to avoid errors later
 sudo systemctl stop apache2
 ```
 

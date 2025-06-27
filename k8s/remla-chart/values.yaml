@@ -63,68 +63,41 @@ modelService:
 rateLimiting:
   enabled: true
 
-# Configuration for monitoring components like Grafana dashboards and ServiceMonitors.
 serviceMonitor:
-  # When true, the Grafana dashboard ConfigMap will be created.
   enabled: true
-  # The path to scrape for metrics on the app-service.
   path: /metrics
-  # The interval at which Prometheus should scrape the metrics endpoint.
   interval: 30s
-  # This label must match the release name of your kube-prometheus-stack installation.
   prometheusReleaseLabel: "prometheus-stack"
 
-# Configuration for exposing Grafana via an Ingress
 grafana:
   ingress:
-    # Set to true to create an Ingress for the Grafana service.
     enabled: true
     size: 1Gi
 
-# Configuration for monitoring components like Grafana dashboards and ServiceMonitors.
 serviceMonitor:
-  # When true, the Grafana dashboard ConfigMap will be created.
   enabled: true
-  # The path to scrape for metrics on the app-service.
   path: /metrics
-  # The interval at which Prometheus should scrape the metrics endpoint.
   interval: 30s
-  # This label must match the release name of your kube-prometheus-stack installation.
   prometheusReleaseLabel: "prometheus-stack"
 
-# Configuration for exposing Grafana via an Ingress
 grafana:
   ingress:
-    # Set to true to create an Ingress for the Grafana service.
     enabled: true
-    # The hostname to access Grafana. Remember to update your /etc/hosts file.
     hostname: grafana.local
-    # The name of the Grafana service from the separate prometheus-stack release.
-    # This is typically <prometheus-release-name>-grafana.
     serviceName: prometheus-stack-grafana
-    # The port of the Grafana service.
     servicePort: 80
 
-# Values for the kube-prometheus-stack subchart.
-# This key MUST match the name of the dependency in Chart.yaml.
 kube-prometheus-stack:
-  # Disable the subchart since we are installing it as a separate release.
   enabled: false
-  # Disable components that require more resources or special setup for local dev.
   prometheusOperator:
-    # In a low-resource environment, admission webhooks can sometimes cause issues.
     admissionWebhooks:
       enabled: false
 
-  # Configure Prometheus itself
   prometheus:
     prometheusSpec:
-      # Give Prometheus more time to start up on slow systems.
       maximumStartupDurationSeconds: 120
 
   # We can disable components we don't need for this setup
   alertmanager:
     enabled: false
-  # Grafana is enabled by default, which is what we want.
-  # The Grafana dashboard from our chart will be picked up automatically
-  # due to the 'grafana_dashboard: "1"' label.
+
