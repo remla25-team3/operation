@@ -181,7 +181,7 @@ Follow these steps in order to set up the cluster and deploy the application.
 Start by navigating to the helm chart directory:
 ```bash
 # Navigate to the Helm chart directory
-cd operation/k8s/remla-chart/
+cd k8s/remla-chart/
 ```
 
 1.  **Start Your Local Cluster**
@@ -245,11 +245,21 @@ Access in Browser: Open your browser and navigate to the following URLs:
 
 - **Main Application**: http://frontend.local/
 
-- **App Service API Docs**: http://frontend.local/app/apidocs
+- **App Service API Docs**: http://frontend.local/app/apidocs (doesn't work if local rate limit is reached)
 
 - **Model Service API Docs**: http://frontend.local/model/apidocs
 
+- **Prometheus metrics"": http://frontend.local/api/metrics
+
 > Note: We apply local rate limiting to app-service, so you will be able to interact with app-service for a maximum of 6 times per minute. The frontend page, however, can be reload up to 10 times, as that is the setting for global rate limiting. Addional rule: you can query http://frontend.local/model/health for a maximum of 2 times per minute.
+
+- **Grafana**
+
+http://grafana.local/
+Grafana dashboard needs to be uploaded manually. On grafana, press dashboard, press "New", press "import", press "Import JSON", put in here the file k8s/remla-chart/dashboards/final-dashboard.json. This will load the dashbboard. Below is an image what the dashboard should look like, however it might load with "No Data" on each panel. 
+Grafana username = admin, Grafana password = prom-operator.
+
+![picture of grafana dashboard](./docs/images/grafana.png)
 
 5. **Cleaning Up**
 ```bash
