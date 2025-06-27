@@ -82,6 +82,8 @@ vagrant up
 
 # Run the finalization playbook to install cluster services
 ansible-playbook -u vagrant -i 192.168.56.100, provisioning/finalization.yml
+
+# if this doesn't work, try: ansible-playbook -i provisioning/inventory.cfg provisioning/finalization.yml
 ```
 3. **Deploy the Application**
 
