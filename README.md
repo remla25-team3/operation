@@ -2,7 +2,7 @@
 
 This repository contains the operational configuration to run our complete application stack, including deployment files and documentation. The list below links to the specific, stable versions of each microservice and library that constitute the current deployment.
 
-* app-frontend: [v1.5.0](https://github.com/remla25-team3/app-frontend/tree/v1.5.0)
+* app-frontend: [v1.5.1](https://github.com/remla25-team3/app-frontend/tree/v1.5.1)
 * app-service: [v1.5.0](https://github.com/remla25-team3/app-service/tree/v1.5.0)
 * lib-ml: [v0.5.0](https://github.com/remla25-team3/lib-ml/tree/v0.5.0)
 * lib-version: [v1.2.0](https://github.com/remla25-team3/lib-version/tree/v1.2.0)
@@ -97,6 +97,12 @@ kubectl get nodes
 # Navigate to the Helm chart directory
 cd k8s/remla-chart
 
+# Add the Prometheus community Helm repository
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+
+# Install the Prometheus stack for monitoring
+helm install prometheus-stack prometheus-community/kube-prometheus-stack -n monitoring --create-namespace -f prometheus-values.yaml
+
 # Install the application
 helm install releasename .
 
@@ -169,6 +175,12 @@ These instructions are for running the application on a local Minikube cluster w
 
 Follow these steps in order to set up the cluster and deploy the application.
 
+Start by navigating to the helm chart directory:
+```bash
+# Navigate to the Helm chart directory
+cd operation/k8s/remla-chart/
+```
+
 1.  **Start Your Local Cluster**
 ```bash
 # Start the Minikube cluster with the recommended resources
@@ -187,7 +199,7 @@ kubectl label namespace default istio-injection=enabled
 3.  **Install Monitoring Stack**
 ```bash
 # Add the Prometheus community Helm repository
-helm repo add prometheus-community [https://prometheus-community.github.io/helm-charts](https://prometheus-community.github.io/helm-charts)
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 
 # Install the Prometheus stack for monitoring
 helm install prometheus-stack prometheus-community/kube-prometheus-stack -n monitoring --create-namespace -f prometheus-values.yaml
@@ -195,14 +207,15 @@ helm install prometheus-stack prometheus-community/kube-prometheus-stack -n moni
 
 4.  **Deploy the Application**
 ```bash
-# Navigate to the Helm chart directory
-cd operation/k8s/remla-chart/
 
 # Install the application using Helm
 helm install releasename .
 
 # Watch the pods until they are all 'Running' and '2/2' READY
 kubectl get pods --watch
+
+#Stop apache 2 to avoid errors later
+sudo systemctl stop apache2
 ```
 
 #### 3. Accessing the Application
